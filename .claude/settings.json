@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"Subject_Notes\\\\|Assignments\\\\|Subject_Attendance\" /Users/safiq/projects/school_management_system/backend --include=\"*.service.ts\" ! -path \"*/dist/*\")",
+      "Bash(xargs -I{} sh -c 'echo ==={}===; cat {}')",
+      "Bash(mkdir -p /Users/safiq/projects/school_management_system/frontend/src/app/teacher/courses/\\\\[id\\\\] /Users/safiq/projects/school_management_system/frontend/src/app/teacher/classes/\\\\[id\\\\])",
+      "Bash(grep -E \"\\\\.\\(ts\\)$\")",
+      "Bash(grep -E \"\\\\.\\(controller|service\\)\\\\.ts$\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json; print\\(json.load\\(open\\('/tmp/session.json'\\)\\)['access_token']\\)\")",
+      "Bash(curl -s -i http://localhost:3000/classes/subjects/8696e13f-829c-4351-a3d1-002c2ebc44ac/students -H 'Authorization: Bearer __CMDSUB_OUTPUT__')",
+      "Bash(npx eslint *)"
+    ],
+    "additionalDirectories": [
+      "/Users/safiq/projects/school_management_system/frontend/src/app/teacher/courses"
+    ]
+  }
+}
