@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -325,12 +326,24 @@ export function Sidebar() {
           collapsed ? "px-2 py-4 md:flex-col md:gap-2" : "gap-3 px-4 py-5"
         )}
       >
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-          <GraduationCap className="h-4 w-4 text-primary-foreground" />
-        </div>
-        {!collapsed && (
-          <div className="overflow-hidden">
-            <p className="text-sm font-semibold text-sidebar-foreground leading-tight truncate">EduControl</p>
+        {collapsed ? (
+          <Image
+            src="/erduio-mark.png"
+            alt="Erduio"
+            width={86}
+            height={118}
+            className="flex-shrink-0 h-8 w-auto"
+          />
+        ) : (
+          <div className="overflow-hidden flex flex-col gap-1">
+            <Image
+              src="/erduio-wordmark.png"
+              alt="Erduio"
+              width={299}
+              height={137}
+              className="h-7 w-auto"
+              priority
+            />
             <p className="text-xs text-muted-foreground truncate">{roleLabels[role]} Portal</p>
           </div>
         )}

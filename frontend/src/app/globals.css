@@ -128,3 +128,24 @@
     @apply font-sans;
   }
 }
+
+@layer components {
+  .legal-content h2 {
+    @apply text-lg font-semibold text-foreground mt-8 mb-3 first:mt-0;
+  }
+  .legal-content p {
+    @apply text-sm text-muted-foreground leading-relaxed mb-4;
+  }
+  .legal-content ul {
+    @apply list-disc pl-5 space-y-2 mb-4 text-sm text-muted-foreground;
+  }
+  .legal-content li {
+    @apply leading-relaxed;
+  }
+  .legal-content strong {
+    @apply text-foreground font-semibold;
+  }
+  .legal-content a {
+    @apply text-primary hover:underline;
+  }
+}

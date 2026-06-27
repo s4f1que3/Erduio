@@ -9,7 +9,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "EduControl — School Management",
+  title: "Erduio — School Management",
   description: "Multi-portal school management system",
 };
 

@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { GraduationCap, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Footer } from "@/components/layout/footer";
 import { passwordSchema } from "@/lib/password";
 import { PasswordRequirements } from "@/components/ui/password-requirements";
 
@@ -79,148 +81,155 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-background flex">
       <div className="hidden lg:flex lg:flex-1 bg-primary flex-col items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary opacity-90" />
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
+        />
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-orange-400/25 blur-3xl" />
+        <div className="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative z-10 text-center text-primary-foreground max-w-sm">
-          <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-6">
-            <GraduationCap className="h-9 w-9 text-primary-foreground" />
-          </div>
-          <h1 className="text-3xl font-bold mb-3">Erduio</h1>
+          <h1 className="text-3xl font-bold mb-3">Welcome to Erduio</h1>
           <p className="text-primary-foreground/70 text-base leading-relaxed">
             Reset your password to get back into your school&apos;s portal.
           </p>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
+      <div className="flex-1 flex flex-col relative bg-gradient-to-br from-background to-muted/40 p-8">
         <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-primary-foreground" />
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <Image
+            src="/erduio-wordmark.png"
+            alt="Erduio"
+            width={299}
+            height={137}
+            className="h-14 w-auto mb-8"
+            priority
+          />
+          <div className="w-full max-w-sm bg-card border border-border rounded-2xl shadow-lg p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-foreground">
+                {step === "request" ? "Forgot password" : "Enter your code"}
+              </h2>
+              <p className="text-muted-foreground text-sm mt-1">
+                {step === "request"
+                  ? "Enter your email to receive a reset code."
+                  : `We sent a code to ${identity?.email}.`}
+              </p>
             </div>
-            <span className="font-semibold text-lg">EduControl</span>
-          </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-foreground">
-              {step === "request" ? "Forgot password" : "Enter your code"}
-            </h2>
-            <p className="text-muted-foreground text-sm mt-1">
-              {step === "request"
-                ? "Enter your email to receive a reset code."
-                : `We sent a code to ${identity?.email}.`}
-            </p>
-          </div>
-
-          {step === "request" ? (
-            <form onSubmit={requestForm.handleSubmit(onRequestSubmit)} className="space-y-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@school.edu"
-                  autoComplete="email"
-                  {...requestForm.register("email")}
-                  className={requestForm.formState.errors.email ? "border-destructive" : ""}
-                />
-                {requestForm.formState.errors.email && (
-                  <p className="text-xs text-destructive">{requestForm.formState.errors.email.message}</p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Sending code...
-                  </>
-                ) : (
-                  "Send reset code"
-                )}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={resetForm.handleSubmit(onResetSubmit)} className="space-y-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="token">Reset code</Label>
-                <Input
-                  id="token"
-                  placeholder="123456"
-                  autoComplete="one-time-code"
-                  {...resetForm.register("token")}
-                  className={resetForm.formState.errors.token ? "border-destructive" : ""}
-                />
-                {resetForm.formState.errors.token && (
-                  <p className="text-xs text-destructive">{resetForm.formState.errors.token.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="new_password">New password</Label>
-                <div className="relative">
+            {step === "request" ? (
+              <form onSubmit={requestForm.handleSubmit(onRequestSubmit)} className="space-y-5">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="new_password"
+                    id="email"
+                    type="email"
+                    placeholder="you@school.edu"
+                    autoComplete="email"
+                    {...requestForm.register("email")}
+                    className={requestForm.formState.errors.email ? "border-destructive" : ""}
+                  />
+                  {requestForm.formState.errors.email && (
+                    <p className="text-xs text-destructive">{requestForm.formState.errors.email.message}</p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending code...
+                    </>
+                  ) : (
+                    "Send reset code"
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={resetForm.handleSubmit(onResetSubmit)} className="space-y-5">
+                <div className="space-y-1.5">
+                  <Label htmlFor="token">Reset code</Label>
+                  <Input
+                    id="token"
+                    placeholder="123456"
+                    autoComplete="one-time-code"
+                    {...resetForm.register("token")}
+                    className={resetForm.formState.errors.token ? "border-destructive" : ""}
+                  />
+                  {resetForm.formState.errors.token && (
+                    <p className="text-xs text-destructive">{resetForm.formState.errors.token.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="new_password">New password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new_password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      {...resetForm.register("new_password")}
+                      className={resetForm.formState.errors.new_password ? "border-destructive pr-10" : "pr-10"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {resetForm.formState.errors.new_password && (
+                    <p className="text-xs text-destructive">{resetForm.formState.errors.new_password.message}</p>
+                  )}
+                  <PasswordRequirements password={newPassword} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirm_password">Confirm password</Label>
+                  <Input
+                    id="confirm_password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     autoComplete="new-password"
-                    {...resetForm.register("new_password")}
-                    className={resetForm.formState.errors.new_password ? "border-destructive pr-10" : "pr-10"}
+                    {...resetForm.register("confirm_password")}
+                    className={resetForm.formState.errors.confirm_password ? "border-destructive" : ""}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+                  {resetForm.formState.errors.confirm_password && (
+                    <p className="text-xs text-destructive">{resetForm.formState.errors.confirm_password.message}</p>
+                  )}
                 </div>
-                {resetForm.formState.errors.new_password && (
-                  <p className="text-xs text-destructive">{resetForm.formState.errors.new_password.message}</p>
-                )}
-                <PasswordRequirements password={newPassword} />
-              </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="confirm_password">Confirm password</Label>
-                <Input
-                  id="confirm_password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  {...resetForm.register("confirm_password")}
-                  className={resetForm.formState.errors.confirm_password ? "border-destructive" : ""}
-                />
-                {resetForm.formState.errors.confirm_password && (
-                  <p className="text-xs text-destructive">{resetForm.formState.errors.confirm_password.message}</p>
-                )}
-              </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Resetting...
+                    </>
+                  ) : (
+                    "Reset password"
+                  )}
+                </Button>
 
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Resetting...
-                  </>
-                ) : (
-                  "Reset password"
-                )}
-              </Button>
+                <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("request")}>
+                  <ArrowLeft className="h-4 w-4 mr-1.5" />Back
+                </Button>
+              </form>
+            )}
 
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("request")}>
-                <ArrowLeft className="h-4 w-4 mr-1.5" />Back
-              </Button>
-            </form>
-          )}
-
-          <p className="text-xs text-muted-foreground text-center mt-6">
-            Remembered your password?{" "}
-            <button type="button" onClick={() => router.push("/login")} className="text-primary hover:underline">
-              Sign in
-            </button>
-          </p>
+            <p className="text-xs text-muted-foreground text-center mt-6">
+              Remembered your password?{" "}
+              <button type="button" onClick={() => router.push("/login")} className="text-primary hover:underline">
+                Sign in
+              </button>
+            </p>
+          </div>
         </div>
+        <Footer />
       </div>
     </div>
   );
