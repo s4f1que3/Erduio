@@ -1,15 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
-import { IsString, IsDate, IsOptional } from "class-validator";
+import { IsString, IsDate, IsOptional, MaxLength } from "class-validator";
 
 @Injectable()
 export class assignmentDTO {
 
     @IsString()
+    @MaxLength(100)
     @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
     name!: string
 
     @IsString()
+    @MaxLength(3000)
     @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
     description!: string
 
@@ -39,11 +41,13 @@ export class assignmentDTO {
 
     @IsString()
     @IsOptional()
+    @MaxLength(100)
     @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
     message?: string
 
     @IsString()
     @IsOptional()
+    @MaxLength(100)
     @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
     optional_message?: string
 }

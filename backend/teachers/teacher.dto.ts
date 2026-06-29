@@ -1,97 +1,105 @@
-import { IsString, IsEmail, IsOptional, MaxLength } from "class-validator";
+import { IsEmail, IsOptional, IsString, MaxLength } from "class-validator";
 import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
 
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
+
 @Injectable()
-export class teacherDTO {
+export class CreateTeacherDTO {
 
     @IsEmail()
-    @MaxLength(48)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(75)
+    @Transform(sanitize)
     email!: string
 
     @IsString()
-    @MaxLength(35)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    name!: string
-
-    @IsString()
-    @MaxLength(13)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    phone!: string
-
-    //// auth
-
-    @IsString()
-    @MaxLength(20)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(70)
     password!: string
 
     @IsString()
-    @MaxLength(6)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    token!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    school_id!: string
-
-}
-
-@Injectable()
-export class updateTeacherDTO {
-
-    @IsEmail()
-    @MaxLength(48)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    new_email!: string
-
-    @IsString()
-    @MaxLength(35)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    new_name!: string
-
-    @IsString()
-    @MaxLength(13)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    new_phone!: string
-
-    //// auth
+    @MaxLength(60)
+    @Transform(sanitize)
+    name!: string
 
     @IsString()
     @MaxLength(20)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    new_password!: string
-
-    @IsString()
-    @MaxLength(6)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    token!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    school_id!: string
-
+    @Transform(sanitize)
+    phone!: string
 }
 
 @Injectable()
-export class optionalTeacherDTO {
+export class AdminUpdateTeacherInfoDTO {
 
     @IsString()
     @IsOptional()
-    @MaxLength(35)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(60)
+    @Transform(sanitize)
     name?: string
 
     @IsString()
     @IsOptional()
-    @MaxLength(13)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     phone?: string
+}
+
+@Injectable()
+export class AdminUpdateTeacherPasswordDTO {
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    school_id!: string
+    @MaxLength(70)
+    new_password!: string
+}
 
+@Injectable()
+export class AdminUpdateTeacherEmailDTO {
 
+    @IsEmail()
+    @MaxLength(75)
+    @Transform(sanitize)
+    new_email!: string
+}
+
+///// TEACHER PERSONAL
+
+@Injectable()
+export class UpdateTeacherEmailPersonalDTO {
+
+    @IsEmail()
+    @MaxLength(75)
+    @Transform(sanitize)
+    new_email!: string
+
+    @IsString()
+    @MaxLength(6)
+    @Transform(sanitize)
+    token!: string
+}
+
+@Injectable()
+export class UpdateTeacherPasswordPersonalDTO {
+
+    @IsString()
+    @MaxLength(70)
+    current_password!: string
+
+    @IsString()
+    @MaxLength(70)
+    new_password!: string
+}
+
+@Injectable()
+export class UpdateTeacherInfoPersonalDTO {
+
+    @IsString()
+    @IsOptional()
+    @MaxLength(60)
+    @Transform(sanitize)
+    new_name?: string
+
+    @IsString()
+    @IsOptional()
+    @MaxLength(20)
+    @Transform(sanitize)
+    new_phone?: string
 }

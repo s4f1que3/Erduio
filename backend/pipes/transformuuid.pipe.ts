@@ -1,5 +1,5 @@
 import { supabaseService } from "supabase_service/supabase.service";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InternalServerErrorException } from "@nestjs/common";
 
 @Injectable()
@@ -50,7 +50,7 @@ export class uuidSwapService {
             if (data?.user_id) return data.user_id
         }
 
-        throw new InternalServerErrorException ('user not found in any role table')
+        throw new NotFoundException('No auth id found for user - swap service')
     }
 
     async getUserDataByEmail (email: string) {

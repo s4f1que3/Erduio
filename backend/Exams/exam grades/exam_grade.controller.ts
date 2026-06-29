@@ -9,9 +9,9 @@ import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interc
 import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
 import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
 import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
-import { ParentLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { ParentTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ParentAnnouncementMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
 
 @Controller('exam')
 export class examGradesController {
@@ -24,12 +24,12 @@ export class examGradesController {
     @UseGuards(AST_Subject_Exam_Guard())
     @UseInterceptors(PersonalLogger)
     @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentAnnouncementLogger)
     @PersonalLogMessage('You graded a students exam')
     @SPATitle('Exam Graded!')
     @SPAMessage('Your teacher just graded your exam!')
-    @ParentTitle("Exam Graded!")
-    @ParentMessage("Your child just recieved a grade for an exam. To view it, click 'my child' then exams.")
+    @ParentAnnouncementTitle("Exam Graded!")
+    @ParentAnnouncementMessage("Your child just recieved a grade for an exam. To view it, click 'my child' then exams.")
 
     async addGrade (@Param('exam_id') exam_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}, @Body() dto: examGradeDTO) {
         const school_id = req.user.app_metadata.school_id
@@ -41,12 +41,12 @@ export class examGradesController {
     @UseGuards(AST_Subject_Exam_Guard())
     @UseInterceptors(PersonalLogger)
     @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentAnnouncementLogger)
     @PersonalLogMessage('You updated a students grade for an exam')
     @SPATitle('Exam Grad Updated!')
     @SPAMessage('Your teacher just updated your grade for an exam!')
-    @ParentTitle("Exam Grade Updated!")
-    @ParentMessage("Your child's exam grade was just updated. To view it, click 'my child' then exams. Please contact the teacher/school for any questions about this grade change.")
+    @ParentAnnouncementTitle("Exam Grade Updated!")
+    @ParentAnnouncementMessage("Your child's exam grade was just updated. To view it, click 'my child' then exams. Please contact the teacher/school for any questions about this grade change.")
 
     async updateGrade (@Param('grade_id') grade_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}, @Body() dto: examGradeDTO) {
         const school_id = req.user.app_metadata.school_id
@@ -57,12 +57,12 @@ export class examGradesController {
     @UseGuards(AST_Subject_Exam_Guard())
     @UseInterceptors(PersonalLogger)
     @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentAnnouncementLogger)
     @PersonalLogMessage('You deleted a students exam grade')
     @SPATitle('Exam Grade Deleted!')
     @SPAMessage('Your teacher just deleted your grade for an exam!')
-    @ParentTitle("Exam Grade Deleted!")
-    @ParentMessage("Your child's exam grade was just deleted. Please contact the teacher/school for any questions about this grade deletion.")
+    @ParentAnnouncementTitle("Exam Grade Deleted!")
+    @ParentAnnouncementMessage("Your child's exam grade was just deleted. Please contact the teacher/school for any questions about this grade deletion.")
 
     async deleteGrade (@Param('grade_id') grade_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}, @Body() dto: examGradeDTO) {
         const school_id = req.user.app_metadata.school_id

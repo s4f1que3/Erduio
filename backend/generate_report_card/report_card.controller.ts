@@ -10,12 +10,12 @@ import { PersonalLogger } from "Interceptors/personal logger interceptor interce
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
 import { ASTGuard } from "Extra Guards/AST.guard";
-import { ParentLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
 import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
 import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
 import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
-import { ParentTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ParentAnnouncementMessage} from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
 import { ReportCardGenerationLimiter } from "rate-limit/report-card-generation.limiter";
 
 //// this whole folder was ai generated because i was tired at this point in time.
@@ -64,13 +64,13 @@ export class ReportCardController {
 
     @Post('send/student/:student_id/term/:term')
     @UseGuards(AsGuard)
-    @UseInterceptors(StudentPersonalAnnouncementLogger, ParentLogger, AdminLogger)
+    @UseInterceptors(StudentPersonalAnnouncementLogger, ParentAnnouncementLogger, AdminLogger)
     @AdminLogMessage('just uploaded a students report card for this term.')
     @PersonalLogMessage('You uploaded a students report card for this term.')
     @SPATitle('Report Card Uploaded!')
     @SPAMessage('Your teacher just uploaded your report card for this term.!')
-    @ParentTitle("Report Card Uploaded!")
-    @ParentMessage("Your child's report card for this term was just uploaded. To view it, click 'my child' then report cards.")
+    @ParentAnnouncementTitle("Report Card Uploaded!")
+    @ParentAnnouncementMessage("Your child's report card for this term was just uploaded. To view it, click 'my child' then report cards.")
     async sendReportCard(@Req() req: Request & { user: any }, @Param('student_id') student_id: string, @Param('term') term: string) {
         const school_id = req.user.app_metadata.school_id
         const user_id = await this.swap.swapUUID(school_id, req.user.id)

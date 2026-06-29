@@ -25,9 +25,9 @@ import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
 import { SATitle } from "Interceptors/subject announcement logger interceptor/SATitle";
 import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
 import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
-import { ParentLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { ParentMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
-import { ParentTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { ParentAnnouncementMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
 import { TeacherAssignmentGuard } from "./teacher-assignment.guard";
 import { SAMessage } from "Interceptors/subject announcement logger interceptor/SAMessage";
 
@@ -164,9 +164,9 @@ export class assignmentsController {
     @UseInterceptors(StudentPersonalAnnouncementLogger)
     @SPATitle('Assignment Graded!')
     @SPAMessage('Your teacher just graded an assignment for you')
-    @UseInterceptors(ParentLogger)
-    @ParentTitle("Your child's assignment grade")
-    @ParentMessage("You child's assignment grade was just uploaded. Click 'my child' then assignments to see the grade")
+    @UseInterceptors(ParentAnnouncementLogger)
+    @ParentAnnouncementTitle("Your child's assignment grade")
+    @ParentAnnouncementMessage("You child's assignment grade was just uploaded. Click 'my child' then assignments to see the grade")
     async addStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
         const school_id = req.user.app_metadata.school_id
         return this.assignments.addStudentGradeForAssignment(school_id, student_id, assignment_id, dto.grade, dto.message)
@@ -180,9 +180,9 @@ export class assignmentsController {
     @UseInterceptors(StudentPersonalAnnouncementLogger)
     @SPATitle('Assignment Grade Deleted!')
     @SPAMessage('Your teacher just deleted an assignment grade for you')
-    @UseInterceptors(ParentLogger)
-    @ParentTitle("Your child's assignment grade")
-    @ParentMessage("You child's assignment grade was just deleted. Contact the teacher for any inquires.")
+    @UseInterceptors(ParentAnnouncementLogger)
+    @ParentAnnouncementTitle("Your child's assignment grade")
+    @ParentAnnouncementMessage("You child's assignment grade was just deleted. Contact the teacher for any inquires.")
     async deleteStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
         const school_id = req.user.app_metadata.school_id
         return this.assignments.deleteStudentGradeForAssignment(school_id, student_id, assignment_id)
@@ -196,9 +196,9 @@ export class assignmentsController {
     @UseInterceptors(StudentPersonalAnnouncementLogger)
     @SPATitle('Assignment Grade Changed!')
     @SPAMessage('Your teacher just changed an assignment grade for you')
-    @UseInterceptors(ParentLogger)
-    @ParentTitle("Your child's assignment grade")
-    @ParentMessage("You child's assignment grade was just changed. Contact the teacher for any inquires.")
+    @UseInterceptors(ParentAnnouncementLogger)
+    @ParentAnnouncementTitle("Your child's assignment grade")
+    @ParentAnnouncementMessage("You child's assignment grade was just changed. Contact the teacher for any inquires.")
     async changeStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
         const school_id = req.user.app_metadata.school_id
         return this.assignments.changeStudentGradeForAssignment(school_id, student_id, assignment_id, dto.grade, dto.message)

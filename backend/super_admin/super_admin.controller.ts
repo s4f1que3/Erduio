@@ -2,7 +2,7 @@ import { Controller, Req, Patch, Get, Body, Param, UseGuards, Post, UseIntercept
 import { superAdminService } from "./super_admin.service"
 import { FileFieldsInterceptor, FileInterceptor } from "@nestjs/platform-express"
 import { Super_AdminGuard } from "super_admin/super_admin.guard"
-import { superDto } from "./super_admin.dto"
+import { UpdateSuperAdminInfoPersonalDTO, UpdateSuperAdminEmailPersonalDTO, UpdateSuperAdminPasswordPersonalDTO } from "./super_admin.dto"
 import { uuidSwapService } from "pipes/transformuuid.pipe"
 import { GlobalGuard } from "Extra Guards/global.guard"
 
@@ -16,17 +16,17 @@ import { GlobalGuard } from "Extra Guards/global.guard"
     ///// PERSONAL SUPER ADMIN
     @Patch('super/update-info/')
     @UseGuards(Super_AdminGuard)
-    async updateSuperAdminInfo(@Req() req: Request & {user: any, school_id: string}, @Body() dto: superDto) {
+    async updateSuperAdminInfo(@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateSuperAdminInfoPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
 
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
 
-        return this.superAdmin.changeSuperAdminInfo(school_id, user_id, dto.phone, dto.name)
+        return this.superAdmin.changeSuperAdminInfo(school_id, user_id, dto.new_phone, dto.new_name)
     }
     
     @Patch('super/update-email')
     @UseGuards(Super_AdminGuard)
-    async updateSuperAdminEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {new_email: string, token: string}) {
+    async updateSuperAdminEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateSuperAdminEmailPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
 
         return await this.superAdmin.changeSuperAdminEmail(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
@@ -34,7 +34,7 @@ import { GlobalGuard } from "Extra Guards/global.guard"
 
     @Patch('super/update-password')
     @UseGuards(Super_AdminGuard)
-    async updateSuperAdminPassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {current_password: string, new_password: string}) {
+    async updateSuperAdminPassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateSuperAdminPasswordPersonalDTO) {
         return await this.superAdmin.changeSuperAdminPassword(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 

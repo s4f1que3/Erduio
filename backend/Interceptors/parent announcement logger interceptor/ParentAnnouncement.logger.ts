@@ -6,7 +6,7 @@ import { Observable } from "rxjs";
 import { supabaseService } from "supabase_service/supabase.service";
 
 @Injectable()
-export class ParentLogger implements NestInterceptor {
+export class ParentAnnouncementLogger implements NestInterceptor {
     constructor (
         private readonly supabase: supabaseService,
         private readonly personal: announcementsPersonalService,
@@ -24,8 +24,8 @@ export class ParentLogger implements NestInterceptor {
 
         req.user = data.user
         const school_id = data.user.app_metadata.school_id
-        const message = this.reflector.get<string>('ParentMessage', context.getHandler())
-        const title = this.reflector.get<string>('ParentTitle', context.getHandler())
+        const message = this.reflector.get<string>('ParentAnnouncementMessage', context.getHandler())
+        const title = this.reflector.get<string>('ParentAnnouncementTitle', context.getHandler())
         const student_id = req.params.student_id
 
         const {data: pdata, error: perror} = await this.supabase.db

@@ -4,11 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { INestApplication } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { AllExceptionsFilter } from 'Filters/all-exceptions.filter';
 
 
 async function bootstrap() {
 
   const app: INestApplication = await NestFactory.create(AppModule);
+
+    app.useGlobalFilters(new AllExceptionsFilter())
 
     const corsOptions: CorsOptions = {
       origin: ['http://localhost:3001'],
@@ -21,7 +24,10 @@ async function bootstrap() {
 
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true, 
-      forbidNonWhitelisted: true, 
+      enableDebugMessages: true,
+      skipNullProperties: true,
+      skipUndefinedProperties: false,
+      forbidNonWhitelisted: false, 
       transform: true, 
       disableErrorMessages: true,
       validationError: {target: false, value: false},

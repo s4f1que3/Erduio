@@ -1,8 +1,19 @@
 import { Controller, Get, Post, Patch, UseGuards, Req, Body, Param, Delete, UseInterceptors, UploadedFiles, UploadedFile } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { studentService } from "./students.service";
-import { regStudentDTO, studentDTO } from "./students.dto";
-import { AdminGuard } from "admin/admin.guard";
+import {
+    CreateStudentWithNewParentDTO,
+    CreateStudentWithExistingParentDTO,
+    UpdateStudentEnrollmentStatusDTO,
+    AdminUpdateStudentInfoDTO,
+    AdminUpdateStudentEmailDTO,
+    AdminUpdateStudentPasswordDTO,
+    UpdateStudentClassDTO,
+    UpdateStudentSubjectsDTO,
+    UpdateStudentEmailPersonalDTO,
+    UpdateStudentPasswordPersonalDTO,
+    UpdateStudentPhoneDTO,
+} from "./students.dto";
 import { StudentGuard } from "students/student.guard";
 import { LoggingService } from "logging services/logging.service";
 import { Request } from "express";
@@ -33,22 +44,22 @@ export class StudentController {
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage('created a new student and their parent')
     @PersonalLogMessage('You created a new student and their parent')
-    async createStudentWitNewParent (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: studentDTO, @Body() body: {subject_ids: string[]}) {
+    async createStudentWitNewParent (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: CreateStudentWithNewParentDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.createStudentWithNewParent(dto.parent_name, dto.parent_phone, dto.student_password, dto.subjects, dto.student_name, dto.classID, school_id, dto.is_creating, dto.student_phone, dto.student_email, dto.parent_email, dto.parent_password)
     }
-    
+
     @Post('admin/create/add')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage('created a new student')
     @PersonalLogMessage('You created a new student')
-    async createStudentWitExistingParent(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: studentDTO, @Body () rdto: regStudentDTO) {
+    async createStudentWitExistingParent(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: CreateStudentWithExistingParentDTO) {
         const school_id = req.user.app_metadata.school_id
-        return await this.student.createStudentWithExstingParent(rdto.student_email, dto.student_password, dto.student_name, school_id, dto.classID, dto.parent_id, dto.subjects, dto.student_phone)
+        return await this.student.createStudentWithExstingParent(dto.student_email, dto.student_password, dto.student_name, school_id, dto.classID, dto.parent_id, dto.subjects, dto.student_phone)
     }
-    
+
     @Patch('admin/enrollment-status/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -57,12 +68,12 @@ export class StudentController {
     @AdminLogMessage('changed the enrollment status of a student')
     @PersonalLogMessage('You changed the enrollment status of a student')
     @StudentLogMessage('Admin changed your enrollment status')
-    async changeEnrollmentStatus(@Body() dto: regStudentDTO, @Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
+    async changeEnrollmentStatus(@Body() dto: UpdateStudentEnrollmentStatusDTO, @Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.changeStudentEnrollmentStatus(school_id, id, dto.status)
     }
-    
-    
+
+
     @Patch('admin/update-email/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -71,11 +82,11 @@ export class StudentController {
     @AdminLogMessage("updated a student's email")
     @PersonalLogMessage("You updated a student's email")
     @StudentLogMessage('Admin updated your email')
-    async updateStudentEmail (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: regStudentDTO, @Param('id') id: string) {
+    async updateStudentEmail (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: AdminUpdateStudentEmailDTO, @Param('id') id: string) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.changeStudentEmail(school_id, id, dto.email)
     }
-    
+
     @Patch('admin/update-password/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -84,11 +95,11 @@ export class StudentController {
     @AdminLogMessage("updated a student's password")
     @PersonalLogMessage("You updated a student's password")
     @StudentLogMessage('Admin updated your password')
-    async updateStudentPassword (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: regStudentDTO, @Param('id') id: string) {
+    async updateStudentPassword (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: AdminUpdateStudentPasswordDTO, @Param('id') id: string) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.changeStudentPassowrd(school_id, id, dto.password)
     }
-    
+
     @Patch('admin/update-info/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -97,11 +108,11 @@ export class StudentController {
     @AdminLogMessage("updated a student's info")
     @PersonalLogMessage("You updated a student's info")
     @StudentLogMessage('Admin updated your info')
-    async UpdateStudentInfo (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: regStudentDTO) {
+    async UpdateStudentInfo (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: AdminUpdateStudentInfoDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.changeStudentInfo(school_id, id, dto.name, dto.phone)
     }
-    
+
     @Patch('admin/change-class/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -110,7 +121,7 @@ export class StudentController {
     @AdminLogMessage("changed a student's class")
     @PersonalLogMessage("You changed a student's class")
     @StudentLogMessage('Admin changed your class')
-    async changeStudentClass(@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: {class_id: string, subjects: string[]}) {
+    async changeStudentClass(@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: UpdateStudentClassDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.changeStudentClass(school_id, id, dto.class_id, dto.subjects)
     }
@@ -123,11 +134,11 @@ export class StudentController {
     @AdminLogMessage("changed a student's subjects")
     @PersonalLogMessage("You changed a student's subjects")
     @StudentLogMessage('Admin changed your subjects')
-    async UpdateStudentSubjects(@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: studentDTO) {
+    async UpdateStudentSubjects(@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: UpdateStudentSubjectsDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.addStudentSubjects(school_id, id, dto.subjects)
     }
-    
+
     @Delete('student/delete-subjects/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -136,18 +147,18 @@ export class StudentController {
     @AdminLogMessage("changed a student's subjects")
     @PersonalLogMessage("You deleted a student's subjects")
     @StudentLogMessage('Admin deleted your subjects')
-    async DeleteStudentSubjects(@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: studentDTO) {
+    async DeleteStudentSubjects(@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: UpdateStudentSubjectsDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.deleteStudentSubjects(school_id, id, dto.subjects)
     }
-    
+
     @Patch('admin/delete/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage('deleted a student')
     @PersonalLogMessage('You deleted a student')
-    async deleteStudent (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: studentDTO) {
+    async deleteStudent (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         return await this.student.deleteStudent(school_id, id)
     }
@@ -212,7 +223,7 @@ export class StudentController {
     @UseGuards(StudentGuard)
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You changed your email')
-    async updateEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {new_email: string, token: string}) {
+    async updateEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateStudentEmailPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         return this.student.updateEmail(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
     }
@@ -221,7 +232,7 @@ export class StudentController {
     @UseGuards(StudentGuard)
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You changed your password')
-    async updatePassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {current_password: string, new_password: string}) {
+    async updatePassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateStudentPasswordPersonalDTO) {
         return this.student.updatePassowrd(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 
@@ -229,7 +240,7 @@ export class StudentController {
     @UseGuards(StudentGuard)
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You changed your phone')
-    async updatePhone (@Req() req: Request & {user: any, school_id: string}, @Body() dto: studentDTO) {
+    async updatePhone (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateStudentPhoneDTO) {
         const school_id = req.user.app_metadata.school_id
 
         const user_id = await this.swap.swapUUID(school_id, req.user.id)

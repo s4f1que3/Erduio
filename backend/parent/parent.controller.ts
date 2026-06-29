@@ -3,7 +3,15 @@ import { Request } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { parentService } from "./parent.service";
 import { ParentGuard } from "parent/parent.guard";
-import { updateParentDTO, optionalParentDTO, parentDTO } from "./parent.dto";
+import {
+    CreateParentLoginDTO,
+    AdminUpdateParentInfoDTO,
+    AdminUpdateParentPasswordDTO,
+    AdminUpdateParentEmailDTO,
+    UpdateParentEmailPersonalDTO,
+    UpdateParentPasswordPersonalDTO,
+    UpdateParentInfoPersonalDTO,
+} from "./parent.dto";
 import { LoggingService } from "logging services/logging.service";
 import { AsGuard } from "Extra Guards/AS.guard";
 import { ASTGuard } from "Extra Guards/AST.guard";
@@ -13,8 +21,9 @@ import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.
 import { PersonalLogger } from "Interceptors/personal logger interceptor interceptor/personal.logger.interceptor";
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
-import { ParentLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { ParentLogMessage } from "Interceptors/parent logger interceptor interceptor/ParentMessage";
+import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { ParentPersonalMessage } from "Interceptors/parent logger interceptor interceptor/ParentMessage";
+import { ParentPersonalLogger } from "Interceptors/parent logger interceptor interceptor/parent.logger.interceptor";
 
 @Controller('parent')
 export class ParentController {
@@ -33,20 +42,20 @@ export class ParentController {
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage('created a new parent login')
     @PersonalLogMessage('You created a new parent login')
-    async CreateParentLogin(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: parentDTO) {
+    async CreateParentLogin(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: CreateParentLoginDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.parent.createParentLogin(school_id, dto.email, dto.password)
     }
 
-    @Patch('admin/update-info/:id') 
+    @Patch('admin/update-info/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentPersonalLogger)
     @AdminLogMessage("updated a parent's info")
     @PersonalLogMessage("You updated a parent's info")
-    @ParentLogMessage('admin updated your info')
-    async updateParentInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: optionalParentDTO) {
+    @ParentPersonalMessage('Admin updated your info')
+    async updateParentInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentInfoDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.parent.changeParentInfo(school_id, id, dto.name, dto.phone)
     }
@@ -55,11 +64,11 @@ export class ParentController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentPersonalLogger)
     @AdminLogMessage("changed a parent's password")
     @PersonalLogMessage("You changed a parent's password")
-    @ParentLogMessage('admin updated your password')
-    async updateParentPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: updateParentDTO) {
+    @ParentPersonalMessage('Admin updated your password')
+    async updateParentPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentPasswordDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.parent.changeParentPassword(school_id, id, dto.new_password)
     }
@@ -68,11 +77,11 @@ export class ParentController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentPersonalLogger)
     @AdminLogMessage("changed a parent's email")
     @PersonalLogMessage("You changed a parent's email")
-    @ParentLogMessage('admin updated your email')
-    async updateParentEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: updateParentDTO) {
+    @ParentPersonalMessage('Admin updated your email')
+    async updateParentEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentEmailDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.parent.changeParentEmail(school_id, id, dto.new_email)
     }
@@ -83,7 +92,7 @@ export class ParentController {
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage("deleted a parent")
     @PersonalLogMessage("You deleted a parent")
-    async deleteParent (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: parentDTO) {
+    async deleteParent (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         return await this.parent.deleteParent(school_id, id)
     }
@@ -108,8 +117,8 @@ export class ParentController {
 
     @Post('admin/:user_id/profile-pic/delete')
     @UseGuards(AsGuard)
-    @UseInterceptors(ParentLogger)
-    @ParentLogMessage('admin deleted your profile picture')
+    @UseInterceptors(ParentPersonalLogger)
+    @ParentPersonalMessage('Admin deleted your profile picture')
     async SuperAdmindeleteProfilePic (@Param('user_id') user_id: string, @Req() req: Request & {user: any, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         return this.parent.deleteProfilePicture(school_id, user_id)
@@ -143,7 +152,7 @@ export class ParentController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You changed your email")
     @UseGuards(ParentGuard)
-    async changeEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {new_email: string, token: string}) {
+    async changeEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateParentEmailPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.parent.changeEmail(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
     }
@@ -152,7 +161,7 @@ export class ParentController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You changed your password")
     @UseGuards(ParentGuard)
-    async changePassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {current_password: string, new_password: string}) {
+    async changePassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateParentPasswordPersonalDTO) {
         return await this.parent.changePassword(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 
@@ -160,7 +169,7 @@ export class ParentController {
     @UseGuards(ParentGuard)
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You changed your info")
-    async changeInfo (@Req() req: Request & {user: any, school_id: string}, @Body() dto: updateParentDTO) {
+    async changeInfo (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateParentInfoPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.parent.changeInfo(school_id, user_id, dto.new_name, dto.new_phone)
@@ -169,7 +178,7 @@ export class ParentController {
     @Post('profile-pic/add')
     @UseGuards(ParentGuard)
     @UseInterceptors(FileInterceptor('pfp'))
-    async addProfilePic (@Req() req: Request & {user: any, school_id: string}, @UploadedFile() pfp: any, @Body() dto: parentDTO) {
+    async addProfilePic (@Req() req: Request & {user: any, school_id: string}, @UploadedFile() pfp: any) {
         const school_id = req.user.app_metadata.school_id
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.parent.addProfilePicture(school_id, user_id, pfp)

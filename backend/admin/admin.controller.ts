@@ -1,12 +1,19 @@
 import { adminService } from "./admin.service";
-import { adminDTO, updatedAdminDTO } from "./admin.dto";
+import {
+    CreateAdminDTO,
+    AdminUpdateAdminInfoDTO,
+    AdminUpdateAdminPasswordDTO,
+    AdminUpdateAdminEmailDTO,
+    UpdateAdminEmailPersonalDTO,
+    UpdateAdminPasswordPersonalDTO,
+    UpdateAdminInfoPersonalDTO,
+} from "./admin.dto";
 import { Controller, Get, Post, Patch, Body, UseGuards, HttpCode, Req, Param, Delete, UseInterceptors, UploadedFile } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
 import { Super_AdminGuard } from "super_admin/super_admin.guard";
 import { LoggingService } from "logging services/logging.service";
 import { AsGuard } from "Extra Guards/AS.guard";
-import { Headers } from "@nestjs/common";
 import { uuidSwapService } from "pipes/transformuuid.pipe";
 import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
@@ -27,7 +34,7 @@ export class adminController {
     @Post('create-admin')
     @UseGuards(Super_AdminGuard)
     @AdminLogMessage('created an admin')
-    async createAdmin (@Body() dto: adminDTO, @Req() req: Request & {user: any, role: string, school_id: string}) {
+    async createAdmin (@Body() dto: CreateAdminDTO, @Req() req: Request & {user: any, role: string, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.createAdmin(school_id, dto.email, dto.password, dto.name, dto.phone)
     }
@@ -51,7 +58,7 @@ export class adminController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage('updated an admins info')
     @PersonalLogMessage('Admin updated your info')
-    async UpdateAdminInfo (@Param('id') id: string, @Req() req: Request & {user: any}, @Body() dto: updatedAdminDTO) {
+    async UpdateAdminInfo (@Param('id') id: string, @Req() req: Request & {user: any}, @Body() dto: AdminUpdateAdminInfoDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.changeAdminInfo(school_id, id, dto.new_name, dto.new_phone)
     }
@@ -61,7 +68,7 @@ export class adminController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage("updated an admin's password")
     @PersonalLogMessage('Admin changed your password')
-    async UpdateAdminPasswordInfo (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: updatedAdminDTO, @Param('id') id: string) {
+    async UpdateAdminPasswordInfo (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: AdminUpdateAdminPasswordDTO, @Param('id') id: string) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.changeAdminPassword(school_id, id, dto.new_password)
     }
@@ -71,7 +78,7 @@ export class adminController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage("changed an admin's email")
     @PersonalLogMessage('Admin changed your email')
-    async UpdateAdminLoginInfo (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: updatedAdminDTO, @Param('id') id: string) {
+    async UpdateAdminLoginInfo (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: AdminUpdateAdminEmailDTO, @Param('id') id: string) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.changeAdminEmail(school_id, id, dto.new_email)
     }
@@ -101,7 +108,7 @@ export class adminController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage("deleted an admin's profile picture")
     @PersonalLogMessage('Admin deleted your profile picture')
-    async DeleteAdminPFP (@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: updatedAdminDTO, @Param('id') id: string) {
+    async DeleteAdminPFP (@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.deleteProfilePicture(school_id, id)
     }
@@ -122,7 +129,7 @@ export class adminController {
     @HttpCode(200)
     @UseGuards(AdminGuard)
     @PersonalLogMessage('You changed your email')
-    async changeEmail(@Req() req: Request & {user: any, school_id: string}, @Body() dto: {new_email: string, token: string}) {
+    async changeEmail(@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateAdminEmailPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.changeAdminEmail_Personal(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
     }
@@ -131,7 +138,7 @@ export class adminController {
     @HttpCode(200)
     @UseGuards(AdminGuard)
     @PersonalLogMessage('You changed your password')
-    async changePassowrd (@Req() req: Request & {user: any, school_id: string}, @Body() dto: {current_password: string, new_password: string}) {
+    async changePassowrd (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateAdminPasswordPersonalDTO) {
         const email = req.user.email
         return await this.admin.changeAdminPassword_Personal(req.user.id, email, dto.current_password, dto.new_password)
     }
@@ -139,7 +146,7 @@ export class adminController {
     @Patch('update-info')
     @UseGuards(AdminGuard)
     @PersonalLogMessage('You updated your info')
-    async updateAdmin (@Req() req: Request & {user: any, school_id: string}, @Body() dto: updatedAdminDTO) {
+    async updateAdmin (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateAdminInfoPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.admin.changeAdminInfo_Personal(school_id, req.user.id, dto.new_name, dto.new_phone)
     }
@@ -147,7 +154,7 @@ export class adminController {
     @Post('profile-pic/add')
     @UseGuards(AdminGuard)
     @UseInterceptors(FileInterceptor('pfp'))
-    async addProfilePic (@Req() req: Request & {user: any, school_id: string}, @UploadedFile() pfp: any, @Body() dto: adminDTO) {
+    async addProfilePic (@Req() req: Request & {user: any, school_id: string}, @UploadedFile() pfp: any) {
         const school_id = req.user.app_metadata.school_id
         const id = await this.swap.swapUUID(school_id, req.user.id)
         return this.admin.addProfilePicture(school_id, id, pfp)
@@ -156,7 +163,7 @@ export class adminController {
     @Delete('profile-pic/delete')
     @UseGuards(AdminGuard)
     @PersonalLogMessage('You deleted your profile picture')
-    async deleteProfilePic (@Req() req: Request & {user: any, school_id: string}, @Body() dto: adminDTO) {
+    async deleteProfilePic (@Req() req: Request & {user: any, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.admin.deleteProfilePicture(school_id, user_id)

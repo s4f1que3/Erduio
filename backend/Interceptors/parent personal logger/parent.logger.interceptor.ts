@@ -6,7 +6,7 @@ import { Observable } from "rxjs";
 import { supabaseService } from "supabase_service/supabase.service";
 
 @Injectable()
-export class ParentPersonalLogger implements NestInterceptor {
+export class ParentAnnouncementLogger implements NestInterceptor {
     constructor (
         private readonly logging: LoggingService,
         private readonly supabase: supabaseService,
@@ -18,16 +18,18 @@ export class ParentPersonalLogger implements NestInterceptor {
         const token = req.headers.authorization?.split(' ')[1]
         if(!token) throw new UnauthorizedException()
 
-        const message = this.reflector.get<string>('ParentPersonalMessage', context.getHandler())
+        const message = this.reflector.get<string>('ParentLogMessage', context.getHandler())
         
         const {data, error} = await this.supabase.db.auth.getUser(token)
         if(error) throw new InternalServerErrorException(error.message)
         if(!data.user) throw new UnauthorizedException()
 
         req.user = data.user
-        const school_id = data.user.app_metadata.school_id
-        const parent_id = req.params.id
+        const school_id = data.user.app_metadata.school_id ?? req.headers.school_id
+        const parent_id = req.params.id ?? req.params.parent_id
+
         const auth_id = await this.swap.swapUUIDFromIdToAuth(school_id, parent_id)
+
         await this.logging.insertPersonalLog(school_id, auth_id, message)
 
         return next.handle()

@@ -1,67 +1,47 @@
 import { Injectable } from "@nestjs/common";
-import { IsOptional, IsString } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsEmail, IsOptional, IsString, MaxLength } from "class-validator";
+
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
 @Injectable()
-export class updatesuperDto {
+export class UpdateSuperAdminInfoPersonalDTO {
 
-    @IsOptional()
     @IsString()
+    @IsOptional()
+    @MaxLength(60)
+    @Transform(sanitize)
     new_name?: string
 
-    @IsOptional()
     @IsString()
-    new_email?: string
-
     @IsOptional()
-    @IsString()
+    @MaxLength(20)
+    @Transform(sanitize)
     new_phone?: string
-
-    @IsString()
-    new_password!: string
-
-    @IsString()
-    school_id!: string
 }
 
-Injectable()
-export class superDto {
+@Injectable()
+export class UpdateSuperAdminEmailPersonalDTO {
 
-    @IsOptional()
-    @IsString()
-    name!: string
-
-    @IsOptional()
-    @IsString()
-    email!: string
-
-    @IsOptional()
-    @IsString()
-    phone!: string
+    @IsEmail()
+    @MaxLength(75)
+    @Transform(sanitize)
+    new_email!: string
 
     @IsString()
-    password!: string
-
-    @IsString()
+    @MaxLength(6)
+    @Transform(sanitize)
     token!: string
 }
 
-
-
 @Injectable()
-export class creationSuperAdminDTO {
+export class UpdateSuperAdminPasswordPersonalDTO {
 
     @IsString()
-    creation_email!: string
+    @MaxLength(70)
+    current_password!: string
 
     @IsString()
-    creation_password!: string
-
-    @IsString()
-    creation_name!: string
-
-    @IsString()
-    creation_phone!: string
-
-
+    @MaxLength(70)
+    new_password!: string
 }
-

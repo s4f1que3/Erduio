@@ -13,10 +13,10 @@ import { PersonalLogger } from "Interceptors/personal logger interceptor interce
 import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
-import { ParentLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
 import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
-import { ParentTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ParentAnnouncementMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
 import { UploadsLimiter } from "rate-limit/uploads.limiter";
 import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
 
@@ -31,13 +31,13 @@ export class uploadedReportCardsController {
     @Post('upload/class/:class_id/student/:student_id')
     @UseGuards(UploadsLimiter, AST_CLASSGuard())
     @UseInterceptors(FileInterceptor('file'))
-    @UseInterceptors(AdminLogger, StudentPersonalAnnouncementLogger, PersonalLogger, ParentLogger)
+    @UseInterceptors(AdminLogger, StudentPersonalAnnouncementLogger, PersonalLogger, ParentAnnouncementLogger)
     @AdminLogMessage("uploaded a student's report card")
     @PersonalLogMessage("You uploaded a student's report card")
     @SPATitle('Report Card Uploaded!')
     @SPAMessage('Your report card for this term was just uploaded')
-    @ParentTitle("Your child's report card!")
-    @ParentMessage("Your child's report card for this term was just uploaded. To view it, click 'my child' then report cards.")
+    @ParentAnnouncementTitle("Your child's report card!")
+    @ParentAnnouncementMessage("Your child's report card for this term was just uploaded. To view it, click 'my child' then report cards.")
     async uploadReportCard (@Param('class_id') class_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}, @UploadedFile() file: any, @Body() dto: uploadReportCardDTO) {
         const school_id = req.user.app_metadata.school_id
         const user_id = await this.swap.swapUUID(school_id, student_id)
@@ -78,13 +78,13 @@ export class uploadedReportCardsController {
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
     @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @UseInterceptors(ParentLogger)
+    @UseInterceptors(ParentAnnouncementLogger)
     @AdminLogMessage("deleted a student's report card")
     @PersonalLogMessage("You deleted a student's report card")
     @SPATitle('Report Card Deleted!')
     @SPAMessage('One of your report cards was just deleted. Please contact your teacher/school for information.')
-    @ParentTitle("Your child's report card!")
-    @ParentMessage("One of your child's report card was just deleted. Please contact the teacher/school for information.")
+    @ParentAnnouncementTitle("Your child's report card!")
+    @ParentAnnouncementMessage("One of your child's report card was just deleted. Please contact the teacher/school for information.")
     async deleteReportCard (@Param('report_id') report_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}, @Body() dto: uploadReportCardDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.report.deleteReportCard(school_id, report_id)

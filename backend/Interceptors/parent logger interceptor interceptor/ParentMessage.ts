@@ -1,2 +1,2 @@
 import { SetMetadata } from "@nestjs/common";
-export const ParentLogMessage = (message: string) => SetMetadata('ParentLogMessage', message)
+export const ParentPersonalMessage = (message: string) => SetMetadata('ParentPersonalMessage', message)

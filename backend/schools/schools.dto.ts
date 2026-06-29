@@ -25,7 +25,7 @@ export class schoolDTO {
 
     @IsString()
     @IsOptional()
-    @MaxLength(70)
+    @MaxLength(130)
     @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
     address?: string
 }

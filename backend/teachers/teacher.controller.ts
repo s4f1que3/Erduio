@@ -2,7 +2,15 @@ import { Controller, Get, Patch, Req, Body, UseGuards, Post, Param, UploadedFile
 import { Request } from "express";
 import { teacherService } from "./teacher.service";
 import { TeachersGuard } from "teachers/teacher.guard";
-import { teacherDTO, updateTeacherDTO, optionalTeacherDTO } from "./teacher.dto";
+import {
+    CreateTeacherDTO,
+    AdminUpdateTeacherInfoDTO,
+    AdminUpdateTeacherPasswordDTO,
+    AdminUpdateTeacherEmailDTO,
+    UpdateTeacherEmailPersonalDTO,
+    UpdateTeacherPasswordPersonalDTO,
+    UpdateTeacherInfoPersonalDTO,
+} from "./teacher.dto";
 import { LoggingService } from "logging services/logging.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ASTGuard } from "Extra Guards/AST.guard";
@@ -33,12 +41,12 @@ export class teacherController {
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage('created a new student teacher')
     @PersonalLogMessage('You created a new teacher')
-    async CreateTeacher(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: teacherDTO) {
+    async CreateTeacher(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: CreateTeacherDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.teacher.createTeacher(school_id, dto.email, dto.password, dto.name, dto.phone)
     }
-    
-    @Patch('admin/update-info/:id') 
+
+    @Patch('admin/update-info/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
@@ -46,11 +54,11 @@ export class teacherController {
     @AdminLogMessage("updated a teacher's info")
     @PersonalLogMessage("You updated a teacher's info")
     @TeacherLogMessage('Admin updated your info')
-    async updateTeacherInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: optionalTeacherDTO) {
+    async updateTeacherInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateTeacherInfoDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.teacher.changeTeacherInfo_SuperADMIN(school_id, id, dto.name, dto.phone)
     }
-    
+
     @Patch('admin/update-password/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -59,12 +67,12 @@ export class teacherController {
     @AdminLogMessage("updated a teacher's password")
     @PersonalLogMessage("You updated a teacher's password")
     @TeacherLogMessage('Admin updated your password')
-    async updateTeacherPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: updateTeacherDTO) {
+    async updateTeacherPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateTeacherPasswordDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.teacher.changeTeacherPassword_SuperADMIN(school_id, id, dto.new_password)
     }
-    
-    
+
+
     @Patch('admin/update-email/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
@@ -73,7 +81,7 @@ export class teacherController {
     @AdminLogMessage("updated a teacher's email")
     @PersonalLogMessage("You updated a teacher's email")
     @TeacherLogMessage('Admin updated your email')
-    async updateTeacherEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: updateTeacherDTO) {
+    async updateTeacherEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateTeacherEmailDTO) {
         const school_id = req.user.app_metadata.school_id
         return await this.teacher.changeTeacherEmail_SuperADMIN(school_id, id, dto.new_email)
     }
@@ -84,19 +92,19 @@ export class teacherController {
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage("deleted a teacher")
     @PersonalLogMessage("You deleted a teacher")
-    async deleteTeacher (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: teacherDTO) {
+    async deleteTeacher (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
         const school_id = req.user.app_metadata.school_id
         return await this.teacher.deleteTeacher(school_id, id)
 
     }
-    
+
     @Patch('admin/restore/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
     @AdminLogMessage("restored a teacher")
     @PersonalLogMessage("You restored a teacher")
-    async UndodeleteTeacher (@Param('id') id: string, @Req() req: Request & {user: any, role: string}, @Body() dto: teacherDTO) {
+    async UndodeleteTeacher (@Param('id') id: string, @Req() req: Request & {user: any, role: string}) {
         const school_id = req.user.app_metadata.school_id
         return await this.teacher.UndoDeleteTeacher(school_id, id)
     }
@@ -150,7 +158,7 @@ export class teacherController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You updated your email")
     @UseGuards(TeachersGuard)
-    async updateEmail (@Req() req: Request & {user: any, email: string}, @Body() dto: {new_email: string, token: string}) {
+    async updateEmail (@Req() req: Request & {user: any, email: string}, @Body() dto: UpdateTeacherEmailPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         return this.teacher.changeEmail(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
     }
@@ -159,7 +167,7 @@ export class teacherController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You updated your password")
     @UseGuards(TeachersGuard)
-    async updatePassword(@Req() req: Request & {user: any, school_id: string}, @Body() dto: {current_password: string, new_password: string}) {
+    async updatePassword(@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateTeacherPasswordPersonalDTO) {
         return this.teacher.changePassword(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 
@@ -167,7 +175,7 @@ export class teacherController {
     @UseGuards(TeachersGuard)
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You updated your info")
-    async getInfo(@Req() req: Request & {user: any, school_id: string}, @Body() dto: updateTeacherDTO) {
+    async getInfo(@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateTeacherInfoPersonalDTO) {
         const school_id = req.user.app_metadata.school_id
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.teacher.changeInfo(school_id, user_id, dto.new_name, dto.new_phone)
