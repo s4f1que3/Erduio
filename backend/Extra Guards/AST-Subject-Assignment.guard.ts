@@ -21,7 +21,7 @@ export const AST_Subject_AssignmentGuard = () => {
             req.user = data.user
             req.role = data.user.app_metadata.role
 
-            if (req.role === 'admin' || req.role === 'super_admin') return true
+            if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin') return true
 
             const school_id = data.user.app_metadata.school_id
             const assignment_id = req.params.assignment_id as string

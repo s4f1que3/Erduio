@@ -9,7 +9,7 @@ export const StudentClassGuard = () => {
         constructor(public readonly supabase: supabaseService, public readonly swap: uuidSwapService) {}
 
         async canActivate(context: ExecutionContext): Promise<boolean> {
-            const req = context.switchToHttp().getRequest<Request & {user: any}>()
+            const req = context.switchToHttp().getRequest<Request & {user: any, role: string}>()
             const token = req.headers.authorization?.split(' ')[1]
             if(!token) throw new UnauthorizedException()
 
@@ -19,7 +19,9 @@ export const StudentClassGuard = () => {
             req.user = data.user
             const school_id = data.user.app_metadata.school_id
             const class_id = req.params.id as string
-            const user_id = await this.swap.swapUUID(school_id, data.user.id)
+            
+            req.role = data.user.app_metadata.role
+            if(req.role === 'owner' || req.role === 'parent') return true
 
             const{data: ndata, error: nerror} = await this.supabase.db
             .from('Students')

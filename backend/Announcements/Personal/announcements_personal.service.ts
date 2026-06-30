@@ -105,11 +105,12 @@ export class announcementsPersonalService {
     }
 
     async getAllPersonalForPerson (school_id: string, student_id: string) {
+        const auth = await this.swap.swapUUIDFromIdToAuth(school_id, student_id)
         const {data, error} = await this.supabase.db
         .from('Announcement_personal')
         .select('*')
         .eq('school_id', school_id)
-        .eq('target_id', student_id)
+        .eq('target_id', auth)
 
         if (error) throw new InternalServerErrorException(error.message)
         return data

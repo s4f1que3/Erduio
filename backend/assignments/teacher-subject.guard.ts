@@ -8,7 +8,7 @@ export const TeacherSubjectGuard = () => {
         constructor(public readonly supabase: supabaseService) {}
 
         async canActivate(context: ExecutionContext): Promise<boolean> {
-            const req = context.switchToHttp().getRequest<Request & {user: any}>()
+            const req = context.switchToHttp().getRequest<Request & {user: any, role: string}>()
             const token = req.headers.authorization?.split(' ')[1]
             if(!token) throw new UnauthorizedException()
 
@@ -18,6 +18,9 @@ export const TeacherSubjectGuard = () => {
             req.user = data.user
             const school_id = data.user.app_metadata.school_id
             const subject_id = req.params.subject_id as string
+
+            req.role = data.user.app_metadata.role
+            if(req.role === 'owner') return true
 
             const{data: ndata, error: nerror} = await this.supabase.db
             .from('Class_Subjects')

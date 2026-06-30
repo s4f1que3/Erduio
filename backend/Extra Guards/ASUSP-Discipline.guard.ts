@@ -23,7 +23,7 @@ export const ASUSP_DisciplineGuard = () => {
             req.user = data.user
             req.role = data.user.app_metadata.role
 
-            if (req.role === 'admin' || req.role === 'super_admin') return true
+            if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin') return true
             if (req.role === 'student') return true
 
             const school_id = data.user.app_metadata.school_id

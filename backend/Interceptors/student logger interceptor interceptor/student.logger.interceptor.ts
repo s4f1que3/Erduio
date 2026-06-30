@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor, UnauthorizedException} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { LoggingService } from "logging services/logging.service";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { uuidSwapService } from "pipes/transformuuid.pipe";
 import { Observable } from "rxjs";
 import { supabaseService } from "supabase_service/supabase.service";
@@ -25,11 +26,9 @@ export class StudentLogger implements NestInterceptor {
         if(!data.user) throw new UnauthorizedException()
 
         req.user = data.user
-        const school_id = data.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const student_id = req.params.id ?? req.params.student_id
-
         const auth_id = await this.swap.swapUUIDFromIdToAuth(school_id, student_id)
-
         await this.logging.insertPersonalLog(school_id, auth_id, message)
 
         return next.handle()

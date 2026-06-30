@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
 import { IsString, IsOptional, IsNumber, MaxLength } from "class-validator";
 
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
+
 @Injectable()
 export class termDto {
 
@@ -9,39 +11,28 @@ export class termDto {
     number!: number
 
     @IsString()
-    @MaxLength(10)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     start_date!: string
 
     @IsString()
-    @MaxLength(10)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     end_date!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    term_id!: string
 }
 
 @Injectable()
 export class UpdatetermDto {
 
-    @IsNumber()
-    number!: number
-
     @IsString()
     @IsOptional()
-    @MaxLength(10)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     start_date?: string
 
     @IsString()
     @IsOptional()
-    @MaxLength(10)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     end_date?: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    term_id!: string;
 }

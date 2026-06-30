@@ -21,7 +21,7 @@ export default function ReportCardsPage() {
   const [nameInput, setNameInput] = useState("");
   const [searchedName, setSearchedName] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const searchedId = selectedStudent?.user_id ?? "";
+  const searchedId = selectedStudent?.id ?? "";
   const [showUpload, setShowUpload] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState("");
@@ -147,10 +147,10 @@ export default function ReportCardsPage() {
                 <div className="flex flex-wrap gap-2">
                   {filteredStudents.map((s) => (
                     <button
-                      key={s.user_id}
+                      key={s.id}
                       onClick={() => setSelectedStudent(s)}
                       className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
-                        selectedStudent?.user_id === s.user_id
+                        selectedStudent?.id === s.id
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-background border-border hover:bg-muted"
                       }`}

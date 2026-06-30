@@ -18,7 +18,7 @@ export class ASTGuard implements CanActivate {
         req.user = data.user
         req.role = data.user.app_metadata.role
 
-        if (req.role === 'admin' || req.role === 'super_admin' || req.role === 'teacher') return true
+        if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin' || req.role === 'teacher') return true
 
         throw new ForbiddenException('You are not authorized to access this')
     }

@@ -5,6 +5,31 @@ import { IsEmail, IsOptional, IsString, MaxLength } from "class-validator";
 const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
 @Injectable()
+export class createSuperAdminDTO {
+
+    @IsEmail()
+    @MaxLength(75)
+    @Transform(sanitize)
+    email!: string
+
+    @IsString()
+    @MaxLength(60)
+    @Transform(sanitize)
+    name!: string
+
+    @IsString()
+    @MaxLength(20)
+    @Transform(sanitize)
+    phone!: string
+
+    @IsString()
+    @MaxLength(70)
+    password!: string
+}
+
+
+
+@Injectable()
 export class UpdateSuperAdminInfoPersonalDTO {
 
     @IsString()

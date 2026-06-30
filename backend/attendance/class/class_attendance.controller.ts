@@ -6,8 +6,9 @@ import { uuidSwapService } from "pipes/transformuuid.pipe";
 import { ASTSP_ClassGuard } from "Extra Guards/ASTSP-Class.guard";
 import { UseInterceptors } from "@nestjs/common";
 import { AST_CLASSGuard } from "Extra Guards/AST-Class";
-import { PersonalLogger } from "Interceptors/personal logger interceptor interceptor/personal.logger.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
+import { resolveSchoolId } from "overrides/school_id.override";
+import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
 import { CALogger } from "Interceptors/Class Announcement logger Interceptor/CA.interceptor";
 import { CATitle } from "Interceptors/Class Announcement logger Interceptor/CATitle";
 import { CAMessage } from "Interceptors/Class Announcement logger Interceptor/CAMessage";
@@ -28,32 +29,29 @@ export class classAttendanceController {
     @CATitle('Attendance taken!')
     @CAMessage("Your teacher just took today's class attendance.")
     async takeAttendance (@Req() req: Request & {user: any}, @Param('class_id') class_id: string, @Body() dto: classAttendanceDTO) {
-        const school_id = req.user.app_metadata.school_id
-        
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
-        await this.logging.insertPersonalLog(school_id, req.user.id, `You took the attendance for your class on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`)
-        
         return await this.attendance.takeAttendance(school_id, class_id, dto.date, user_id, dto.records)
     }
 
     @Get('all/class/:class_id')
     @UseGuards(AST_CLASSGuard())
     async getAllForAClass (@Req() req: Request & {user: any}, @Param('class_id') class_id: string,) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.attendance.getAllAttendancesForAClass(school_id, class_id)
     }
 
     @Get('all/class/:class_id/:date')
     @UseGuards(AST_CLASSGuard())
     async getAllForAClassForADate (@Req() req: Request & {user: any}, @Param('class_id') class_id: string, @Param('date') date: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.attendance.getClassAttendancesForAClassForADate(school_id, class_id, date)
     }
 
     @Get('average/class/:class_id/:student_id/')
     @UseGuards(ASTSP_ClassGuard())
     async getStudentAttendanceAverage(@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('class_id') class_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.attendance.getStudentAverage(school_id, student_id, class_id)
     }
 }

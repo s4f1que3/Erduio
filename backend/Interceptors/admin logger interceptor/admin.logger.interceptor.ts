@@ -2,6 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException
 import { Reflector } from "@nestjs/core";
 import { logGetterService } from "logGetters/logGetters.service";
 import { LoggingService } from "logging services/logging.service";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { uuidSwapService } from "pipes/transformuuid.pipe";
 import { Observable } from "rxjs";
 import { supabaseService } from "supabase_service/supabase.service";
@@ -30,11 +31,15 @@ export class AdminLogger implements NestInterceptor {
 
         req.user = data.user
         req.role = data.user.app_metadata.role
-        const school_id = data.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
 
-        const table = await this.getter.getTable(req.role)
-        const actor = await this.getter.getName(school_id, table, data.user.id)
-        await this.logging.insertAdminLog(school_id, actor, message)
+        if(req.role === 'owner') {
+            await this.logging.insertSimpleAdminLog(school_id, message)
+        } else {
+            const table = await this.getter.getTable(req.role)
+            const actor = await this.getter.getName(school_id, table, data.user.id)
+            await this.logging.insertAdminLog(school_id, actor, message)
+        }
 
         return next.handle()
     }

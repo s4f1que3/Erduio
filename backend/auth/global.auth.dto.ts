@@ -1,29 +1,43 @@
+import { Injectable } from "@nestjs/common";
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsEmail, IsString, MaxLength } from 'class-validator';
 
-export class authDTO {
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
-  @IsEmail()
-  @IsNotEmpty()
-  @MaxLength(25)
-  @Transform(({ value }) => typeof value === 'string' ? value.toLowerCase().trim() : value)
-  email!: string;
+@Injectable()
+export class VerifyOtpDTO {
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(20)
-  password!: string;
+    @IsString()
+    @MaxLength(6)
+    @Transform(sanitize)
+    token!: string
+}
 
-  @IsString()
-  @MaxLength(30)
-  @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-  name!: string
+@Injectable()
+export class VerifyPasswordDTO {
 
-  @IsString()
-  @MaxLength(12)
-  phone!: string
+    @IsString()
+    @MaxLength(70)
+    password!: string
+}
 
-  @IsString()
-  @MaxLength(6)
-  token!: string
+@Injectable()
+export class LoginDTO {
+
+    @IsEmail()
+    @MaxLength(75)
+    @Transform(({ value }: { value: unknown }) => typeof value === 'string' ? value.toLowerCase().trim() : value)
+    email!: string
+
+    @IsString()
+    @MaxLength(70)
+    password!: string
+}
+
+@Injectable()
+export class RefreshDTO {
+
+    @IsString()
+    @MaxLength(500)
+    refresh_token!: string
 }

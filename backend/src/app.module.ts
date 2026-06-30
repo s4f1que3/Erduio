@@ -32,6 +32,7 @@ import { ExamsModule } from 'Exams/exams/exam.module';
 import { ExamGradesModule } from 'Exams/exam grades/exam_grade.module';
 import { LogGetterModule } from 'logGetters/logGetter.module';
 import * as joi from 'joi'
+import { OwnerModule } from 'owner/owner.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import * as joi from 'joi'
     ExamsModule,
     ExamGradesModule,
     LogGetterModule,
+    OwnerModule
 
   ],
 

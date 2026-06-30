@@ -23,7 +23,7 @@ export const ATSClassGuard = () => {
             const school_id = data.user.app_metadata.school_id
             const class_id = req.params.class_id as string
 
-            if (req.role === 'admin' || req.role === 'super_admin') return true
+            if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin') return true
 
             const { data: cdata, error: cerror } = await this.supabase.db
                 .from('Classes')

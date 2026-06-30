@@ -14,14 +14,14 @@ import {
 } from "./parent.dto";
 import { LoggingService } from "logging services/logging.service";
 import { AsGuard } from "Extra Guards/AS.guard";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { ASTGuard } from "Extra Guards/AST.guard";
 import { uuidSwapService } from "pipes/transformuuid.pipe";
 import { GlobalGuard } from "Extra Guards/global.guard";
 import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor interceptor/personal.logger.interceptor";
+import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
-import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
 import { ParentPersonalMessage } from "Interceptors/parent logger interceptor interceptor/ParentMessage";
 import { ParentPersonalLogger } from "Interceptors/parent logger interceptor interceptor/parent.logger.interceptor";
 
@@ -43,7 +43,7 @@ export class ParentController {
     @AdminLogMessage('created a new parent login')
     @PersonalLogMessage('You created a new parent login')
     async CreateParentLogin(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: CreateParentLoginDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.createParentLogin(school_id, dto.email, dto.password)
     }
 
@@ -56,7 +56,7 @@ export class ParentController {
     @PersonalLogMessage("You updated a parent's info")
     @ParentPersonalMessage('Admin updated your info')
     async updateParentInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentInfoDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.changeParentInfo(school_id, id, dto.name, dto.phone)
     }
 
@@ -69,7 +69,7 @@ export class ParentController {
     @PersonalLogMessage("You changed a parent's password")
     @ParentPersonalMessage('Admin updated your password')
     async updateParentPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentPasswordDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.changeParentPassword(school_id, id, dto.new_password)
     }
 
@@ -82,7 +82,7 @@ export class ParentController {
     @PersonalLogMessage("You changed a parent's email")
     @ParentPersonalMessage('Admin updated your email')
     async updateParentEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentEmailDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.changeParentEmail(school_id, id, dto.new_email)
     }
 
@@ -93,7 +93,7 @@ export class ParentController {
     @AdminLogMessage("deleted a parent")
     @PersonalLogMessage("You deleted a parent")
     async deleteParent (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.deleteParent(school_id, id)
     }
 
@@ -104,14 +104,14 @@ export class ParentController {
     @AdminLogMessage("restored a parent")
     @PersonalLogMessage("You restored a parent")
     async UndoDeleteParent (@Param('id') id: string, @Req() req: Request & {user: any, role: string, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.UndoDeleteParent(school_id, id)
     }
 
     @Get('all/deleted')
     @UseGuards(AsGuard)
     async getDeleted(@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.getInactiveParents(school_id)
     }
 
@@ -120,7 +120,7 @@ export class ParentController {
     @UseInterceptors(ParentPersonalLogger)
     @ParentPersonalMessage('Admin deleted your profile picture')
     async SuperAdmindeleteProfilePic (@Param('user_id') user_id: string, @Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return this.parent.deleteProfilePicture(school_id, user_id)
     }
 
@@ -128,14 +128,14 @@ export class ParentController {
     @Get('all-parents')
     @UseGuards(ASTGuard)
     async getAll (@Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.getParents(school_id)
     }
 
     @Get('profile/:id')
     @UseGuards(AsGuard)
     async getProfile (@Param('id') id: string, @Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.getParentProfile(school_id, id)
     }
 
@@ -153,7 +153,7 @@ export class ParentController {
     @PersonalLogMessage("You changed your email")
     @UseGuards(ParentGuard)
     async changeEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateParentEmailPersonalDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.changeEmail(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
     }
 
@@ -170,7 +170,7 @@ export class ParentController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage("You changed your info")
     async changeInfo (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateParentInfoPersonalDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.parent.changeInfo(school_id, user_id, dto.new_name, dto.new_phone)
     }
@@ -179,7 +179,7 @@ export class ParentController {
     @UseGuards(ParentGuard)
     @UseInterceptors(FileInterceptor('pfp'))
     async addProfilePic (@Req() req: Request & {user: any, school_id: string}, @UploadedFile() pfp: any) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.parent.addProfilePicture(school_id, user_id, pfp)
     }
@@ -187,14 +187,14 @@ export class ParentController {
     @Get('profile-pic/:user_id')
     @UseGuards(GlobalGuard)
     async showProfilePic (@Req() req: Request & {user: any}, @Param('user_id') user_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.showProfilePicture(school_id, user_id)
     }
 
     @Get('me/profile')
     @UseGuards(ParentGuard)
     async getMyProfile (@Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.parent.getParentProfile(school_id, user_id)
     }
@@ -202,7 +202,7 @@ export class ParentController {
     @Post('profile-pic/delete')
     @UseGuards(ParentGuard)
     async deleteProfilePic (@Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.parent.deleteProfilePicture(school_id, user_id)
     }
@@ -210,7 +210,7 @@ export class ParentController {
     @Get('my-kids')
     @UseGuards(ParentGuard)
     async getKidsForParent (@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.parent.getMyChild(school_id, user_id)
     }
@@ -222,28 +222,28 @@ export class ParentController {
     @Get('announcements/general')
     @UseGuards(GlobalGuard)
     async getGeneralAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.fetchGeneralAnnouncements(school_id)
     }
 
     @Get('announcements/personal')
     @UseGuards(GlobalGuard)
     async getPersonalAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.fetchPersonalAnnouncements(school_id, req.user.id)
     }
 
     @Get('announcements/parents')
     @UseGuards(ParentGuard)
     async getAnnouncementsToParents (@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.parent.fetchForParentGroup(school_id)
     }
 
     @Get('logs/my-logs')
     @UseGuards(ParentGuard)
     async getPersonalLogs (@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.logging.getPersonalLogs(school_id, req.user.id)
     }
 

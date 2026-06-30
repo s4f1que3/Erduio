@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor, UnauthorizedException} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { announcementsSubjectService } from "Announcements/subject/announcement_subject.service";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { Observable } from "rxjs";
 import { supabaseService } from "supabase_service/supabase.service";
 
@@ -25,7 +26,7 @@ export class SALogger implements NestInterceptor {
         if(!data.user) throw new UnauthorizedException()
 
         req.user = data.user
-        const school_id = data.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
 
         await this.subject.createNewShortSubjectAnnouncement(school_id, subject_id, title, message)
 

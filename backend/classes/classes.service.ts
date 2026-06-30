@@ -22,14 +22,15 @@ export class classesService {
 
     ///// CRUD CLASSES
     async createClass(school_id: string, subjects: {teacher_id: string, name: string }[], name: string, class_teacher: string, timetable: Express.Multer.File) {
-        const path = `${school_id}/${name}/timetable/${crypto.randomUUID()}`
+
+        if(timetable) {
+            const path = `${school_id}/${name}/timetable/${crypto.randomUUID()}`
             const {data: fdata, error: ferror} = await this.supabase.db.storage
             .from('timetables')
             .upload(path, timetable.buffer, {contentType: timetable.mimetype})
 
-        if(ferror) {
-            throw new InternalServerErrorException(ferror.message)
-        } else {
+            if(ferror) throw new InternalServerErrorException(ferror.message)
+
             const {data, error} = await this.supabase.db.from('Classes')
             .insert({
                 name: name,
@@ -41,16 +42,25 @@ export class classesService {
             .select('id')
             .single()
 
-            if(error) {
-                throw new InternalServerErrorException(error.message)
-            } else if(!data?.id) {
-                throw new NotFoundException('Created class not found')
-            } else {
-                await this.addClassSubjects(school_id, data.id, subjects)
-                return data && fdata
-            }
-            
+            if(error) throw new InternalServerErrorException(error.message)
+            await this.addClassSubjects(school_id, data.id, subjects)
+
+
+        } else {
+            const {data, error} = await this.supabase.db.from('Classes')
+            .insert({
+                name: name,
+                status: 'active',
+                school_id: school_id,
+                class_teacher_id: class_teacher
+            })
+            .select('id')
+            .single()
+
+            if(error) throw new InternalServerErrorException(error.message)
+            await this.addClassSubjects(school_id, data.id, subjects)
         }
+
     }
 
     async addClassSubjects (school_id: string, class_id: string, subjects: { teacher_id: string, name: string }[]) {

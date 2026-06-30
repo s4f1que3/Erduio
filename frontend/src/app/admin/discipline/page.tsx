@@ -85,13 +85,13 @@ export default function DisciplinePage() {
     queryKey: ["discipline-student", selectedStudent?.id],
     queryFn: async () => {
       if (!selectedStudent) return [];
-      return (await api.get(`/discipline/all/${selectedStudent.user_id}`)).data ?? [];
+      return (await api.get(`/discipline/all/${selectedStudent.id}`)).data ?? [];
     },
     enabled: !!selectedStudent,
   });
 
   const createMutation = useMutation({
-    mutationFn: (d: Form) => api.post(`/discipline/student/${selectedStudent!.user_id}`, d),
+    mutationFn: (d: Form) => api.post(`/discipline/student/${selectedStudent!.id}`, d),
     onSuccess: () => {
       toast.success("Incident recorded");
       qc.invalidateQueries({ queryKey: ["discipline-student", selectedStudent?.id] });
@@ -161,10 +161,10 @@ export default function DisciplinePage() {
                     <div className="flex flex-wrap gap-2">
                       {filteredStudents.map((s) => (
                         <button
-                          key={s.user_id}
+                          key={s.id}
                           onClick={() => setSelectedStudent(s)}
                           className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
-                            selectedStudent?.user_id === s.user_id
+                            selectedStudent?.id === s.id
                               ? "bg-primary text-primary-foreground border-primary"
                               : "bg-background border-border hover:bg-muted"
                           }`}

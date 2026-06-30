@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor, UnauthorizedException} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { announcementsClassService } from "Announcements/Class/announcement_class.service";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { Observable } from "rxjs";
 import { supabaseService } from "supabase_service/supabase.service";
 
@@ -25,7 +26,7 @@ export class CALogger implements NestInterceptor {
         if(!data.user) throw new UnauthorizedException()
 
         req.user = data.user
-        const school_id = data.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
 
 
         await this.announ.createClassAnnouncement(school_id, title, message, class_id)

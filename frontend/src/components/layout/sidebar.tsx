@@ -48,6 +48,10 @@ type NavItem = {
 };
 
 const navByRole: Record<string, NavItem[]> = {
+  owner: [
+    { label: "Schools", href: "/owner/schools", icon: School },
+    { label: "Logs", href: "/owner/logs", icon: FileText },
+  ],
   super_admin: [
     { label: "Dashboard", href: "/super-admin/dashboard", icon: LayoutDashboard },
     { label: "Admin Management", href: "/super-admin/admins", icon: ShieldCheck },
@@ -119,6 +123,7 @@ const navByRole: Record<string, NavItem[]> = {
 };
 
 const roleLabels: Record<string, string> = {
+  owner: "Owner",
   super_admin: "Super Admin",
   admin: "Admin",
   teacher: "Teacher",

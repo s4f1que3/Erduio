@@ -9,10 +9,11 @@ import { uuidSwapService } from "pipes/transformuuid.pipe";
 import { ASTS_SubjectGuard } from "Extra Guards/ASTS-Subjects.guard";
 import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
 import { ASTGuard } from "Extra Guards/AST.guard";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { UploadsLimiter } from "rate-limit/uploads.limiter";
-import { PersonalLogger } from "Interceptors/personal logger interceptor interceptor/personal.logger.interceptor";
+import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { SALogger } from "Interceptors/subject announcement logger interceptor/SA.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
+import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
 import { SATitle } from "Interceptors/subject announcement logger interceptor/SATitle";
 import { SAMessage } from "Interceptors/subject announcement logger interceptor/SAMessage";
 
@@ -34,7 +35,7 @@ export class uploadedNotesController {
     @SATitle('New Notes!')
     @SAMessage('Your teacher just uploaded some new notes!')
     async createNote (@Req() req: Request & {user: any}, @Param('subject_id') subject_id: string, @Body() dto: uploadNotesDTO, @UploadedFile() notes?: any) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.notes.uploadNotes(school_id, user_id, subject_id, dto.title, notes, dto.message)
 
@@ -47,7 +48,7 @@ export class uploadedNotesController {
     @SATitle('Notes Deleted!')
     @SAMessage('Your teacher just deleted some notes!')
     async deleteNote (@Req() req: Request & {user: any}, @Param('note_id') note_id: string, @Param('subject_id') subject_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.notes.deleteNotes(school_id, note_id)
     }
 
@@ -58,21 +59,21 @@ export class uploadedNotesController {
     @SATitle('Notes Updated!')
     @SAMessage('Your teacher just updated some notes!')
     async updateNote (@Req() req: Request & {user: any}, @Param('note_id') note_id: string, @Param('subject_id') subject_id: string, @Body() dto: updateNotesDTO) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.notes.updateNote(school_id, note_id, dto.title, dto.message)
     }
 
     @Get('all/subject/:subject_id')
     @UseGuards(ASTS_SubjectGuard())
     async getAllNotesForSubject (@Req() req: Request & {user: any}, @Param('note_id') note_id: string, @Param('subject_id') subject_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.notes.getAllNotesForSubject(school_id, subject_id)
     }
 
     @Get('all')
     @UseGuards(ASTGuard)
     async getAllNotesForTeacher(@Req() req: Request & {user: any}, @Param('note_id') note_id: string, @Param('subject_id') subject_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.notes.getAllNotesForTeacher(school_id, user_id)
     }
@@ -80,7 +81,7 @@ export class uploadedNotesController {
     @Get(':note_id/:subject_id/view')
     @UseGuards(ASTS_SubjectGuard())
     async viewNote (@Param('note_id') note_id: string, @Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.notes.viewNote(school_id, note_id)
     }
 
@@ -89,7 +90,7 @@ export class uploadedNotesController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You downloaded some notes')
     async downloadNote (@Param('note_id') note_id: string, @Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.notes.downloadNote(school_id, note_id)
     }
 

@@ -20,7 +20,7 @@ export const ASU_GroupGuard = () => {
             req.user = data.user
             req.role = data.user.app_metadata.role
 
-            if (req.role === 'admin' || req.role === 'super_admin') return true
+            if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin') return true
 
             const group = req.params.group
             if (req.role !== group) throw new ForbiddenException()

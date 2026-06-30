@@ -1,5 +1,5 @@
 import { assignmentService } from "./assignment.service";
-import { assignmentDTO } from "./assignment.dto";
+import { CreateAssignmentDTO, ExtendAssignmentDTO, GradeAssignmentDTO } from "./assignment.dto";
 import { LoggingService } from "logging services/logging.service";
 import { Controller, Req, Query, Param, Body, UseGuards, UseInterceptors, UploadedFile, Post, Delete, Get, Patch } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -13,13 +13,14 @@ import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
 import { AsGuard } from "Extra Guards/AS.guard";
 import { AST_AssignmentGuard } from "Extra Guards/AST-Assignment.guard";
 import { ASTGuard } from "Extra Guards/AST.guard";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { AST_Subject_AssignmentGuard } from "Extra Guards/AST-Subject-Assignment.guard";
 import { ASSP_Subject_UploadGuard } from "Extra Guards/ASSP-Subject-Upload.guard";
 import { ASSPGuard } from "Extra Guards/ASSP.guard";
 import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogger } from "Interceptors/personal logger interceptor interceptor/personal.logger.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
+import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
 import { SALogger } from "Interceptors/subject announcement logger interceptor/SA.interceptor";
 import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
 import { SATitle } from "Interceptors/subject announcement logger interceptor/SATitle";
@@ -49,8 +50,8 @@ export class assignmentsController {
     @SATitle('New Assignment!')
     @SAMessage('Your teacher just uploaded a new assignment')
     @UseInterceptors(FileInterceptor('file'))
-    async createAssignment (@Param('subject_id') subject_id: string, @Req() req: Request & {user: any}, @Body() dto: assignmentDTO, @UploadedFile() file: any) {
-        const school_id = req.user.app_metadata.school_id
+    async createAssignment (@Param('subject_id') subject_id: string, @Req() req: Request & {user: any}, @Body() dto: CreateAssignmentDTO, @UploadedFile() file: any) {
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.assignments.createAssingment(dto.name, school_id, dto.due_date, dto.description, dto.subject_id, user_id, file)
     }
@@ -63,15 +64,15 @@ export class assignmentsController {
     @UseInterceptors(SALogger)
     @SATitle('Deleted Assignment!')
     @SAMessage('Your teacher just deleted an assignment')
-    async deleteAssingment (@Param('subject_id') subject_id: string, @Param('assignment_id') assignment_id: string, @Req() req: Request & {user: any}, @Body() dto : assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async deleteAssingment (@Param('subject_id') subject_id: string, @Param('assignment_id') assignment_id: string, @Req() req: Request & {user: any}) {
+        const school_id = resolveSchoolId(req)
         return await this.assignments.deleteAssignment(school_id, assignment_id)
     }
 
     @Get(':assignment_id/view')
     @UseGuards(StudentSubjectAssignmentGuard) 
     async viewAssignment (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         await this.assignments.insertStudentViewedAssignment(school_id, assignment_id, req.user.id)
         return await this.assignments.getSignedUrlForAssignments(school_id, assignment_id)
     }
@@ -79,7 +80,7 @@ export class assignmentsController {
     @Get('admin/:assignment_id/view')
     @UseGuards(StudentSubjectGuard) 
     async viewAssignmentForNonStudent (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getSignedUrlForAssignments(school_id, assignment_id)
     }
 
@@ -87,21 +88,21 @@ export class assignmentsController {
     @UseGuards(AsGuard)
     async getAllAssignmentsForAdmin (
     @Query() filters: {subject_id?: string; teacher_id?: string; status?: string }, @Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getAllAssignmentsForAdmins(school_id, filters)
     }
 
     @Get('/:assignment_id/views')
     @UseGuards(AST_AssignmentGuard())
     async getAssignmentViews (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getAssignmentViews(school_id, assignment_id)
     } 
 
     @Get('all/:subject_id')
     @UseGuards(StudentSubjectGuard)
     async getAllAssignmentsForSubjects(@Req() req: Request & {user: any}, @Param('subject_id') subject_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getAllAssignmentsForSubject(school_id, subject_id)
     }
 
@@ -109,7 +110,7 @@ export class assignmentsController {
     @UseGuards(ASTGuard)
     async getAllAssignmentsForTeacher (
     @Query() filters: {subject_id?: string; teacher_id?: string; status?: string }, @Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.assignments.getAllAssignmentsForTeachers(school_id, user_id, filters)
     }
@@ -117,7 +118,7 @@ export class assignmentsController {
     @Get('all/:subject_id')
     @UseGuards(StudentSubjectGuard)
     async getAllSubmissionsForAssignmentsForStudents (@Req() req: Request & {user: any}, @Param('id') id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.assignments.getAllAssignmentSubmissionsForStudents(school_id, user_id)
     }
@@ -130,8 +131,8 @@ export class assignmentsController {
     @UseInterceptors(SALogger)
     @SATitle('Assignment Extended!')
     @SAMessage('Your teacher just extended an assignment')
-    async extendAssignment(@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async extendAssignment(@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Body() dto: ExtendAssignmentDTO) {
+        const school_id = resolveSchoolId(req)
         return await this.assignments.extendAssignment(school_id, assignment_id, dto.due_date)
     }
 
@@ -144,8 +145,8 @@ export class assignmentsController {
     @UseInterceptors(StudentPersonalAnnouncementLogger)
     @SPATitle('Assignment Extended!')
     @SPAMessage('Your teacher just extended an assignment for you')
-    async extendAssignmentForStudent (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Param('student_id') student_id: string, @Body() dto: assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async extendAssignmentForStudent (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Param('student_id') student_id: string, @Body() dto: ExtendAssignmentDTO) {
+        const school_id = resolveSchoolId(req)
         return await this.assignments.extendAssignmentForStudent(school_id, assignment_id, dto.due_date, student_id)
     }
 
@@ -167,8 +168,8 @@ export class assignmentsController {
     @UseInterceptors(ParentAnnouncementLogger)
     @ParentAnnouncementTitle("Your child's assignment grade")
     @ParentAnnouncementMessage("You child's assignment grade was just uploaded. Click 'my child' then assignments to see the grade")
-    async addStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async addStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: GradeAssignmentDTO) {
+        const school_id = resolveSchoolId(req)
         return this.assignments.addStudentGradeForAssignment(school_id, student_id, assignment_id, dto.grade, dto.message)
     }
 
@@ -183,8 +184,8 @@ export class assignmentsController {
     @UseInterceptors(ParentAnnouncementLogger)
     @ParentAnnouncementTitle("Your child's assignment grade")
     @ParentAnnouncementMessage("You child's assignment grade was just deleted. Contact the teacher for any inquires.")
-    async deleteStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async deleteStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string) {
+        const school_id = resolveSchoolId(req)
         return this.assignments.deleteStudentGradeForAssignment(school_id, student_id, assignment_id)
     }
 
@@ -199,15 +200,15 @@ export class assignmentsController {
     @UseInterceptors(ParentAnnouncementLogger)
     @ParentAnnouncementTitle("Your child's assignment grade")
     @ParentAnnouncementMessage("You child's assignment grade was just changed. Contact the teacher for any inquires.")
-    async changeStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async changeStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: GradeAssignmentDTO) {
+        const school_id = resolveSchoolId(req)
         return this.assignments.changeStudentGradeForAssignment(school_id, student_id, assignment_id, dto.grade, dto.message)
     }
 
     @Get(':assignment_id/my-grade/:student_id')
     @UseGuards(ASSP_Subject_UploadGuard())
-    async getAssignmentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: assignmentDTO) {
-        const school_id = req.user.app_metadata.school_id
+    async getAssignmentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string) {
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, student_id)
         return await this.assignments.getAssignmentGrade(school_id, assignment_id, user_id)
     }
@@ -215,7 +216,7 @@ export class assignmentsController {
     @Get('all/grades/:student_id')
     @UseGuards(ASSPGuard())
     async getAllStudentAssignmentGrades (@Req() req: Request & {user: any}, @Param('student_id') student_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getAllGradesForStudentAssignmets(school_id, student_id)
     }
 
@@ -236,7 +237,7 @@ export class assignmentsController {
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You uploaded your submission for an assignment')
     async uploadSubmission (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @UploadedFile() file: any) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.assignments.uploadSubmission(school_id, assignment_id, user_id, file)
     }
@@ -244,21 +245,21 @@ export class assignmentsController {
     @Get('submissions/:assignment_id')
     @UseGuards(AST_AssignmentGuard())
     async getSubmissionsForAssignment (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getSubmissionsForAssignment(school_id, assignment_id)
     }
 
     @Get(':assignment_id/:student_id/submission/view')
     @UseGuards(AST_AssignmentGuard()) 
     async viewSubmissions(@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Param('student_id') student_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.assignments.getSignedUrlForASubmission(school_id, assignment_id, student_id)
     }
 
     @Get(':assignment_id/:student_id/submission/download')
     @UseGuards(AST_AssignmentGuard()) 
     async downloadSubmissions(@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Param('student_id') student_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, student_id)
         return await this.assignments.downloadSubmission(school_id, assignment_id, user_id)
     }

@@ -1,18 +1,24 @@
 import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
-import { IsString } from "class-validator";
+import { IsString, MaxLength } from "class-validator";
+
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
 @Injectable()
 export class disciplineDTO {
+
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(100)
+    @Transform(sanitize)
     action!: string
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(2000)
+    @Transform(sanitize)
     message!: string
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     date!: string
 }

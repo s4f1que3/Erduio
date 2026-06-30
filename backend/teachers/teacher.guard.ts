@@ -19,9 +19,7 @@ export class TeachersGuard implements CanActivate {
         req.user = data.user
         req.user.app_metadata.role = data.user.app_metadata.role
 
-        if(req.user.app_metadata.role === 'teacher') {
-            return true
-        }
+        if(req.user.app_metadata.role === 'teacher' || req.role === 'owner') return true
 
         return false
 

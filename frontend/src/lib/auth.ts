@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-export type UserRole = "super_admin" | "admin" | "teacher" | "student" | "parent";
+export type UserRole = "owner" | "super_admin" | "admin" | "teacher" | "student" | "parent";
 
 interface JWTPayload {
   sub: string;
@@ -82,6 +82,7 @@ export function updateSessionTokens(tokens: { access_token: string; refresh_toke
 
 export function getRoleRedirect(role: UserRole): string | null {
   const map: Record<UserRole, string> = {
+    owner: "/owner/schools",
     super_admin: "/super-admin/dashboard",
     admin: "/admin/dashboard",
     teacher: "/teacher/dashboard",

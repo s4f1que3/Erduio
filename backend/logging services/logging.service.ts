@@ -21,6 +21,18 @@ export class LoggingService{
         return data
     }
 
+    async insertSimpleAdminLog (school_id: string, message: string) {
+        const new_message = `${message} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`
+        const { data, error} = await this.supabase.db
+        .from('Admin_Logs')
+        .insert({
+            school_id: school_id,
+            message: new_message
+        })
+        if(error) throw new InternalServerErrorException(error.message)
+        return data
+    }
+
     async insertPersonalLog (school_id: string, belongs_id: string, message: string) {
         const new_message = `${message} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`
         const {data, error} = await this.supabase.db.from('Personal_Logs')
@@ -33,6 +45,21 @@ export class LoggingService{
         if(error) throw new InternalServerErrorException(error.message)
         return data
     }
+
+    async insertOwnerLog (message: string) {
+        const {error} = await this.supabase.db
+        .from('Onwer_Logs')
+        .insert({
+            message: message
+        })
+
+        if(error) throw new InternalServerErrorException(error.message)
+    }
+
+
+
+
+
 
 
     //// log fetching
@@ -52,6 +79,15 @@ export class LoggingService{
         .from('Admin_Logs')
         .select('*')
         .eq('school_id', school_id)
+
+        if(error) throw new InternalServerErrorException(error.message)
+        return data
+    }
+
+    async getOwnerLogs () {
+        const { data, error} = await this.supabase.db
+        .from('Onwer_Logs')
+        .select('*')
 
         if(error) throw new InternalServerErrorException(error.message)
         return data

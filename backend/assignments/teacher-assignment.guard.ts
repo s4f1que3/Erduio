@@ -9,7 +9,7 @@ export const TeacherAssignmentGuard = () => {
         constructor(public readonly supabase: supabaseService, public readonly swap: uuidSwapService) {}
 
         async canActivate(context: ExecutionContext): Promise<boolean> {
-            const req = context.switchToHttp().getRequest<Request & {user: any}>()
+            const req = context.switchToHttp().getRequest<Request & {user: any, role: string}>()
             const token = req.headers.authorization?.split(' ')[1]
             if(!token) throw new UnauthorizedException()
 
@@ -19,6 +19,10 @@ export const TeacherAssignmentGuard = () => {
             req.user = data.user
             const school_id = data.user.app_metadata.school_id
             const assignment_id = req.params.assignment_id as string
+            
+            req.role = data.user.app_metadata.role
+            if(req.role === 'owner') return true
+
 
             const{data: ndata, error: nerror} = await this.supabase.db
             .from('Assignments')

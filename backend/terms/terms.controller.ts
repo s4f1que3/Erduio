@@ -4,10 +4,11 @@ import { Controller, Req, Patch, Post, Delete, Body, UseGuards, Param, Get, UseI
 import { Request } from "express";
 import { GlobalGuard } from "Extra Guards/global.guard";
 import { ASTGuard } from "Extra Guards/AST.guard";
+import { resolveSchoolId } from "overrides/school_id.override";
 import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor interceptor/personal.logger.interceptor";
+import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor interceptor/personal-message-decorator";
+import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
 
 @Controller('terms')
 export class termsController {
@@ -23,7 +24,7 @@ export class termsController {
     @AdminLogMessage('created a new term')
     @PersonalLogMessage('You created a new term')
     async createTerm (@Req() req: Request & {user: any}, @Body() dto: termDto) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.term.setTerm(school_id, dto.number, dto.start_date, dto.end_date)
     }
 
@@ -34,7 +35,7 @@ export class termsController {
     @AdminLogMessage('deleted a term')
     @PersonalLogMessage('You deleted a term')
     async deleteTerm (@Req() req: Request & {user: any}, @Param('id') id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.term.deleteTerm(school_id, id)
     }
 
@@ -45,14 +46,14 @@ export class termsController {
     @AdminLogMessage('updated a term')
     @PersonalLogMessage('You updated a term')
     async updateTerm (@Req() req: Request & {user: any}, @Param('id') id: string, @Body() dto: UpdatetermDto) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.term.updateTermDates(school_id, id, dto.start_date, dto.end_date)
     }
 
     @Get()
     @UseGuards(GlobalGuard)
     async getAllTerms (@Req() req: Request & {user: any}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.term.getAllTerms(school_id)
     }
 }

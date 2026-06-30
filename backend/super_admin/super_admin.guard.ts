@@ -19,10 +19,8 @@ export class Super_AdminGuard implements CanActivate{
         req.user = data.user
         req.role = data.user.app_metadata.role
 
-        if(req.role === 'super_admin') {
-            return true
-        } else {
-            return false
-        }
+        if(req.role === 'super_admin' || req.role === 'owner') return true
+
+        return false
     }
 }

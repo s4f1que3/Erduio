@@ -29,6 +29,7 @@ type CreateForm = z.infer<typeof createSchema>;
 export default function ClassesPage() {
   const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
+  const [timetable, setTimetable] = useState<File | null>(null);
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(false);
   const [profileClassId, setProfileClassId] = useState<string | null>(null);
@@ -52,8 +53,20 @@ export default function ClassesPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (d: CreateForm) => api.post("/classes/create", d),
-    onSuccess: () => { toast.success("Class created"); qc.invalidateQueries({ queryKey: ["classes"] }); setShowCreate(false); reset(); },
+    mutationFn: (d: CreateForm) => {
+      const form = new FormData();
+      form.append("name", d.name);
+      if (d.class_teacher) form.append("class_teacher", d.class_teacher);
+      if (timetable) form.append("timetable", timetable);
+      return api.post("/classes/create", form, { headers: { "Content-Type": "multipart/form-data" } });
+    },
+    onSuccess: () => {
+      toast.success("Class created");
+      qc.invalidateQueries({ queryKey: ["classes"] });
+      setShowCreate(false);
+      reset();
+      setTimetable(null);
+    },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
 
@@ -138,8 +151,13 @@ export default function ClassesPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-1.5">
+              <Label>Timetable (optional)</Label>
+              <Input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => setTimetable(e.target.files?.[0] ?? null)} />
+              {timetable && <p className="text-xs text-muted-foreground">{timetable.name}</p>}
+            </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => { setShowCreate(false); reset(); }}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => { setShowCreate(false); reset(); setTimetable(null); }}>Cancel</Button>
               <Button type="submit" disabled={createMutation.isPending}>
                 {createMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Create Class
               </Button>

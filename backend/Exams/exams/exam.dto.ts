@@ -2,26 +2,34 @@ import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
 import { IsString, IsOptional, MaxLength } from "class-validator";
 
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
+
 @Injectable()
-export class examDTO {
+export class CreateExamDTO {
 
     @IsString()
     @MaxLength(100)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     name!: string
 
     @IsString()
     @MaxLength(3000)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     content!: string
+}
+
+@Injectable()
+export class UpdateExamDTO {
 
     @IsString()
     @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(100)
+    @Transform(sanitize)
     new_name?: string
 
     @IsString()
     @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(3000)
+    @Transform(sanitize)
     new_content?: string
 }

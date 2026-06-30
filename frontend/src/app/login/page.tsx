@@ -18,7 +18,7 @@ import { Footer } from "@/components/layout/footer";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Enter your password"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -131,13 +131,6 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <button
-                    type="button"
-                    onClick={() => router.push("/forgot-password")}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </button>
                 </div>
                 <div className="relative">
                   <Input

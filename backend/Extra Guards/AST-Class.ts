@@ -20,7 +20,7 @@ export const AST_CLASSGuard = () => {
             req.user = data.user
             req.role = data.user.app_metadata.role
 
-            if (req.role === 'admin' || req.role === 'super_admin') return true
+            if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin') return true
 
             const school_id = data.user.app_metadata.school_id
             const class_id = req.params?.class_id ?? req.params?.class_id ?? req.params?.id

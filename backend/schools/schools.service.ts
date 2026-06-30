@@ -4,17 +4,9 @@ import { supabaseService } from "supabase_service/supabase.service";
 @Injectable()
 export class schoolsService {
 
+    //// for schools to edit their own info
+
     constructor(private readonly supabase: supabaseService){}
-
-    async getAllSchools () {
-        const {data, error} = await this.supabase.db
-        .from('Schools')
-        .select('id, name')
-        .order('name', {ascending: true})
-
-        if(error) throw new InternalServerErrorException (error.message)
-        return data
-    }
 
     async editInfo (id: string, address?: string, phone?: string, name?: string, email?: string) {
         const updates: Record <any, string> = {}

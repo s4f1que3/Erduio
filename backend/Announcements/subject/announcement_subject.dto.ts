@@ -1,23 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
-import { IsString, IsOptional, MaxLength } from "class-validator";
+import { IsString, MaxLength } from "class-validator";
+
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
 @Injectable()
 export class subjectAnnouncementDTO {
-    
+
     @IsString()
     @MaxLength(100)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     title!: string
 
     @IsString()
     @MaxLength(3000)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     content!: string
-
-    @IsString()
-    upload_url!: string
-
-    @IsOptional()
-    upload?: Express.Multer.File
 }

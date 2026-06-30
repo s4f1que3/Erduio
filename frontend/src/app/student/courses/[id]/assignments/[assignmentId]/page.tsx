@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api, getErrorMessage, downloadFromUrl } from "@/lib/api";
-import { getSession } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
 import { PageShell, Section } from "@/components/ui/page-shell";
 import { Button } from "@/components/ui/button";
@@ -26,14 +25,13 @@ export default function StudentAssignmentDetailPage() {
   const router = useRouter();
   const subjectId = params.id;
   const assignmentId = params.assignmentId;
-  const session = getSession();
-  const studentId = session?.user.id ?? "";
   const [file, setFile] = useState<File | null>(null);
 
   const { data: profile } = useQuery({
     queryKey: ["student-me-profile"],
     queryFn: async () => (await api.get("/student/me/profile")).data as StudentProfile,
   });
+  const studentId = profile?.id ?? "";
   const subject = (profile?.subjects ?? []).find((s) => s.id === subjectId);
 
   const { data: assignments = [], isLoading } = useQuery({

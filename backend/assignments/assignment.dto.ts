@@ -1,53 +1,52 @@
 import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
-import { IsString, IsDate, IsOptional, MaxLength } from "class-validator";
+import { IsString, IsOptional, MaxLength } from "class-validator";
+
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
 @Injectable()
-export class assignmentDTO {
+export class CreateAssignmentDTO {
 
     @IsString()
     @MaxLength(100)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     name!: string
 
     @IsString()
     @MaxLength(3000)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     description!: string
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    teacher_id!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(20)
+    @Transform(sanitize)
     due_date!: string
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @Transform(sanitize)
     subject_id!: string
+}
+
+@Injectable()
+export class ExtendAssignmentDTO {
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    class_id!: string
+    @MaxLength(20)
+    @Transform(sanitize)
+    due_date!: string
+}
+
+@Injectable()
+export class GradeAssignmentDTO {
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    student_id!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(10)
+    @Transform(sanitize)
     grade!: string
 
     @IsString()
     @IsOptional()
-    @MaxLength(100)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(500)
+    @Transform(sanitize)
     message?: string
-
-    @IsString()
-    @IsOptional()
-    @MaxLength(100)
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    optional_message?: string
 }

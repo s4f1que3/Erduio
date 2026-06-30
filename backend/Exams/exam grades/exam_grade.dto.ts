@@ -1,27 +1,36 @@
 import { Injectable } from "@nestjs/common";
-import { IsString, IsOptional } from "class-validator";
+import { IsString, IsOptional, MaxLength } from "class-validator";
 import { Transform } from "class-transformer";
 
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
+
 @Injectable()
-export class examGradeDTO {
+export class AddExamGradeDTO {
 
     @IsString()
-    @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(10)
+    @Transform(sanitize)
     grade!: string
 
     @IsString()
     @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    message!: string
+    @MaxLength(500)
+    @Transform(sanitize)
+    message?: string
+}
+
+@Injectable()
+export class UpdateExamGradeDTO {
 
     @IsString()
     @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    new_message?: string
-
-    @IsString()
-    @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(10)
+    @Transform(sanitize)
     new_grade?: string
+
+    @IsString()
+    @IsOptional()
+    @MaxLength(500)
+    @Transform(sanitize)
+    new_message?: string
 }

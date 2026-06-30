@@ -893,6 +893,24 @@ export type Database = {
           },
         ]
       }
+      Onwer_Logs: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+        }
+        Relationships: []
+      }
       Parents: {
         Row: {
           created_at: string
@@ -1516,6 +1534,8 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      disable_school: { Args: { school_id: string }; Returns: undefined }
+      enable_school: { Args: { school_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

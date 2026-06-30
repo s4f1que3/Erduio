@@ -19,7 +19,8 @@ export class GlobalGuard implements CanActivate{
         if(error || !data.user) throw new UnauthorizedException()
         
         req.user = data.user
-        req.school_id = req.user.app_metadata.scool_id
+        req.role = data.user.app_metadata.role
+        req.school_id = req.user.app_metadata.school_id ?? req.params.school_id
 
         return true
     }

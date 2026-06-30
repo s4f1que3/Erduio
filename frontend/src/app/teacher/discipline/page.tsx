@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useQueries, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,19 +17,49 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/utils";
 import { Plus, Loader2, Trash2 } from "lucide-react";
-import { StudentPicker } from "@/components/student-picker";
+import { StudentPicker, type StudentOption } from "@/components/student-picker";
 
 const schema = z.object({ action: z.string().min(2), message: z.string().min(5), date: z.string().min(1) });
 type Form = z.infer<typeof schema>;
-type Student = { user_id: string; name: string };
+type TeacherProfile = {
+  classes: { id: string; name: string }[];
+  subjects: { id: string; name: string | null; class_id: string; class_name: string | null }[];
+};
 
 export default function TeacherDisciplinePage() {
   const qc = useQueryClient();
-  const [student, setStudent] = useState<Student | null>(null);
+  const [student, setStudent] = useState<StudentOption | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const { register, handleSubmit, reset } = useForm<Form>({ resolver: zodResolver(schema) });
 
-  const searchedId = student?.user_id ?? "";
+  const { data: profile } = useQuery({
+    queryKey: ["teacher-me-profile"],
+    queryFn: async () => (await api.get("/teacher/me/profile")).data as TeacherProfile,
+  });
+
+  const classRosters = useQueries({
+    queries: (profile?.classes ?? []).map((c) => ({
+      queryKey: ["class-roster", c.id],
+      queryFn: async () => (await api.get(`/classes/${c.id}/students`)).data as StudentOption[],
+    })),
+  });
+  const subjectRosters = useQueries({
+    queries: (profile?.subjects ?? []).map((s) => ({
+      queryKey: ["course-roster", s.id],
+      queryFn: async () => (await api.get(`/classes/subjects/${s.id}/students`)).data as StudentOption[],
+    })),
+  });
+
+  const myStudents = useMemo(() => {
+    const map = new Map<string, StudentOption>();
+    for (const q of [...classRosters, ...subjectRosters]) {
+      for (const s of q.data ?? []) map.set(s.id, s);
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classRosters, subjectRosters]);
+
+  const searchedId = student?.id ?? "";
 
   const { data: records = [], isLoading } = useQuery({
     queryKey: ["discipline", searchedId],
@@ -56,7 +86,7 @@ export default function TeacherDisciplinePage() {
         <Section>
           <div className="space-y-1.5 max-w-sm">
             <Label>Student</Label>
-            <StudentPicker value={student} onSelect={setStudent} />
+            <StudentPicker students={myStudents} value={student} onSelect={setStudent} />
           </div>
         </Section>
         {searchedId ? (

@@ -19,10 +19,8 @@ export class StudentGuard implements CanActivate{
         req.user = data.user
         req.role = data.user.app_metadata.role
 
-        if(req.role === 'student') {
-            return true
-        } else {
-            return false
-        }
+        if(req.role === 'student' || req.role === 'owner') return true
+
+        return false
     }
 }

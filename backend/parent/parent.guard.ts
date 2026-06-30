@@ -20,10 +20,9 @@ export class ParentGuard implements CanActivate{
         req.user = data.user
         req.role = data.user.app_metadata.role
 
-        if(req.role === 'parent') {
-            return true
-        } else {
-            return false
-        }
+        req.role = data.user.app_metadata.role
+        if(req.role === 'owner' || req.role === 'parent') return true
+
+        return false
     }
 }

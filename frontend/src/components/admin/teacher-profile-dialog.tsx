@@ -16,6 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EntityAvatar } from "@/components/profile/entity-avatar";
 import { statusBadgeVariant, formatDate } from "@/lib/utils";
 import { Loader2, Pencil, ArrowLeft, User, Mail, Lock, BookOpen, Trash2 } from "lucide-react";
+import { passwordSchema } from "@/lib/password";
+import { PasswordRequirements } from "@/components/ui/password-requirements";
 
 interface TeacherProfileDialogProps {
   teacherId: string | null;
@@ -25,7 +27,7 @@ interface TeacherProfileDialogProps {
 
 const infoSchema = z.object({ name: z.string().min(2), phone: z.string().min(7) });
 const emailSchema = z.object({ new_email: z.string().email() });
-const pwSchema = z.object({ password: z.string().min(8), confirm: z.string() })
+const pwSchema = z.object({ password: passwordSchema, confirm: z.string() })
   .refine((d) => d.password === d.confirm, { message: "Passwords don't match", path: ["confirm"] });
 
 export function TeacherProfileDialog({ teacherId, open, onOpenChange }: TeacherProfileDialogProps) {
@@ -41,6 +43,7 @@ export function TeacherProfileDialog({ teacherId, open, onOpenChange }: TeacherP
   const infoForm = useForm({ resolver: zodResolver(infoSchema) });
   const emailForm = useForm({ resolver: zodResolver(emailSchema) });
   const pwForm = useForm({ resolver: zodResolver(pwSchema) });
+  const newPassword = pwForm.watch("password");
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["teacher-profile", teacherId] });
@@ -214,6 +217,8 @@ export function TeacherProfileDialog({ teacherId, open, onOpenChange }: TeacherP
                     <div className="space-y-1"><Label className="text-xs">New Password</Label><Input type="password" {...pwForm.register("password")} /></div>
                     <div className="space-y-1"><Label className="text-xs">Confirm</Label><Input type="password" {...pwForm.register("confirm")} /></div>
                   </div>
+                  <PasswordRequirements password={newPassword} />
+                  {pwForm.formState.errors.password && <p className="text-xs text-destructive">{pwForm.formState.errors.password.message}</p>}
                   {pwForm.formState.errors.confirm && <p className="text-xs text-destructive">{pwForm.formState.errors.confirm.message}</p>}
                   <Button type="submit" size="sm" disabled={updatePassword.isPending}>
                     {updatePassword.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Update Password

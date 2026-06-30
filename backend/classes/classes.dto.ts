@@ -1,67 +1,81 @@
 import { Injectable } from "@nestjs/common";
 import { Transform } from "class-transformer";
-import { IsOptional, IsString, IsArray } from "class-validator";
+import { ArrayMaxSize, IsArray, IsOptional, IsString, MaxLength } from "class-validator";
+
+const sanitize = ({ value }: { value: unknown }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value;
 
 @Injectable()
-export class classesDto {
+export class CreateClassDTO {
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
+    @MaxLength(100)
+    @Transform(sanitize)
     name!: string
 
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    class_teacher!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    class_id!: string
-
-    @IsString()
-    timetable_url!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    status!: string
+    @IsOptional()
+    @Transform(sanitize)
+    class_teacher?: string
 
     @IsArray()
-    subjects!: string[]
-
     @IsOptional()
-    timetable!: Express.Multer.File
+    @ArrayMaxSize(50)
+    subjects?: unknown[]
 }
 
 @Injectable()
-export class updateClassesDto {
-
-    @IsString()
-    @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    new_name?: string
-
-    @IsString()
-    @IsOptional()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    class_teacher?: string
-
-    @IsString()
-    @IsOptional()
-    timetable_url?: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    status!: string
-
-    @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.replace(/<\/?[^>]+(>|$)/g, "") : value) 
-    class_id!: string
-
-    @IsString()
-    path!: string
+export class AddSubjectsDTO {
 
     @IsArray()
-    subjects!: string[]
+    @ArrayMaxSize(50)
+    subjects!: unknown[]
+}
 
+@Injectable()
+export class ChangeClassTeacherDTO {
+
+    @IsString()
+    @Transform(sanitize)
+    class_teacher!: string
+}
+
+@Injectable()
+export class ChangeClassNameDTO {
+
+    @IsString()
+    @MaxLength(100)
+    @Transform(sanitize)
+    name!: string
+}
+
+@Injectable()
+export class RemoveSubjectsDTO {
+
+    @IsArray()
+    @ArrayMaxSize(50)
+    @IsString({ each: true })
+    subjects!: string[]
+}
+
+@Injectable()
+export class RemoveTimetableDTO {
+
+    @IsString()
+    @Transform(sanitize)
+    path!: string
+}
+
+@Injectable()
+export class UpdateSubjectDTO {
+
+    @IsString()
     @IsOptional()
-    new_timetable!: Express.Multer.File
+    @MaxLength(100)
+    @Transform(sanitize)
+    name?: string
+
+    @IsString()
+    @IsOptional()
+    @Transform(sanitize)
+    teacher_id?: string
 }

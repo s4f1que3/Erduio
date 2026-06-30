@@ -9,7 +9,7 @@ export const ParentStudentGuard = () => {
         constructor(public readonly supabase: supabaseService, public readonly swap: uuidSwapService) {}
 
         async canActivate(context: ExecutionContext): Promise<boolean> {
-            const req = context.switchToHttp().getRequest<Request & {user: any}>()
+            const req = context.switchToHttp().getRequest<Request & {user: any, role: string}>()
             const token = req.headers.authorization?.split(' ')[1]
             if(!token) throw new UnauthorizedException()
 

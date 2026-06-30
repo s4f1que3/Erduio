@@ -15,6 +15,65 @@ export class superAdminService {
         private readonly swap: uuidSwapService
     ){}
 
+    async createSuperAdmin (name: string, email: string, password: string, phone: string, school_id: string) {
+        const {data: fdata, error: ferror} = await this.supabaseAdmin.db.auth.admin.createUser({
+            email: email,
+            password: password,
+            email_confirm: true
+        })
+        if(ferror) throw new InternalServerErrorException(ferror.message)
+        const {data, error} = await this.supabase.db
+        .from('Super_Admins')
+        .insert({
+            email: email,
+            name: name,
+            phone_number: phone,
+            user_id: fdata.user.id,
+            school_id: school_id,
+            status: 'active'
+        })
+        if(error) throw new InternalServerErrorException(error.message)
+        return data && fdata
+        
+    }
+
+    async deleteSuperAdmin (school_id: string, id: string) {
+        const auth = await this.swap.swapUUIDFromIdToAuth(school_id, id)
+        const {error} = await this.supabaseAdmin.db.auth.admin.updateUserById(auth, {
+            ban_duration: '9000h'
+        })
+        if(error) throw new InternalServerErrorException(error.message)
+        const {error: nerror} = await this.supabase.db
+        .from('Super_Admins')
+        .update({
+            status: 'inactive'
+        })
+        .eq('school_id', school_id)
+        .eq('id', id)
+        if(nerror) throw new InternalServerErrorException(nerror.message)
+    }
+
+    async restoreSuperAdmin (school_id: string, id: string) {
+        const auth = await this.swap.swapUUIDFromIdToAuth(school_id, id)
+        const {error} = await this.supabaseAdmin.db.auth.admin.updateUserById(auth, {
+            ban_duration: 'none'
+        })
+        if(error) throw new InternalServerErrorException(error.message)
+        const {error: nerror} = await this.supabase.db
+        .from('Super_Admins')
+        .update({
+            status: 'active'
+        })
+        .eq('school_id', school_id)
+        .eq('id', id)
+        if(nerror) throw new InternalServerErrorException(nerror.message)
+    }
+
+
+
+
+
+
 
     ///// SUPER ADMIN PERSONAL
     async changeSuperAdminInfo(school_id: string, id: string, phone?: string, name?: string) {
@@ -145,6 +204,28 @@ export class superAdminService {
             if(error) throw new InternalServerErrorException  (error.message)
             return data && odata
         }
+    }
+
+
+    /// 
+    async getActiveAdmins (school_id: string) {
+        const {data, error} = await this.supabase.db
+        .from('Super_Admins')
+        .select('*')
+        .eq('status', 'active')
+        .eq('school_id', school_id)
+        if(error) throw new InternalServerErrorException  (error.message)
+        return data
+    }
+
+    async getInactiveAdmins (school_id: string) {
+        const {data, error} = await this.supabase.db
+        .from('Super_Admins')
+        .select('*')
+        .eq('status', 'inactive')
+        .eq('school_id', school_id)
+        if(error) throw new InternalServerErrorException  (error.message)
+        return data
     }
 
 

@@ -1,7 +1,8 @@
 import { Controller, Req, Patch, Get, Body, Param, UseGuards, Post, UseInterceptors, UploadedFile, UploadedFiles } from "@nestjs/common"
 import { superAdminService } from "./super_admin.service"
-import { FileFieldsInterceptor, FileInterceptor } from "@nestjs/platform-express"
+import { FileInterceptor } from "@nestjs/platform-express"
 import { Super_AdminGuard } from "super_admin/super_admin.guard"
+import { resolveSchoolId } from "overrides/school_id.override";
 import { UpdateSuperAdminInfoPersonalDTO, UpdateSuperAdminEmailPersonalDTO, UpdateSuperAdminPasswordPersonalDTO } from "./super_admin.dto"
 import { uuidSwapService } from "pipes/transformuuid.pipe"
 import { GlobalGuard } from "Extra Guards/global.guard"
@@ -17,18 +18,15 @@ import { GlobalGuard } from "Extra Guards/global.guard"
     @Patch('super/update-info/')
     @UseGuards(Super_AdminGuard)
     async updateSuperAdminInfo(@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateSuperAdminInfoPersonalDTO) {
-        const school_id = req.user.app_metadata.school_id
-
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
-
         return this.superAdmin.changeSuperAdminInfo(school_id, user_id, dto.new_phone, dto.new_name)
     }
     
     @Patch('super/update-email')
     @UseGuards(Super_AdminGuard)
     async updateSuperAdminEmail (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateSuperAdminEmailPersonalDTO) {
-        const school_id = req.user.app_metadata.school_id
-
+        const school_id = resolveSchoolId(req)
         return await this.superAdmin.changeSuperAdminEmail(school_id, req.user.id, req.user.email, dto.new_email, dto.token)
     }
 
@@ -42,7 +40,7 @@ import { GlobalGuard } from "Extra Guards/global.guard"
     @UseGuards(Super_AdminGuard)
     @UseInterceptors(FileInterceptor('pfp'))
     async addProfilePic (@Req() req: Request & {user: any, school_id: string}, @UploadedFile() pfp: any) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.superAdmin.addProfilePicture(school_id, user_id, pfp)
     }
@@ -50,14 +48,14 @@ import { GlobalGuard } from "Extra Guards/global.guard"
     @Get('profile-pic/:user_id')
     @UseGuards(GlobalGuard)
     async showProfilePic (@Req() req: Request & {user: any}, @Param('user_id') user_id: string) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         return await this.superAdmin.showProfilePicture(school_id, user_id)
     }
 
     @Get('me/profile')
     @UseGuards(Super_AdminGuard)
     async getMyProfile (@Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const id = await this.swap.swapUUID(school_id, req.user.id)
         return await this.superAdmin.getSuperAdminProfile(school_id, id)
     }
@@ -65,7 +63,7 @@ import { GlobalGuard } from "Extra Guards/global.guard"
     @Post('profile-pic/delete')
     @UseGuards(Super_AdminGuard)
     async deleteProfilePic (@Req() req: Request & {user: any, school_id: string}) {
-        const school_id = req.user.app_metadata.school_id
+        const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
         return this.superAdmin.deleteProfilePicture(school_id, user_id)
     }

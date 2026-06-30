@@ -88,7 +88,7 @@ export class disciplineService {
     async searchStudentsByName (school_id: string, name: string) {
         const {data, error} = await this.supabase.db
         .from('Students')
-        .select('user_id, name')
+        .select('id, name')
         .eq('school_id', school_id)
         .eq('status', 'active')
         .ilike('name', `%${name}%`)

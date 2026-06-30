@@ -8,6 +8,14 @@ export const api = axios.create({
   timeout: 15000,
 });
 
+let schoolIdOverride: string | null = null;
+
+// Lets the owner view a chosen school's data through the same admin endpoints,
+// which read school_id from the JWT for every other role.
+export function setSchoolIdOverride(schoolId: string | null) {
+  schoolIdOverride = schoolId;
+}
+
 const refreshClient = axios.create({ baseURL: BASE_URL, timeout: 15000 });
 
 function logout() {
@@ -43,6 +51,9 @@ api.interceptors.request.use((config) => {
   const session = getSession();
   if (session?.access_token) {
     config.headers.Authorization = `Bearer ${session.access_token}`;
+  }
+  if (schoolIdOverride) {
+    config.params = { ...(config.params ?? {}), school_id: schoolIdOverride };
   }
   return config;
 });

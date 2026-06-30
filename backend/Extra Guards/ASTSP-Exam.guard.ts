@@ -28,7 +28,7 @@ export const ASTSP_ExamGuard = () => {
             const user_id = await this.swap.swapUUID(school_id, data.user.id)
 
 
-            if (req.role === 'admin' || req.role === 'super_admin') return true
+            if (req.role === 'admin' || req.role === 'owner' || req.role === 'super_admin') return true
             if (req.role === 'student') return true
 
             const { data: cdata, error: cerror } = await this.supabase.db

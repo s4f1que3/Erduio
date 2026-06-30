@@ -1,7 +1,7 @@
 import { Controller, UseGuards, HttpCode, Post, Req, Body } from "@nestjs/common";
 import { authService } from "./auth.service";
 import { Request } from "express";
-import { authDTO } from "./global.auth.dto";
+import { VerifyOtpDTO, VerifyPasswordDTO, LoginDTO, RefreshDTO } from "./global.auth.dto";
 import { GlobalGuard } from "Extra Guards/global.guard";
 import { AuthLimiter } from "rate-limit/auth.limiter";
 
@@ -21,7 +21,7 @@ export class authController {
     @Post('verify-otp')
     @HttpCode(200)
     @UseGuards(GlobalGuard)
-    async verifyOTP (@Req() req: Request & {user: any}, @Body() dto: authDTO) {
+    async verifyOTP (@Req() req: Request & {user: any}, @Body() dto: VerifyOtpDTO) {
         const email = req.user.email
         return await this.auth.verifyOTP(email, dto.token)
     }
@@ -29,33 +29,21 @@ export class authController {
     @Post('verify-password')
     @HttpCode(200)
     @UseGuards(GlobalGuard)
-    async verifyPassword (@Req() req: Request & {user: any}, @Body() dto: authDTO) {
+    async verifyPassword (@Req() req: Request & {user: any}, @Body() dto: VerifyPasswordDTO) {
         const email = req.user.email
         return await this.auth.verifyPassword(email, dto.password)
     }
 
     @Post('Signin')
     @HttpCode(200)
-    async Login (@Body() body: {email: any, password: any}) {
+    async Login (@Body() body: LoginDTO) {
         return await this.auth.Login(body.email, body.password)
     }
 
     @Post('refresh')
     @HttpCode(200)
-    async Refresh (@Body() body: {refresh_token: string}) {
+    async Refresh (@Body() body: RefreshDTO) {
         return await this.auth.refreshSession(body.refresh_token)
-    }
-
-    @Post('forgot-password/send-otp')
-    @HttpCode(200)
-    async forgotPasswordSendOTP (@Body() body: {email: string}) {
-        return await this.auth.forgotPasswordSendOTP(body.email)
-    }
-
-    @Post('forgot-password/reset')
-    @HttpCode(200)
-    async forgotPasswordReset (@Body() body: {email: string, token: string, new_password: string}) {
-        return await this.auth.forgotPasswordReset(body.email, body.token, body.new_password)
     }
 
     @Post('SignOut')
