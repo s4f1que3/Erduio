@@ -33,21 +33,10 @@ import { ExamGradesModule } from 'Exams/exam grades/exam_grade.module';
 import { LogGetterModule } from 'logGetters/logGetter.module';
 import * as joi from 'joi'
 import { OwnerModule } from 'owner/owner.module';
+import { HealthModule } from 'health/health.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
-      isGlobal: true,
-      cache: true,
-      validationSchema: joi.object({
-        SUPABASE_URL: joi.string().uri().required(),
-        PUBLISHABLE_KEY: joi.string().required(),
-        SERVICE_ROLE_KEY: joi.string().required(),
-        UPSTASH_REDIS_REST_URL: joi.string().uri().required(),
-        UPSTASH_REDIS_REST_TOKEN: joi.string().required(),
-        
-      })
-    }),
     AdminModule,
     GeneralAnnouncementsModule,
     ClassAnnouncementsModule,
@@ -75,7 +64,8 @@ import { OwnerModule } from 'owner/owner.module';
     ExamsModule,
     ExamGradesModule,
     LogGetterModule,
-    OwnerModule
+    OwnerModule,
+    HealthModule
 
   ],
 

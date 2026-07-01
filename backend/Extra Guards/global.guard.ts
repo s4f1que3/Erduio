@@ -1,18 +1,25 @@
 import { Injectable } from "@nestjs/common";
 import { CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
 import { supabaseService } from "supabase_service/supabase.service";
-import { ForbiddenException } from "@nestjs/common"
+import { Reflector } from "@nestjs/core";
 
 //// guard for admins AND super admins
 
 @Injectable()
 export class GlobalGuard implements CanActivate{
-    constructor(private readonly supabase: supabaseService){}
+    constructor(private readonly supabase: supabaseService, private readonly reflector: Reflector){}
     async canActivate(
         context: ExecutionContext,
     ): Promise<boolean> {
         const req = context.switchToHttp().getRequest()
         const token = req.headers.authorization?.split(' ')[1]
+
+        const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+            context.getHandler(),
+            context.getClass()
+        ])
+
+        if(isPublic) return true
 
         if(!token) throw new UnauthorizedException()
         const {data, error} = await this.supabase.db.auth.getUser(token)
