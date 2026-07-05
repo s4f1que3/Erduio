@@ -30,7 +30,7 @@ const newParentSchema = z.object({
   student_password: passwordSchema,
   student_phone: z.string().min(7, "Enter a valid phone number"),
   classID: z.string().min(1, "Please select a class"),
-  subjects: z.array(z.string()).default([]),
+  subjects: z.array(z.string()),
   parent_name: z.string().min(2, "Name must be at least 2 characters"),
   parent_email: z.string().email("Enter a valid email address"),
   parent_password: passwordSchema,
@@ -42,7 +42,7 @@ const existingParentSchema = z.object({
   student_password: passwordSchema,
   student_phone: z.string().min(7, "Enter a valid phone number"),
   classID: z.string().min(1, "Please select a class"),
-  subjects: z.array(z.string()).default([]),
+  subjects: z.array(z.string()),
   parent_id: z.string().min(1, "Please select a parent"),
 });
 
