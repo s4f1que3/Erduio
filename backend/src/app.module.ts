@@ -32,7 +32,7 @@ import { ExamGradesModule } from 'Exams/exam grades/exam_grade.module';
 import { LogGetterModule } from 'logGetters/logGetter.module';
 import { OwnerModule } from 'owner/owner.module';
 import { HealthModule } from 'health/health.module';
-import { SentryGlobalFilter } from 'node_modules/@sentry/nestjs/setup';
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 
 @Module({
   imports: [
