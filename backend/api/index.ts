@@ -1,3 +1,13 @@
+// The rest of this codebase imports its own top-level folders as bare
+// specifiers (e.g. 'rate-limit/general.limiter') relying on tsconfig's
+// baseUrl, which only affects TypeScript's type-checker, not the emitted
+// require() calls. Vercel transpiles this file's import tree at runtime
+// without running our build script, so Node's own resolver needs to be
+// told about the project root before AppModule (and everything it pulls
+// in transitively) gets required below.
+process.env.NODE_PATH = require('path').join(__dirname, '..');
+require('module').Module._initPaths();
+
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
