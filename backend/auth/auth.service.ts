@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException, InternalServerErrorException } from 
 import { supabaseService } from "../supabase_service/supabase.service"
 import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service"
 import { uuidSwapService } from "../pipes/transformuuid.pipe"
-import { sentryService } from "../sentry/sentry.service"
 
 @Injectable()
 export class authService {
@@ -11,7 +10,6 @@ export class authService {
         private readonly supabase: supabaseService,
         private readonly supabaseAdmin: supabaseAdminService,
         private readonly swap: uuidSwapService,
-        private readonly sen: sentryService
     ){}
 
     async sendOTP(email: string) {
@@ -73,7 +71,6 @@ export class authService {
         })
 
         if(error) throw new InternalServerErrorException(error.message)
-        await this.sen.sentryException(error)
         return data
     }
 

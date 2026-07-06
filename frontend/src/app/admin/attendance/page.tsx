@@ -21,10 +21,25 @@ import { ClipboardCheck, Loader2 } from "lucide-react";
 
 type Roster = { id: string; name: string; pfp_path?: string | null }[];
 
+function groupByDate(records: Record<string, unknown>[]) {
+  const byDate = new Map<string, { present: number; total: number }>();
+  for (const r of records) {
+    const date = String(r.date);
+    const entry = byDate.get(date) ?? { present: 0, total: 0 };
+    entry.total += 1;
+    if (r.present) entry.present += 1;
+    byDate.set(date, entry);
+  }
+  return Array.from(byDate.entries())
+    .map(([date, { present, total }]) => ({ date, present, total }))
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
 export default function AttendancePage() {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [takeClassOpen, setTakeClassOpen] = useState(false);
+  const [dayDialogDate, setDayDialogDate] = useState<string | null>(null);
 
   const { data: classes = [] } = useQuery({
     queryKey: ["classes"],
@@ -94,12 +109,13 @@ export default function AttendancePage() {
               columns={[
                 { key: "date", label: "Date", render: (r) => formatDate(r.date as string) },
                 { key: "present", label: "Present", render: (r) => (
-                  <Badge variant={r.present ? "default" : "destructive"}>
-                    {r.present ? "Present" : "Absent"}
+                  <Badge variant={r.present === r.total ? "default" : "destructive"}>
+                    {String(r.present)}/{String(r.total)} present
                   </Badge>
                 )},
               ]}
-              data={attendance}
+              data={groupByDate(attendance as Record<string, unknown>[])}
+              onRowClick={(r) => setDayDialogDate(String(r.date))}
             />
             {!selectedClass && (
               <p className="text-center text-muted-foreground text-sm py-8">Select a class to view attendance</p>
@@ -119,6 +135,14 @@ export default function AttendancePage() {
         submitUrl={`/attendance/take/class/${selectedClass}`}
         invalidateKey={["attendance-class"]}
       />
+
+      <AttendanceDayDialog
+        open={dayDialogDate !== null}
+        onOpenChange={(open) => !open && setDayDialogDate(null)}
+        date={dayDialogDate ?? ""}
+        roster={classRoster}
+        records={(attendance as Record<string, unknown>[]).filter((r) => r.date === dayDialogDate)}
+      />
     </>
   );
 }
@@ -128,6 +152,7 @@ function SubjectAttendanceView({ classes }: { classes: Record<string, unknown>[]
   const [subjectId, setSubjectId] = useState("");
   const [date, setDate] = useState("");
   const [takeOpen, setTakeOpen] = useState(false);
+  const [dayDialogDate, setDayDialogDate] = useState<string | null>(null);
 
   const { data: subjects = [] } = useQuery({
     queryKey: ["class-subjects", classId],
@@ -152,6 +177,10 @@ function SubjectAttendanceView({ classes }: { classes: Record<string, unknown>[]
     },
     enabled: !!subjectId,
   });
+
+  const subjectRoster: Roster = (roster as Record<string, unknown>[]).map((s) => ({
+    id: String(s.id), name: String(s.name ?? ""), pfp_path: s.pfp_path as string | null,
+  }));
 
   return (
     <Section>
@@ -190,20 +219,80 @@ function SubjectAttendanceView({ classes }: { classes: Record<string, unknown>[]
         loading={isLoading && !!subjectId}
         columns={[
           { key: "date", label: "Date", render: (r) => formatDate(r.date as string) },
-          { key: "present", label: "Present", render: (r) => <Badge variant={r.present ? "default" : "destructive"}>{r.present ? "Present" : "Absent"}</Badge> },
+          { key: "present", label: "Present", render: (r) => (
+            <Badge variant={r.present === r.total ? "default" : "destructive"}>
+              {String(r.present)}/{String(r.total)} present
+            </Badge>
+          )},
         ]}
-        data={attendance}
+        data={groupByDate(attendance as Record<string, unknown>[])}
+        onRowClick={(r) => setDayDialogDate(String(r.date))}
       />
       {!subjectId && <p className="text-center text-muted-foreground text-sm py-8">Select a class and subject to view attendance</p>}
 
       <TakeAttendanceDialog
         open={takeOpen}
         onOpenChange={setTakeOpen}
-        roster={(roster as Record<string, unknown>[]).map((s) => ({ id: String(s.id), name: String(s.name ?? ""), pfp_path: s.pfp_path as string | null }))}
+        roster={subjectRoster}
         submitUrl={`/attendance/take/subject/${subjectId}`}
         invalidateKey={["attendance-subject"]}
       />
+
+      <AttendanceDayDialog
+        open={dayDialogDate !== null}
+        onOpenChange={(open) => !open && setDayDialogDate(null)}
+        date={dayDialogDate ?? ""}
+        roster={subjectRoster}
+        records={(attendance as Record<string, unknown>[]).filter((r) => r.date === dayDialogDate)}
+      />
     </Section>
+  );
+}
+
+function AttendanceDayDialog({
+  open, onOpenChange, date, roster, records,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  date: string;
+  roster: Roster;
+  records: Record<string, unknown>[];
+}) {
+  const presentByStudent = new Map(records.map((r) => [String(r.student_id), Boolean(r.present)]));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>Attendance {date && `— ${formatDate(date)}`}</DialogTitle></DialogHeader>
+
+        {roster.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-4 text-center">No students found</p>
+        ) : (
+          <div className="space-y-1.5 max-h-96 overflow-y-auto border border-border rounded-lg p-2">
+            {roster.map((s) => {
+              const hasRecord = presentByStudent.has(s.id);
+              const present = presentByStudent.get(s.id) ?? false;
+              return (
+                <div key={s.id} className="flex items-center gap-3 p-2 rounded-md">
+                  <EntityAvatar
+                    id={s.id}
+                    pfpPath={s.pfp_path}
+                    name={s.name}
+                    endpoint="/student/profile-pic"
+                    className="h-7 w-7"
+                    fallbackClassName="text-xs"
+                  />
+                  <span className="flex-1 text-sm">{s.name}</span>
+                  <Badge variant={!hasRecord ? "secondary" : present ? "default" : "destructive"}>
+                    {!hasRecord ? "No record" : present ? "Present" : "Absent"}
+                  </Badge>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
