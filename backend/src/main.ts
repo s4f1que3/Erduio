@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { INestApplication } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-import { AllExceptionsFilter } from 'Filters/all-exceptions.filter';
+import { AllExceptionsFilter } from '../Filters/all-exceptions.filter';
 
 
 async function bootstrap() {
