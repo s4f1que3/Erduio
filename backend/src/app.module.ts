@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { GeneralLimiter } from 'rate-limit/general.limiter';
 import { AdminModule } from 'admin/admin.module';
@@ -34,6 +34,7 @@ import { LogGetterModule } from 'logGetters/logGetter.module';
 import * as joi from 'joi'
 import { OwnerModule } from 'owner/owner.module';
 import { HealthModule } from 'health/health.module';
+import { SentryGlobalFilter } from 'node_modules/@sentry/nestjs/setup';
 
 @Module({
   imports: [
@@ -75,6 +76,10 @@ import { HealthModule } from 'health/health.module';
       provide: APP_GUARD,
       useClass: GeneralLimiter,
     },
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter
+    }
   ],
 })
 export class AppModule {}
