@@ -17,7 +17,7 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const corsOptions: CorsOptions = {
-    origin: ['http://localhost:3001'],
+    origin: ['http://localhost:3001', 'https://erduio-frontend.vercel.app'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization',
