@@ -58,5 +58,8 @@ export default async function handler(req: Request, res: Response) {
     bootstrapped = bootstrap();
   }
   await bootstrapped;
+  if (!req.socket) {
+    (req as any).socket = (req as any).connection ?? {};
+  }
   server(req, res);
 }
