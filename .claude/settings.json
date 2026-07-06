@@ -12,7 +12,8 @@
       "Bash(npx eslint *)",
       "Bash(python3 -c ' *)",
       "Bash(git fetch *)",
-      "Bash(curl -s -i https://erduio.vercel.app/)"
+      "Bash(curl -s -i https://erduio.vercel.app/)",
+      "WebSearch"
     ],
     "additionalDirectories": [
       "/Users/safiq/projects/school_management_system/frontend/src/app/teacher/courses"
