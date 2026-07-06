@@ -1,3 +1,4 @@
+import '../src/instrument'
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
@@ -14,7 +15,7 @@ let bootstrapped: Promise<void> | null = null;
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
-  app.useGlobalFilters(new AllExceptionsFilter());
+  //app.useGlobalFilters(new AllExceptionsFilter()); de-comment when in dev
 
   const corsOptions: CorsOptions = {
     origin: ['http://localhost:3001', 'https://erduio-frontend.vercel.app'],
@@ -23,6 +24,7 @@ async function bootstrap(): Promise<void> {
     allowedHeaders: 'Content-Type,Authorization',
   };
   app.enableCors(corsOptions);
+
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -36,6 +38,7 @@ async function bootstrap(): Promise<void> {
     stopAtFirstError: true,
   }));
 
+
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
@@ -45,8 +48,10 @@ async function bootstrap(): Promise<void> {
     },
   }));
 
+
   await app.init();
 }
+
 
 export default async function handler(req: Request, res: Response) {
   if (!bootstrapped) {

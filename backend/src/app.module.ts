@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
 import { GeneralLimiter } from 'rate-limit/general.limiter';
 import { AdminModule } from 'admin/admin.module';
 import { GeneralAnnouncementsModule } from 'Announcements/General/announcements_general.module';
@@ -31,7 +30,6 @@ import { SchoolsModule } from 'schools/schools.module';
 import { ExamsModule } from 'Exams/exams/exam.module';
 import { ExamGradesModule } from 'Exams/exam grades/exam_grade.module';
 import { LogGetterModule } from 'logGetters/logGetter.module';
-import * as joi from 'joi'
 import { OwnerModule } from 'owner/owner.module';
 import { HealthModule } from 'health/health.module';
 import { SentryGlobalFilter } from 'node_modules/@sentry/nestjs/setup';
