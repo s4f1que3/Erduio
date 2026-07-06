@@ -10,7 +10,8 @@
       "Bash(python3 -c \"import json; print\\(json.load\\(open\\('/tmp/session.json'\\)\\)['access_token']\\)\")",
       "Bash(curl -s -i http://localhost:3000/classes/subjects/8696e13f-829c-4351-a3d1-002c2ebc44ac/students -H 'Authorization: Bearer __CMDSUB_OUTPUT__')",
       "Bash(npx eslint *)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(git fetch *)"
     ],
     "additionalDirectories": [
       "/Users/safiq/projects/school_management_system/frontend/src/app/teacher/courses"
