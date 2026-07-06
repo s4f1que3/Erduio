@@ -2,13 +2,13 @@ import { Controller, Get, Req, UseGuards, Post, UseInterceptors, Delete, Uploade
 import { FileInterceptor } from "@nestjs/platform-express";
 import { schoolsService } from "./schools.service";
 import { Request } from "express";
-import { GlobalGuard } from "Extra Guards/global.guard";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
+import { GlobalGuard } from "../Extra Guards/global.guard";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { schoolDTO } from "./schools.dto";
 
 @Controller('schools')

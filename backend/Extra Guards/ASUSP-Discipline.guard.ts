@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, UnauthorizedException, ExecutionContext, mixin, InternalServerErrorException, NotFoundException } from "@nestjs/common"
-import { supabaseService } from "supabase_service/supabase.service"
+import { supabaseService } from "../supabase_service/supabase.service"
 import type { Request } from "express"
-import { uuidSwapService } from "pipes/transformuuid.pipe"
+import { uuidSwapService } from "../pipes/transformuuid.pipe"
 import { ForbiddenException } from "@nestjs/common"
 
 /// guard for admins, super admins, the user who issued the discipline record, any student, or the parent of a student

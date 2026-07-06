@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, UnauthorizedException, ExecutionContext, mixin, ForbiddenException } from "@nestjs/common"
-import { supabaseService } from "supabase_service/supabase.service"
+import { supabaseService } from "../supabase_service/supabase.service"
 import type { Request } from "express"
 
 /// guard for admins, super admins, or the class teacher

@@ -3,14 +3,14 @@ import { Request } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { classesService } from "./classes.service";
 import { CreateClassDTO, AddSubjectsDTO, ChangeClassTeacherDTO, ChangeClassNameDTO, RemoveSubjectsDTO, RemoveTimetableDTO, UpdateSubjectDTO } from "./classes.dto";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { GlobalGuard } from "Extra Guards/global.guard";
-import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { GlobalGuard } from "../Extra Guards/global.guard";
+import { AST_SubjectGuard } from "../Extra Guards/AST-Subject";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
 
 @Controller('classes')
 export class classesController {

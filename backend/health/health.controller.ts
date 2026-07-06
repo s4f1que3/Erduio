@@ -1,5 +1,5 @@
 import { Controller, Get} from "@nestjs/common";
-import { Public } from "Extra Guards/public/public.metadata";
+import { Public } from "../Extra Guards/public/public.metadata";
 import { healthService } from "./health.service";
 
 @Controller('health')

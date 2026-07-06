@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, BadRequestException, NotFoundException } from "@nestjs/common";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { supabaseService } from "supabase_service/supabase.service";
-import { termsService } from "terms/terms.service";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { supabaseService } from "../supabase_service/supabase.service";
+import { termsService } from "../terms/terms.service";
 
 @Injectable()
 export class assignmentService {

@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, UnauthorizedException, ExecutionContext, mixin, ForbiddenException } from "@nestjs/common"
-import { supabaseService } from "supabase_service/supabase.service"
+import { supabaseService } from "../supabase_service/supabase.service"
 import type { Request } from "express"
-import { uuidSwapService } from "pipes/transformuuid.pipe"
+import { uuidSwapService } from "../pipes/transformuuid.pipe"
 
 /// guard for admins, super admins, any student, or the parent of a student
 

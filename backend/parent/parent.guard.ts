@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CanActivate, ExecutionContext } from "@nestjs/common";
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../supabase_service/supabase.service";
 import { ForbiddenException } from "@nestjs/common"
 import { UnauthorizedException } from "@nestjs/common";
 

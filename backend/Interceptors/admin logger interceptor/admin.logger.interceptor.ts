@@ -1,12 +1,12 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor, UnauthorizedException} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { logGetterService } from "logGetters/logGetters.service";
-import { LoggingService } from "logging services/logging.service";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
+import { logGetterService } from "../../logGetters/logGetters.service";
+import { LoggingService } from "../../logging services/logging.service";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
 import { Observable } from "rxjs";
-import { supabaseService } from "supabase_service/supabase.service";
-import { termsService } from "terms/terms.service";
+import { supabaseService } from "../../supabase_service/supabase.service";
+import { termsService } from "../../terms/terms.service";
 
 @Injectable()
 export class AdminLogger implements NestInterceptor {

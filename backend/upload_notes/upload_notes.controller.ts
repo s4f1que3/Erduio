@@ -3,19 +3,19 @@ import { Request } from "express";
 import { uploadNotesService } from "./upload_notes.service";
 import { uploadNotesDTO, updateNotesDTO } from "./upload_notes.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { LoggingService } from "logging services/logging.service";
-import { announcementsSubjectService } from "Announcements/subject/announcement_subject.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { ASTS_SubjectGuard } from "Extra Guards/ASTS-Subjects.guard";
-import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
-import { ASTGuard } from "Extra Guards/AST.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { UploadsLimiter } from "rate-limit/uploads.limiter";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { SALogger } from "Interceptors/subject announcement logger interceptor/SA.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { SATitle } from "Interceptors/subject announcement logger interceptor/SATitle";
-import { SAMessage } from "Interceptors/subject announcement logger interceptor/SAMessage";
+import { LoggingService } from "../logging services/logging.service";
+import { announcementsSubjectService } from "../Announcements/subject/announcement_subject.service";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { ASTS_SubjectGuard } from "../Extra Guards/ASTS-Subjects.guard";
+import { AST_SubjectGuard } from "../Extra Guards/AST-Subject";
+import { ASTGuard } from "../Extra Guards/AST.guard";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { UploadsLimiter } from "../rate-limit/uploads.limiter";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { SALogger } from "../Interceptors/subject announcement logger interceptor/SA.interceptor";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { SATitle } from "../Interceptors/subject announcement logger interceptor/SATitle";
+import { SAMessage } from "../Interceptors/subject announcement logger interceptor/SAMessage";
 
 @Controller('notes')
 export class uploadedNotesController {

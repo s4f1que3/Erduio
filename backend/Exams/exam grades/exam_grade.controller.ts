@@ -1,18 +1,18 @@
 import { examGradeService } from "./exam_grade.service";
 import { AddExamGradeDTO, UpdateExamGradeDTO } from "./exam_grade.dto";
 import { Controller, Get, Post, Delete, UseGuards, Req, Param, Body, Patch, UseInterceptors } from "@nestjs/common";
-import { AST_Subject_Exam_Guard } from "Extra Guards/ATS-Subject-Exam.guard";
-import { ASSPGuard } from "Extra Guards/ASSP.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { ASTSP_ExamGuard } from "Extra Guards/ASTSP-Exam.guard";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
-import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
-import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentAnnouncementMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { AST_Subject_Exam_Guard } from "../../Extra Guards/ATS-Subject-Exam.guard";
+import { ASSPGuard } from "../../Extra Guards/ASSP.guard";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { ASTSP_ExamGuard } from "../../Extra Guards/ASTSP-Exam.guard";
+import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { StudentPersonalAnnouncementLogger} from "../../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
+import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
+import { SPATitle } from "../../Interceptors/SPA logger Interceptor/SPATitle";
+import { SPAMessage } from "../../Interceptors/SPA logger Interceptor/SPAMessage";
+import { ParentAnnouncementLogger } from "../../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { ParentAnnouncementTitle } from "../../Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ParentAnnouncementMessage } from "../../Interceptors/parent announcement logger interceptor/ParentLogMessage";
 
 @Controller('exam')
 export class examGradesController {

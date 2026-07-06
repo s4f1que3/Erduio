@@ -1,23 +1,23 @@
 import { Controller, Post, Get, Patch, UseGuards, Param, Req, Body, UseInterceptors } from "@nestjs/common";
 import { ReportCardService } from "./report_card.service";
 import { SubmitGradesDTO, SubmitStudentGradesDTO } from "./report_card.dto";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
-import { AST_CLASSGuard } from "Extra Guards/AST-Class";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { ASTGuard } from "Extra Guards/AST.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
-import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
-import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentAnnouncementMessage} from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
-import { ReportCardGenerationLimiter } from "rate-limit/report-card-generation.limiter";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { AST_SubjectGuard } from "../Extra Guards/AST-Subject";
+import { AST_CLASSGuard } from "../Extra Guards/AST-Class";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { ASTGuard } from "../Extra Guards/AST.guard";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { ParentAnnouncementLogger } from "../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { StudentPersonalAnnouncementLogger} from "../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
+import { SPATitle } from "../Interceptors/SPA logger Interceptor/SPATitle";
+import { SPAMessage } from "../Interceptors/SPA logger Interceptor/SPAMessage";
+import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ParentAnnouncementMessage} from "../Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { ReportCardGenerationLimiter } from "../rate-limit/report-card-generation.limiter";
 
 //// this whole folder was ai generated because i was tired at this point in time.
 // it was late at night. so read this code with a grain of salt

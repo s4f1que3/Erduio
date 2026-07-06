@@ -1,10 +1,10 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor, NotFoundException, UnauthorizedException} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { announcementsPersonalService } from "Announcements/Personal/announcements_personal.service";
-import { LoggingService } from "logging services/logging.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
+import { announcementsPersonalService } from "../../Announcements/Personal/announcements_personal.service";
+import { LoggingService } from "../../logging services/logging.service";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
 import { Observable } from "rxjs";
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../../supabase_service/supabase.service";
 
 @Injectable()
 export class OnwerLogger implements NestInterceptor {

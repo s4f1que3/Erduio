@@ -1,7 +1,7 @@
 import { Controller, Get, Patch, Req, Body, UseGuards, Post, Param, UploadedFiles, UseInterceptors, UploadedFile } from "@nestjs/common";
 import { Request } from "express";
 import { teacherService } from "./teacher.service";
-import { TeachersGuard } from "teachers/teacher.guard";
+import { TeachersGuard } from "./teacher.guard";
 import {
     CreateTeacherDTO,
     AdminUpdateTeacherInfoDTO,
@@ -11,19 +11,19 @@ import {
     UpdateTeacherPasswordPersonalDTO,
     UpdateTeacherInfoPersonalDTO,
 } from "./teacher.dto";
-import { LoggingService } from "logging services/logging.service";
+import { LoggingService } from "../logging services/logging.service";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { ASTGuard } from "Extra Guards/AST.guard";
-import { GlobalGuard } from "Extra Guards/global.guard";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { TeacherLogger } from "Interceptors/teacher logger interceptor interceptor/teacher.logger.interceptor";
-import { TeacherLogMessage } from "Interceptors/teacher logger interceptor interceptor/TeacherMessage";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { ASTGuard } from "../Extra Guards/AST.guard";
+import { GlobalGuard } from "../Extra Guards/global.guard";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { TeacherLogger } from "../Interceptors/teacher logger interceptor interceptor/teacher.logger.interceptor";
+import { TeacherLogMessage } from "../Interceptors/teacher logger interceptor interceptor/TeacherMessage";
 
 @Controller('teacher')
 export class teacherController {

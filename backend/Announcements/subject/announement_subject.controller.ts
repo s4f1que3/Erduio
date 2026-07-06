@@ -3,16 +3,16 @@ import { subjectAnnouncementDTO } from "./announcement_subject.dto";
 import { Controller, Get, Delete, Param, Req, Post, UseGuards, UseInterceptors, UploadedFile, Body } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { TeacherSubjectGuard } from "assignments/teacher-subject.guard";
-import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { ASTS_SubjectGuard } from "Extra Guards/ASTS-Subjects.guard";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
+import { AsGuard } from "../../Extra Guards/AS.guard";
+import { TeacherSubjectGuard } from "../../assignments/teacher-subject.guard";
+import { AST_SubjectGuard } from "../../Extra Guards/AST-Subject";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { ASTS_SubjectGuard } from "../../Extra Guards/ASTS-Subjects.guard";
+import { AdminLogger } from "../../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AdminLogMessage } from "../../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
 
 @Controller('announcements')
 export class SubjectAnnouncementsController {

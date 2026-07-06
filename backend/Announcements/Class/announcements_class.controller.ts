@@ -3,17 +3,17 @@ import { classAnnouncementDTO } from "./announcements_class.dto";
 import { Controller, Get, Delete, Param, Req, Post, UseGuards, UseInterceptors, UploadedFile, Body } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { AST_CLASSGuard } from "Extra Guards/AST-Class";
-import { ASTS_ClassGuard } from "Extra Guards/ASTS-Class";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { CALogger } from "Interceptors/Class Announcement logger Interceptor/CA.interceptor";
-import { CATitle } from "Interceptors/Class Announcement logger Interceptor/CATitle";
-import { CAMessage } from "Interceptors/Class Announcement logger Interceptor/CAMessage";
+import { AsGuard } from "../../Extra Guards/AS.guard";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { AST_CLASSGuard } from "../../Extra Guards/AST-Class";
+import { ASTS_ClassGuard } from "../../Extra Guards/ASTS-Class";
+import { AdminLogger } from "../../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AdminLogMessage } from "../../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
+import { CALogger } from "../../Interceptors/Class Announcement logger Interceptor/CA.interceptor";
+import { CATitle } from "../../Interceptors/Class Announcement logger Interceptor/CATitle";
+import { CAMessage } from "../../Interceptors/Class Announcement logger Interceptor/CAMessage";
 
 @Controller('announcements')
 export class classAnnouncementsController {

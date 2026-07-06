@@ -1,4 +1,4 @@
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../supabase_service/supabase.service";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InternalServerErrorException } from "@nestjs/common";
 

@@ -2,18 +2,18 @@ import { Controller, UseInterceptors, UseGuards, Req, Get, Post, Patch, Delete, 
 import { FileInterceptor } from "@nestjs/platform-express";
 import { examService } from "./exam.service";
 import { CreateExamDTO, UpdateExamDTO } from "./exam.dto";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { ASTGuard } from "Extra Guards/AST.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { ASTS_SubjectGuard } from "Extra Guards/ASTS-Subjects.guard";
-import { AST_Subject_Exam_Guard } from "Extra Guards/ATS-Subject-Exam.guard";
-import { ASTSGuard } from "Extra Guards/ASTS.guard";
-import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { SAMessage } from "Interceptors/subject announcement logger interceptor/SAMessage";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { SATitle } from "Interceptors/subject announcement logger interceptor/SATitle";
-import { SALogger } from "Interceptors/subject announcement logger interceptor/SA.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AsGuard } from "../../Extra Guards/AS.guard";
+import { ASTGuard } from "../../Extra Guards/AST.guard";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { ASTS_SubjectGuard } from "../../Extra Guards/ASTS-Subjects.guard";
+import { AST_Subject_Exam_Guard } from "../../Extra Guards/ATS-Subject-Exam.guard";
+import { ASTSGuard } from "../../Extra Guards/ASTS.guard";
+import { StudentPersonalAnnouncementLogger} from "../../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
+import { SAMessage } from "../../Interceptors/subject announcement logger interceptor/SAMessage";
+import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
+import { SATitle } from "../../Interceptors/subject announcement logger interceptor/SATitle";
+import { SALogger } from "../../Interceptors/subject announcement logger interceptor/SA.interceptor";
+import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
 
 @Controller('exams')
 export class examsController {

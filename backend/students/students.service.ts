@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { supabaseService } from "supabase_service/supabase.service";
-import { supabaseAdminService } from "supabaseAdminService/supabase_admin.service";
-import { authService } from "auth/auth.service";
-import { announcementsGeneralService } from "Announcements/General/announcements_general.service";
-import { announcementsClassService } from "Announcements/Class/announcement_class.service";
-import { announcementsGroupService } from "Announcements/Group/announcements_group.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { announcementsPersonalService } from "Announcements/Personal/announcements_personal.service";
+import { supabaseService } from "../supabase_service/supabase.service";
+import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service";
+import { authService } from "../auth/auth.service";
+import { announcementsGeneralService } from "../Announcements/General/announcements_general.service";
+import { announcementsClassService } from "../Announcements/Class/announcement_class.service";
+import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
 
 @Injectable()
 export class studentService {

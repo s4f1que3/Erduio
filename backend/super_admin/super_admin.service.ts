@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { authService } from "auth/auth.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { supabaseAdminService } from "supabaseAdminService/supabase_admin.service";
-import { supabaseService} from "supabase_service/supabase.service";
+import { authService } from "../auth/auth.service";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service";
+import { supabaseService} from "../supabase_service/supabase.service";
 import { InternalServerErrorException } from "@nestjs/common";
 
 @Injectable() 

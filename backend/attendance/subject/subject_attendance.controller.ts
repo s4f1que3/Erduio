@@ -1,15 +1,15 @@
 import { Controller, Post, Get, UseGuards, Param, Req, Body, UseInterceptors, LoggerService } from "@nestjs/common";
 import { subjectAttendanceService } from "./subject_attendance.service";
 import { subjectAttendanceDTO } from "./subject_attendance.dto";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { AST_SubjectGuard } from "Extra Guards/AST-Subject";
-import { ASTSP_ClassGuard } from "Extra Guards/ASTSP-Class.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { SALogger } from "Interceptors/subject announcement logger interceptor/SA.interceptor";
-import { SATitle } from "Interceptors/subject announcement logger interceptor/SATitle";
-import { SAMessage } from "Interceptors/subject announcement logger interceptor/SAMessage";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
+import { AST_SubjectGuard } from "../../Extra Guards/AST-Subject";
+import { ASTSP_ClassGuard } from "../../Extra Guards/ASTSP-Class.guard";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
+import { SALogger } from "../../Interceptors/subject announcement logger interceptor/SA.interceptor";
+import { SATitle } from "../../Interceptors/subject announcement logger interceptor/SATitle";
+import { SAMessage } from "../../Interceptors/subject announcement logger interceptor/SAMessage";
 
 @Controller('attendance')
 export class subjectAttendanceController {

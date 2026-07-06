@@ -1,9 +1,9 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { LoggingService } from "logging services/logging.service";
-import { schoolsService } from "schools/schools.service";
-import { supabaseService } from "supabase_service/supabase.service";
-import { supabaseAdminService } from "supabaseAdminService/supabase_admin.service";
-import { superAdminService } from "super_admin/super_admin.service";
+import { LoggingService } from "../logging services/logging.service";
+import { schoolsService } from "../schools/schools.service";
+import { supabaseService } from "../supabase_service/supabase.service";
+import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service";
+import { superAdminService } from "../super_admin/super_admin.service";
 
 @Injectable()
 export class ownerService {

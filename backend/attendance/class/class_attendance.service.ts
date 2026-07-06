@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { supabaseService } from "supabase_service/supabase.service";
-import { termsService } from "terms/terms.service";
+import { supabaseService } from "../../supabase_service/supabase.service";
+import { termsService } from "../../terms/terms.service";
 
 @Injectable()
 export class classAttendanceService {

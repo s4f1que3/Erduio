@@ -1,17 +1,17 @@
 import { Controller, Post, Get, UseGuards, Param, Req, Body } from "@nestjs/common";
 import { classAttendanceService } from "./class_attendance.service";
 import { classAttendanceDTO } from "./class_attendance.dto";
-import { LoggingService } from "logging services/logging.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { ASTSP_ClassGuard } from "Extra Guards/ASTSP-Class.guard";
+import { LoggingService } from "../../logging services/logging.service";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
+import { ASTSP_ClassGuard } from "../../Extra Guards/ASTSP-Class.guard";
 import { UseInterceptors } from "@nestjs/common";
-import { AST_CLASSGuard } from "Extra Guards/AST-Class";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { CALogger } from "Interceptors/Class Announcement logger Interceptor/CA.interceptor";
-import { CATitle } from "Interceptors/Class Announcement logger Interceptor/CATitle";
-import { CAMessage } from "Interceptors/Class Announcement logger Interceptor/CAMessage";
+import { AST_CLASSGuard } from "../../Extra Guards/AST-Class";
+import { resolveSchoolId } from "../../overrides/school_id.override";
+import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
+import { CALogger } from "../../Interceptors/Class Announcement logger Interceptor/CA.interceptor";
+import { CATitle } from "../../Interceptors/Class Announcement logger Interceptor/CATitle";
+import { CAMessage } from "../../Interceptors/Class Announcement logger Interceptor/CAMessage";
 
 @Controller('attendance')
 export class classAttendanceController {

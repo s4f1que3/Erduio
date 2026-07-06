@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { supabaseService } from "supabase_service/supabase.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { subjectAttendanceService } from "attendance/subject/subject_attendance.service";
+import { supabaseService } from "../supabase_service/supabase.service";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { subjectAttendanceService } from "../attendance/subject/subject_attendance.service";
 import PDFDocument from "pdfkit";
 import { InternalServerErrorException, BadRequestException } from "@nestjs/common";
 

@@ -2,14 +2,14 @@ import { Controller, Get, Post, Patch, UseGuards, UseInterceptors, Body, Uploade
 import { OwnerGuard } from "./owner.guard";
 import { ownerService } from "./owner.service";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { OnwerLogger } from "Interceptors/owner logger interceptor/owner.interceptor";
-import { OwnerMessage } from "Interceptors/owner logger interceptor/OwnerMessage";
+import { OnwerLogger } from "../Interceptors/owner logger interceptor/owner.interceptor";
+import { OwnerMessage } from "../Interceptors/owner logger interceptor/OwnerMessage";
 import { createSchoolDTO, updateSchoolDTO } from "./owner.dto";
-import { SALLogger } from "Interceptors/school admin logger interceptor/school_admin.logger.interceptor";
-import { SALMessage } from "Interceptors/school admin logger interceptor/school_admin_message.decorator";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { createSuperAdminDTO } from "super_admin/super_admin.dto";
+import { SALLogger } from "../Interceptors/school admin logger interceptor/school_admin.logger.interceptor";
+import { SALMessage } from "../Interceptors/school admin logger interceptor/school_admin_message.decorator";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { createSuperAdminDTO } from "../super_admin/super_admin.dto";
 
 @Controller('owner')
 @UseGuards(OwnerGuard)

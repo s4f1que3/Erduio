@@ -11,17 +11,17 @@ import {
 import { Controller, Get, Post, Patch, Body, UseGuards, HttpCode, Req, Param, Delete, UseInterceptors, UploadedFile } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
-import { Super_AdminGuard } from "super_admin/super_admin.guard";
-import { LoggingService } from "logging services/logging.service";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { GlobalGuard } from "Extra Guards/global.guard";
+import { Super_AdminGuard } from "../super_admin/super_admin.guard";
+import { LoggingService } from "../logging services/logging.service";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { GlobalGuard } from "../Extra Guards/global.guard";
 import { AdminGuard } from "./admin.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 
 @Controller('admin')
 export class adminController {

@@ -14,20 +14,20 @@ import {
     UpdateStudentPasswordPersonalDTO,
     UpdateStudentPhoneDTO,
 } from "./students.dto";
-import { StudentGuard } from "students/student.guard";
-import { LoggingService } from "logging services/logging.service";
+import { StudentGuard } from "./student.guard";
+import { LoggingService } from "../logging services/logging.service";
 import { Request } from "express";
 import { StudentClassGuard } from "./student-class.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { GlobalGuard } from "Extra Guards/global.guard";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { StudentLogger } from "Interceptors/student logger interceptor interceptor/student.logger.interceptor";
-import { StudentLogMessage } from "Interceptors/student logger interceptor interceptor/StudentMessage";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { GlobalGuard } from "../Extra Guards/global.guard";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { StudentLogger } from "../Interceptors/student logger interceptor interceptor/student.logger.interceptor";
+import { StudentLogMessage } from "../Interceptors/student logger interceptor interceptor/StudentMessage";
 
 @Controller('student')
 export class StudentController {

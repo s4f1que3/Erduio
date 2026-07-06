@@ -1,6 +1,6 @@
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../supabase_service/supabase.service";
 import { Injectable, InternalServerErrorException, BadRequestException, NotFoundException } from "@nestjs/common";
-import { termsService } from "terms/terms.service";
+import { termsService } from "../terms/terms.service";
 
 @Injectable()
 export class uploadReportCardService {

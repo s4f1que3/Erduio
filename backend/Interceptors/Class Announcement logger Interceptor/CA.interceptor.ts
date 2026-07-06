@@ -1,9 +1,9 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor, UnauthorizedException} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { announcementsClassService } from "Announcements/Class/announcement_class.service";
-import { resolveSchoolId } from "overrides/school_id.override";
+import { announcementsClassService } from "../../Announcements/Class/announcement_class.service";
+import { resolveSchoolId } from "../../overrides/school_id.override";
 import { Observable } from "rxjs";
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../../supabase_service/supabase.service";
 
 @Injectable()
 export class CALogger implements NestInterceptor {

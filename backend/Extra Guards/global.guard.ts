@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../supabase_service/supabase.service";
 import { Reflector } from "@nestjs/core";
 
 //// guard for admins AND super admins

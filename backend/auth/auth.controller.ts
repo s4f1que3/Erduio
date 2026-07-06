@@ -2,8 +2,8 @@ import { Controller, UseGuards, HttpCode, Post, Req, Body } from "@nestjs/common
 import { authService } from "./auth.service";
 import { Request } from "express";
 import { VerifyOtpDTO, VerifyPasswordDTO, LoginDTO, RefreshDTO } from "./global.auth.dto";
-import { GlobalGuard } from "Extra Guards/global.guard";
-import { AuthLimiter } from "rate-limit/auth.limiter";
+import { GlobalGuard } from "../Extra Guards/global.guard";
+import { AuthLimiter } from "../rate-limit/auth.limiter";
 
 @Controller('auth')
 @UseGuards(AuthLimiter)

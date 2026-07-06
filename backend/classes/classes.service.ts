@@ -1,4 +1,4 @@
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../supabase_service/supabase.service";
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import "multer"
 

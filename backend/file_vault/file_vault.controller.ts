@@ -3,12 +3,12 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
 import { fileDTO } from "./file_vault.dto";
 import { vaultService } from "./file_vault.service";
-import { ASTGuard } from "Extra Guards/AST.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { UploadsLimiter } from "rate-limit/uploads.limiter";
+import { ASTGuard } from "../Extra Guards/AST.guard";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { UploadsLimiter } from "../rate-limit/uploads.limiter";
 
 @Controller('file-vault')
 @UseGuards(ASTGuard)

@@ -1,7 +1,7 @@
-import { supabaseService } from "supabase_service/supabase.service";
+import { supabaseService } from "../../supabase_service/supabase.service";
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { termsService } from "terms/terms.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
+import { termsService } from "../../terms/terms.service";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
 
 @Injectable()
 export class announcementsPersonalService {

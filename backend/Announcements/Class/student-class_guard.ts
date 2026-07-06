@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, UnauthorizedException, ExecutionContext, mixin, InternalServerErrorException, NotFoundException } from "@nestjs/common"
-import { supabaseService } from "supabase_service/supabase.service"
+import { supabaseService } from "../../supabase_service/supabase.service"
 import type { Request } from "express"
 import { ForbiddenException } from "@nestjs/common"
 

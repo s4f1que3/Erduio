@@ -1,11 +1,11 @@
 import { Controller, Req, Patch, Get, Body, Param, UseGuards, Post, UseInterceptors, UploadedFile, UploadedFiles } from "@nestjs/common"
 import { superAdminService } from "./super_admin.service"
 import { FileInterceptor } from "@nestjs/platform-express"
-import { Super_AdminGuard } from "super_admin/super_admin.guard"
-import { resolveSchoolId } from "overrides/school_id.override";
+import { Super_AdminGuard } from "./super_admin.guard"
+import { resolveSchoolId } from "../overrides/school_id.override";
 import { UpdateSuperAdminInfoPersonalDTO, UpdateSuperAdminEmailPersonalDTO, UpdateSuperAdminPasswordPersonalDTO } from "./super_admin.dto"
-import { uuidSwapService } from "pipes/transformuuid.pipe"
-import { GlobalGuard } from "Extra Guards/global.guard"
+import { uuidSwapService } from "../pipes/transformuuid.pipe"
+import { GlobalGuard } from "../Extra Guards/global.guard"
 
 @Controller('super')
     export class superAdminController {

@@ -2,23 +2,23 @@ import { Controller, Get, Post, Req, Body, Param, UseGuards, Delete, UseIntercep
 import { Request } from "express";
 import { disciplineService } from "./discipline_student.service";
 import { disciplineDTO } from "./discipline_student.dto";
-import { AsGuard } from "Extra Guards/AS.guard";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
-import { ASTGuard } from "Extra Guards/AST.guard";
-import { ASU_DisciplineGuard } from "Extra Guards/ASU-discipline.guard";
-import { ASTSGuard } from "Extra Guards/ASTS.guard";
-import { resolveSchoolId } from "overrides/school_id.override";
-import { PersonalLogger } from "Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { StudentPersonalAnnouncementLogger} from "Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { ParentAnnouncementLogger } from "Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { AdminLogger } from "Interceptors/admin logger interceptor/admin.logger.interceptor";
-import { AdminLogMessage } from "Interceptors/admin logger interceptor/message-decorator";
-import { PersonalLogMessage } from "Interceptors/personal logger interceptor/personal-message-decorator";
-import { SPATitle } from "Interceptors/SPA logger Interceptor/SPATitle";
-import { ParentAnnouncementMessage } from "Interceptors/parent announcement logger interceptor/ParentLogMessage";
-import { ParentAnnouncementTitle } from "Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ASSPGuard } from "Extra Guards/ASSP.guard";
-import { SPAMessage } from "Interceptors/SPA logger Interceptor/SPAMessage";
+import { AsGuard } from "../Extra Guards/AS.guard";
+import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { ASTGuard } from "../Extra Guards/AST.guard";
+import { ASU_DisciplineGuard } from "../Extra Guards/ASU-discipline.guard";
+import { ASTSGuard } from "../Extra Guards/ASTS.guard";
+import { resolveSchoolId } from "../overrides/school_id.override";
+import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
+import { StudentPersonalAnnouncementLogger} from "../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
+import { ParentAnnouncementLogger } from "../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
+import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
+import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
+import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { SPATitle } from "../Interceptors/SPA logger Interceptor/SPATitle";
+import { ParentAnnouncementMessage } from "../Interceptors/parent announcement logger interceptor/ParentLogMessage";
+import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
+import { ASSPGuard } from "../Extra Guards/ASSP.guard";
+import { SPAMessage } from "../Interceptors/SPA logger Interceptor/SPAMessage";
 
 @Controller('discipline')
 export class disciplineController {

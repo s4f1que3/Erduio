@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException, InternalServerErrorException } from "@nestjs/common"
-import { supabaseService } from "supabase_service/supabase.service"
-import { supabaseAdminService } from "supabaseAdminService/supabase_admin.service"
-import { uuidSwapService } from "pipes/transformuuid.pipe"
-import { sentryService } from "sentry/sentry.service"
+import { supabaseService } from "../supabase_service/supabase.service"
+import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service"
+import { uuidSwapService } from "../pipes/transformuuid.pipe"
+import { sentryService } from "../sentry/sentry.service"
 
 @Injectable()
 export class authService {
