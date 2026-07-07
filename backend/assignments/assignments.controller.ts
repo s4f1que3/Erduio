@@ -21,16 +21,7 @@ import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logg
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
-import { SALogger } from "../Interceptors/subject announcement logger interceptor/SA.interceptor";
-import { SPAMessage } from "../Interceptors/SPA logger Interceptor/SPAMessage";
-import { SATitle } from "../Interceptors/subject announcement logger interceptor/SATitle";
-import { StudentPersonalAnnouncementLogger} from "../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { SPATitle } from "../Interceptors/SPA logger Interceptor/SPATitle";
-import { ParentAnnouncementLogger } from "../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { ParentAnnouncementMessage } from "../Interceptors/parent announcement logger interceptor/ParentLogMessage";
-import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
 import { TeacherAssignmentGuard } from "./teacher-assignment.guard";
-import { SAMessage } from "../Interceptors/subject announcement logger interceptor/SAMessage";
 import { emailingService } from "../emailing/emailing.service";
 
 @Controller('assignments')
@@ -45,7 +36,7 @@ export class assignmentsController {
 
     @Post('create/subject/:subject_id')
     @UseGuards(AST_SubjectGuard())
-    @UseInterceptors(AdminLogger, PersonalLogger)
+    @UseInterceptors(AdminLogger, PersonalLogger, FileInterceptor('file'))
     @AdminLogMessage('created an assignment')
     @PersonalLogMessage('You created a new assignment')
     async createAssignment (@Param('subject_id') subject_id: string, @Req() req: Request & {user: any}, @Body() dto: CreateAssignmentDTO, @UploadedFile() file: any) {

@@ -308,10 +308,8 @@ export class StudentController {
     @UseGuards(StudentGuard)
     async getStudentAnnouncements (@Req() req: Request & {user: any}) {
         const school_id = resolveSchoolId(req)
-
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
-
-        return await this.student.fetchAllForStudent(school_id, user_id)
+        return await this.student.fetchAllForStudent(school_id, user_id) // sending internal because the ultimate function swaps it to auth
     }
 
     @Get('announcements/class/:id')

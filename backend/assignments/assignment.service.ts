@@ -276,6 +276,7 @@ export class assignmentService {
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        const name = await this.logging.getAssignmentName(school_id, assignment_id)
         this.email.sendEmailToUser(`The assignment ${name} was just extended until ${due_date} for you on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Assignment Extended', school_id, {user_id: student_id})
         return data
     }

@@ -33,7 +33,7 @@ export class examsController {
     /// regular functions now
     @Post(':subject_id/create')
     @UseGuards(ASTGuard)
-    @UseInterceptors(PersonalLogger)
+    @UseInterceptors(PersonalLogger, FileInterceptor('file'))
     @PersonalLogMessage('You posted an exam')
     async createExam (@Req() req: Request & {user: any}, @UploadedFile() file: any, @Param('subject_id') subject_id: string, @Body() dto: CreateExamDTO) {
         const school_id = resolveSchoolId(req)

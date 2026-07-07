@@ -72,6 +72,7 @@ export class authService {
 
         if(error) throw new InternalServerErrorException(error.message)
         const metadata = data.user?.app_metadata
+        console.log('debug: ', JSON.stringify(metadata), 'now:', Date.now())
         if(metadata?.must_change && metadata?.time_end && Date.now() > metadata?.time_end) {
             throw new ForbiddenException('Your temporary password has expired. Please contact school admin for a password change.')
         }

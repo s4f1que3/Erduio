@@ -27,7 +27,7 @@ export class uuidSwapService {
             if (data?.id) return data.id
         }
 
-        throw new InternalServerErrorException ('user not found in any role table')
+        throw new InternalServerErrorException ('user not found in any role table - uuid swap')
     }
 
     async swapUUIDFromIdToAuth (school_id: string, id: string | null) {

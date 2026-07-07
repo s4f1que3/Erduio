@@ -96,7 +96,6 @@ export default function AssignmentsAdminPage() {
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={currentWeek} onCheckedChange={setCurrentWeek} />
-              <span className="text-sm text-muted-foreground">This week only</span>
             </div>
           </div>
         </Section>

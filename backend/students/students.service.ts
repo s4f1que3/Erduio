@@ -96,11 +96,13 @@ export class studentService {
                             status: 'active',
                             enrollment_status: 'enrolled'
                         })
+                        .select('id')
+                        .single()
 
                         if(rstudenterror) {
                             throw new InternalServerErrorException(rstudenterror.message)
                         } else {
-                            await this.addStudentSubjects(school_id, astudentdata.user.id, subjects)
+                            await this.addStudentSubjects(school_id, rstudentdata.id, subjects)
                         }
                         return rstudentdata && astudentdata && parentdata && data
 
@@ -143,11 +145,13 @@ export class studentService {
                         status: 'active',
                         school_id: school_id
                     })
+                    .select('id')
+                    .single()
 
                     if(studenterror) {
                         throw new InternalServerErrorException(studenterror.message)
                     } else {
-                        await this.addStudentSubjects(school_id, rstudentdata.user.id, subjects)
+                        await this.addStudentSubjects(school_id, studentdata.id, subjects)
                     }
                     return studentdata && data
                 }
@@ -191,11 +195,13 @@ export class studentService {
                 status: 'active',
                 school_id: school_id
             })
+            .select('id')
+            .single()
 
             if(studenterror) {
                 throw new InternalServerErrorException(studenterror.message)
             } else {
-                await this.addStudentSubjects(school_id, data.user.id, subjects)
+                await this.addStudentSubjects(school_id, studentdata.id, subjects)
             }
 
             return studentdata && data
@@ -616,8 +622,7 @@ export class studentService {
 
     // announcements sent to the specific student
     async fetchAllForStudent(school_id: string, student_id: string) {
-        const user_id = await this.swap.swapUUIDFromIdToAuth(school_id, student_id)
-        return await this.studentAnnoun.getAllPersonalForPerson(school_id, user_id)
+        return await this.studentAnnoun.getAllPersonalForPerson(school_id, student_id)
     }
 
 
