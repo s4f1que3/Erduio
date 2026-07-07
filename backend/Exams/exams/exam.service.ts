@@ -1,9 +1,15 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { supabaseService } from "../../supabase_service/supabase.service";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class examService {
-    constructor(private readonly supabase: supabaseService){}
+    constructor(
+        private readonly supabase: supabaseService, 
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
+    ){}
 
     async createExam (school_id: string, subject_id: string, name: string, content: string, file?: Express.Multer.File) {
         if(file) {
@@ -24,7 +30,9 @@ export class examService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            await this.email.sendSubjectEmail(`A new exam was uploaded by your teacher on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Exam uploaded!', subject_id, school_id)
             return data && fdata
+
         } else { 
             const {data, error} = await this.supabase.db
             .from('Exams')
@@ -36,6 +44,7 @@ export class examService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            await this.email.sendSubjectEmail(`A new exam '${name}' was uploaded by your teacher on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Exam uploaded!', subject_id, school_id)
             return data
         }
     }
@@ -63,8 +72,12 @@ export class examService {
 
     async updateInfo(school_id: string, exam_id: string, name?: string, content?: string) {
         const updates: Record <any, string> = {}
+        const updatesFields: string[] = []
         if(name !== undefined) updates.name = name
         if (content !== undefined) updates.content = content
+
+        if(name !== undefined) updatesFields.push(name)
+        if (content !== undefined) updatesFields.push(content)
 
         const {data, error} = await this.supabase.db
         .from('Exams')
@@ -73,6 +86,9 @@ export class examService {
         .eq('id', exam_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        const exam_name = await this.logging.getExamName(school_id, exam_id)
+        const subject_id = await this.logging.getSubjecIdFromExamId(school_id, exam_id)
+        await this.email.sendSubjectEmail(`The exam '${exam_name}' was uploaded by your teacher on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Updates: ${updatesFields.join(', ')} `, 'Exam info updated!', subject_id, school_id)
         return data
     }
 
@@ -92,6 +108,9 @@ export class examService {
             .eq('id', exam_id)
 
             if(error) throw new InternalServerErrorException(error.message)
+            const exam_name = await this.logging.getExamName(school_id, exam_id)
+            const subject_id = await this.logging.getSubjecIdFromExamId(school_id, exam_id)
+            await this.email.sendSubjectEmail(`The exam '${exam_name}' was deleted by your teacher on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Exam deleted!', subject_id, school_id)
 
         } else {
             const {error} = await this.supabase.db
@@ -101,6 +120,9 @@ export class examService {
             .eq('id', exam_id)
 
             if(error) throw new InternalServerErrorException(error.message)
+            const exam_name = await this.logging.getExamName(school_id, exam_id)
+            const subject_id = await this.logging.getSubjecIdFromExamId(school_id, exam_id)
+            await this.email.sendSubjectEmail(`The exam '${exam_name}' was deleted by your teacher on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Exam deleted!', subject_id, school_id)
         }
     }
 

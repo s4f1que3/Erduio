@@ -27,7 +27,6 @@ export const ASSP_Subject_UploadGuard = () => {
 
             const school_id = data.user.app_metadata.school_id
             const student_id = req.params.student_id as string
-            const user_id = await this.swap.swapUUID(school_id, student_id)
             const assignment_id = req.params.assignment_id as string
 
             const{data: adata, error: aerror} = await this.supabase.db
@@ -44,7 +43,7 @@ export const ASSP_Subject_UploadGuard = () => {
                 .select('students_id')
                 .eq('school_id', school_id)
                 .eq('subjects_id', adata.subject_id)
-                .eq('students_id', user_id)
+                .eq('students_id', student_id)
                 .single()
 
             if (!serror && sdata?.students_id) return true
@@ -53,7 +52,7 @@ export const ASSP_Subject_UploadGuard = () => {
                 .from('Students')
                 .select('parents_id')
                 .eq('school_id', school_id)
-                .eq('id', user_id)
+                .eq('id', student_id)
                 .single()
 
             if (!perror && pdata?.parents_id) {

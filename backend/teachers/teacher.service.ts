@@ -6,6 +6,7 @@ import { announcementsGeneralService } from "../Announcements/General/announceme
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
+import { emailingService } from "emailing/emailing.service";
 
 @Injectable()
 export class teacherService {
@@ -17,23 +18,26 @@ export class teacherService {
         private readonly generalAnnoun: announcementsGeneralService,
         private readonly groupAnnoun: announcementsGroupService,
         private readonly swap: uuidSwapService,
-        private readonly personal: announcementsPersonalService
+        private readonly personal: announcementsPersonalService,
+        private readonly email: emailingService
     ){}
 
 
     ///// CRUD TEACHERS ADMINS
     async createTeacher(school_id: string, email: string, password: string, name: string, phone: string) {
+        const time = Date.now() + (24 * 60 * 60 * 1000)
         const {data, error} = await this.supabaseAdmin.db.auth.admin.createUser({
             email: email,
             password: password,
             email_confirm: true,
-            app_metadata: {role: 'teacher', status: 'active'},
+            app_metadata: {role: 'teacher', status: 'active', must_change: true, time_end: time},
 
         })
 
         if(error) {
             throw new InternalServerErrorException(error.message)
         } else {
+            await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${email}, Password: ${password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: email})
             await this.supabase.db.from('Teachers').insert({
                 user_id: data.user.id,
                 email: email,
@@ -60,17 +64,27 @@ export class teacherService {
 
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your ${updates.join(', ')} was just updated by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact the school admin for any inquiries.`, 'Account info changed!', school_id, {user_id: id})
         return data
 
     }
 
     async changeTeacherPassword_SuperADMIN (school_id: string, id: string, password: string) {
         const auth_id = await this.swap.swapUUIDFromIdToAuth(school_id, id)
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(auth_id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(auth_id, {
-            password: password
+            password: password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your password was just changed by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact the school admin for any inquiries.`, 'Password changed!', school_id, {user_id: id})
         return data
     }
 
@@ -87,6 +101,7 @@ export class teacherService {
 
         if(error) throw new InternalServerErrorException(error.message)
         if(regerror) throw new InternalServerErrorException(regerror.message)
+        await this.email.sendEmailToUser(`Your email was just changed by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact the school admin for any inquiries.`, 'Email changed!', school_id, {user_id: id})
         return data && regdata
     }
 
@@ -258,8 +273,12 @@ export class teacherService {
 
 
 
-    /// PERSONAL
 
+
+
+
+
+    /// PERSONAL
     async getTeachers(school_id: string) {
         const {data, error} = await this.supabase.db.from('Teachers')
         .select('*')
@@ -287,6 +306,7 @@ export class teacherService {
 
         if(error) throw new InternalServerErrorException  (error.message)
         if(RegularError) throw new InternalServerErrorException  (RegularError.message)
+        await this.email.sendEmailToUser(`Your email was just changed from ${current_email} to ${new_email} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Email changed!', school_id, {user_id: id})
         return data && RegularData
     }
 
@@ -294,8 +314,16 @@ export class teacherService {
         const verifiedPassword = await this.auth.verifyPassword(email, current_password)
         if(!verifiedPassword) throw new InternalServerErrorException  ("Invalid Password")
 
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(id, {
-            password: new_password
+            password: new_password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException  (error.message)
@@ -313,6 +341,7 @@ export class teacherService {
         .eq('school_id', school_id)
 
         if(error) throw new InternalServerErrorException  (error.message)
+        await this.email.sendEmailToUser(`Your ${updateData.join(', ')} was just updated by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact the school admin for any inquiries.`, 'Account info changed!', school_id, {user_id: id})
         return data
     }
 

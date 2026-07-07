@@ -64,13 +64,9 @@ export class ReportCardController {
 
     @Post('send/student/:student_id/term/:term')
     @UseGuards(AsGuard)
-    @UseInterceptors(StudentPersonalAnnouncementLogger, ParentAnnouncementLogger, AdminLogger)
+    @UseInterceptors(PersonalLogger, AdminLogger)
     @AdminLogMessage('just uploaded a students report card for this term.')
     @PersonalLogMessage('You uploaded a students report card for this term.')
-    @SPATitle('Report Card Uploaded!')
-    @SPAMessage('Your teacher just uploaded your report card for this term.!')
-    @ParentAnnouncementTitle("Report Card Uploaded!")
-    @ParentAnnouncementMessage("Your child's report card for this term was just uploaded. To view it, click 'my child' then report cards.")
     async sendReportCard(@Req() req: Request & { user: any }, @Param('student_id') student_id: string, @Param('term') term: string) {
         const school_id = resolveSchoolId(req)
         return await this.reportCard.sendReportCard(school_id, student_id, parseInt(term))

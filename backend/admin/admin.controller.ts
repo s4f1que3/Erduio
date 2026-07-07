@@ -22,13 +22,15 @@ import { GlobalGuard } from "../Extra Guards/global.guard";
 import { AdminGuard } from "./admin.guard";
 import { resolveSchoolId } from "../overrides/school_id.override";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
+import { emailingService } from "emailing/emailing.service";
 
 @Controller('admin')
 export class adminController {
     constructor (
         private readonly admin: adminService,
         private readonly logging: LoggingService,
-        private readonly swap: uuidSwapService
+        private readonly swap: uuidSwapService,
+        private readonly email: emailingService
 
     ){}
 
@@ -141,6 +143,9 @@ export class adminController {
     @PersonalLogMessage('You changed your password')
     async changePassowrd (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateAdminPasswordPersonalDTO) {
         const email = req.user.email
+        const school_id = resolveSchoolId(req)
+        const id = await this.swap.swapUUID(school_id, req.user.id)
+        await this.email.sendEmailToUser(`Your password was changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'Password changed!', school_id, {user_id: id})
         return await this.admin.changeAdminPassword_Personal(req.user.id, email, dto.current_password, dto.new_password)
     }
 

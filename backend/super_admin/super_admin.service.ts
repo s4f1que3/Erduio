@@ -4,6 +4,7 @@ import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service";
 import { supabaseService} from "../supabase_service/supabase.service";
 import { InternalServerErrorException } from "@nestjs/common";
+import { emailingService } from "emailing/emailing.service";
 
 @Injectable() 
 export class superAdminService {
@@ -12,14 +13,17 @@ export class superAdminService {
         private readonly supabase: supabaseService,
         private readonly supabaseAdmin: supabaseAdminService,
         private readonly auth: authService,
-        private readonly swap: uuidSwapService
+        private readonly swap: uuidSwapService,
+        private readonly email: emailingService
     ){}
 
     async createSuperAdmin (name: string, email: string, password: string, phone: string, school_id: string) {
+        const time = Date.now() + (24 * 60 * 60 * 1000)
         const {data: fdata, error: ferror} = await this.supabaseAdmin.db.auth.admin.createUser({
             email: email,
             password: password,
-            email_confirm: true
+            email_confirm: true,
+            app_metadata: {school_id: school_id, role: 'super_admin', must_change: true, time_end: time}
         })
         if(ferror) throw new InternalServerErrorException(ferror.message)
         const {data, error} = await this.supabase.db
@@ -33,6 +37,7 @@ export class superAdminService {
             status: 'active'
         })
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${email}, Password: ${password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: email})
         return data && fdata
         
     }
@@ -87,6 +92,7 @@ export class superAdminService {
         .eq('school_id', school_id)
     
         if(error) throw new InternalServerErrorException  (error.message)
+        await this.email.sendEmailToUser(`Your ${updates.join(', ')} was just changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Info changed!', school_id, {user_id: id})
         return data
     }
     
@@ -107,6 +113,7 @@ export class superAdminService {
 
         if(error) throw new InternalServerErrorException  (error.message)
         if(RegularError) throw new InternalServerErrorException  (RegularError.message)
+        await this.email.sendEmailToUser(`Your email was just changed from ${current_email} to ${new_email} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Email changed!', school_id, {user_id: id})
         return data && RegularData
     }
 
@@ -114,8 +121,16 @@ export class superAdminService {
         const verifiedPassword = await this.auth.verifyPassword(email, current_password)
         if(!verifiedPassword) throw new InternalServerErrorException  ("Invalid Password")
 
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(id, {
-            password: new_password
+            password: new_password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException  (error.message)

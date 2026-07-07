@@ -24,6 +24,7 @@ import { AdminLogMessage } from "../Interceptors/admin logger interceptor/messag
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { ParentPersonalMessage } from "../Interceptors/parent logger interceptor interceptor/ParentMessage";
 import { ParentPersonalLogger } from "../Interceptors/parent logger interceptor interceptor/parent.logger.interceptor";
+import { emailingService } from "emailing/emailing.service";
 
 @Controller('parent')
 export class ParentController {
@@ -32,6 +33,7 @@ export class ParentController {
         private readonly parent: parentService,
         private readonly logging: LoggingService,
         private readonly swap: uuidSwapService,
+        private readonly email: emailingService
 
     ){}
 
@@ -44,6 +46,8 @@ export class ParentController {
     @PersonalLogMessage('You created a new parent login')
     async CreateParentLogin(@Req() req: Request & {user: any, role: string, school_id: string}, @Body() dto: CreateParentLoginDTO) {
         const school_id = resolveSchoolId(req)
+        const user_id = await this.swap.swapUUID(school_id, req.user.id)
+        await this.email.sendEmailToUser(`Your login account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${dto.email}, Password: ${dto.password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Login account created!', school_id, {user_id: user_id})
         return await this.parent.createParentLogin(school_id, dto.email, dto.password)
     }
 
@@ -51,10 +55,8 @@ export class ParentController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(ParentPersonalLogger)
     @AdminLogMessage("updated a parent's info")
     @PersonalLogMessage("You updated a parent's info")
-    @ParentPersonalMessage('Admin updated your info')
     async updateParentInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentInfoDTO) {
         const school_id = resolveSchoolId(req)
         return await this.parent.changeParentInfo(school_id, id, dto.name, dto.phone)
@@ -64,10 +66,8 @@ export class ParentController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(ParentPersonalLogger)
     @AdminLogMessage("changed a parent's password")
     @PersonalLogMessage("You changed a parent's password")
-    @ParentPersonalMessage('Admin updated your password')
     async updateParentPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentPasswordDTO) {
         const school_id = resolveSchoolId(req)
         return await this.parent.changeParentPassword(school_id, id, dto.new_password)
@@ -77,10 +77,8 @@ export class ParentController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(ParentPersonalLogger)
     @AdminLogMessage("changed a parent's email")
     @PersonalLogMessage("You changed a parent's email")
-    @ParentPersonalMessage('Admin updated your email')
     async updateParentEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateParentEmailDTO) {
         const school_id = resolveSchoolId(req)
         return await this.parent.changeParentEmail(school_id, id, dto.new_email)
@@ -162,6 +160,9 @@ export class ParentController {
     @PersonalLogMessage("You changed your password")
     @UseGuards(ParentGuard)
     async changePassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateParentPasswordPersonalDTO) {
+        const school_id = resolveSchoolId(req)
+        const user_id = await this.swap.swapUUID(school_id, req.user.id)
+        await this.email.sendEmailToUser(`Your password was just changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Password Changed!', school_id, {user_id: user_id})
         return await this.parent.changePassword(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 

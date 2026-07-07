@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -390,8 +390,20 @@ function AssignmentsTab({ subjectId, currentWeek, roster }: { subjectId: string;
   });
   const submittedStudents = roster.filter((s) => gradeSubmissions.some((sub) => String(sub.students_id) === s.id));
 
+  const studentGradeQueries = useQueries({
+    queries: submittedStudents.map((s) => ({
+      queryKey: ["assignment-grade", gradeTarget, s.id],
+      queryFn: async () => (await api.get(`/assignments/${gradeTarget}/my-grade/${s.id}`)).data,
+      enabled: !!gradeTarget,
+    })),
+  });
+  const gradeByStudentId = Object.fromEntries(
+    submittedStudents.map((s, i) => [s.id, studentGradeQueries[i]?.data as string | null | undefined])
+  );
+  const [gradingStudentId, setGradingStudentId] = useState<string | null>(null);
+
   const { register: regCreate, handleSubmit: hsCreate, reset: resetCreate, formState: { errors: errCreate } } = useForm<z.infer<typeof assignmentSchema>>({ resolver: zodResolver(assignmentSchema) });
-  const { register: regGrade, handleSubmit: hsGrade, control: gradeControl, reset: resetGrade, formState: { errors: errGrade } } = useForm<z.infer<typeof assignmentGradeSchema>>({ resolver: zodResolver(assignmentGradeSchema), defaultValues: { student_id: "", grade: "", message: "" } });
+  const { register: regGrade, handleSubmit: hsGrade, reset: resetGrade, formState: { errors: errGrade } } = useForm<z.infer<typeof assignmentGradeSchema>>({ resolver: zodResolver(assignmentGradeSchema), defaultValues: { student_id: "", grade: "", message: "" } });
   const { register: regExtendStudent, handleSubmit: hsExtendStudent, control: extendStudentControl, reset: resetExtendStudent, formState: { errors: errExtendStudent } } = useForm<z.infer<typeof extendStudentSchema>>({ resolver: zodResolver(extendStudentSchema), defaultValues: { student_id: "", due_date: "" } });
 
   const deleteMutation = useMutation({
@@ -401,9 +413,26 @@ function AssignmentsTab({ subjectId, currentWeek, roster }: { subjectId: string;
   });
 
   const gradeMutation = useMutation({
-    mutationFn: ({ assignmentId, studentId, grade, message }: { assignmentId: string; studentId: string; grade: number; message?: string }) =>
+    mutationFn: ({ assignmentId, studentId, grade, message }: { assignmentId: string; studentId: string; grade: string; message?: string }) =>
       api.post(`/assignments/${assignmentId}/add-grade/${studentId}`, { grade, message, subject_id: subjectId }),
-    onSuccess: () => { toast.success("Grade submitted"); setGradeTarget(null); resetGrade(); },
+    onSuccess: (_data, vars) => {
+      toast.success("Grade submitted");
+      qc.invalidateQueries({ queryKey: ["assignment-grade", vars.assignmentId, vars.studentId] });
+      setGradingStudentId(null);
+      resetGrade();
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+
+  const changeGradeMutation = useMutation({
+    mutationFn: ({ assignmentId, studentId, grade, message }: { assignmentId: string; studentId: string; grade: string; message?: string }) =>
+      api.patch(`/assignments/${assignmentId}/change-grade/${studentId}`, { grade, message, subject_id: subjectId }),
+    onSuccess: (_data, vars) => {
+      toast.success("Grade updated");
+      qc.invalidateQueries({ queryKey: ["assignment-grade", vars.assignmentId, vars.studentId] });
+      setGradingStudentId(null);
+      resetGrade();
+    },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
 
@@ -583,34 +612,64 @@ function AssignmentsTab({ subjectId, currentWeek, roster }: { subjectId: string;
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!gradeTarget} onOpenChange={() => { setGradeTarget(null); resetGrade(); }}>
+      <Dialog open={!!gradeTarget} onOpenChange={() => { setGradeTarget(null); setGradingStudentId(null); resetGrade(); }}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Add Grade</DialogTitle></DialogHeader>
-          <form onSubmit={hsGrade((d) => gradeTarget && gradeMutation.mutate({ assignmentId: gradeTarget, studentId: d.student_id, grade: Number(d.grade), message: d.message }))} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label>Student</Label>
-              <Controller
-                control={gradeControl}
-                name="student_id"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={(v: unknown) => field.onChange(String(v ?? ""))} disabled={submittedStudents.length === 0}>
-                    <SelectTrigger><SelectValue placeholder={submittedStudents.length === 0 ? "No submissions yet" : "Select student"} /></SelectTrigger>
-                    <SelectContent>
-                      {submittedStudents.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errGrade.student_id && <p className="text-xs text-destructive">{errGrade.student_id.message}</p>}
-              {submittedStudents.length === 0 && <p className="text-xs text-muted-foreground">No students have submitted this assignment yet.</p>}
+          <DialogHeader><DialogTitle>Grade Submissions</DialogTitle></DialogHeader>
+
+          {!gradingStudentId && (
+            <div className="space-y-2 pt-2">
+              {submittedStudents.length === 0 && (
+                <p className="text-sm text-muted-foreground">No students have submitted this assignment yet.</p>
+              )}
+              {submittedStudents.map((s) => {
+                const existingGrade = gradeByStudentId[s.id];
+                const isGraded = existingGrade !== undefined && existingGrade !== null;
+                return (
+                  <div key={s.id} className="flex items-center justify-between rounded-lg border border-border p-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{s.name}</span>
+                      {isGraded
+                        ? <Badge variant="default">{String(existingGrade)}</Badge>
+                        : <Badge variant="secondary">Not graded</Badge>}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        resetGrade({ student_id: s.id, grade: isGraded ? String(existingGrade) : "", message: "" });
+                        setGradingStudentId(s.id);
+                      }}
+                    >
+                      {isGraded ? <><Pencil className="h-3.5 w-3.5 mr-1.5" />Edit</> : <><Award className="h-3.5 w-3.5 mr-1.5" />Grade</>}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
-            <div className="space-y-1.5"><Label>Grade (0–100)</Label><Input type="number" {...regGrade("grade")} />{errGrade.grade && <p className="text-xs text-destructive">{errGrade.grade.message}</p>}</div>
-            <div className="space-y-1.5"><Label>Feedback (optional)</Label><Textarea rows={2} {...regGrade("message")} /></div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setGradeTarget(null)}>Cancel</Button>
-              <Button type="submit" disabled={gradeMutation.isPending}>{gradeMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Submit Grade</Button>
-            </DialogFooter>
-          </form>
+          )}
+
+          {gradingStudentId && (() => {
+            const student = submittedStudents.find((s) => s.id === gradingStudentId);
+            const isGraded = gradeByStudentId[gradingStudentId] !== undefined && gradeByStudentId[gradingStudentId] !== null;
+            const activeMutation = isGraded ? changeGradeMutation : gradeMutation;
+            return (
+              <form
+                onSubmit={hsGrade((d) => gradeTarget && activeMutation.mutate({ assignmentId: gradeTarget, studentId: d.student_id, grade: d.grade, message: d.message }))}
+                className="space-y-4 pt-2"
+              >
+                <p className="text-sm text-muted-foreground">Grading <span className="font-medium text-foreground">{student?.name}</span></p>
+                <div className="space-y-1.5"><Label>Grade (0–100)</Label><Input type="number" {...regGrade("grade")} />{errGrade.grade && <p className="text-xs text-destructive">{errGrade.grade.message}</p>}</div>
+                <div className="space-y-1.5"><Label>Feedback (optional)</Label><Textarea rows={2} {...regGrade("message")} /></div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => { setGradingStudentId(null); resetGrade(); }}>Back</Button>
+                  <Button type="submit" disabled={activeMutation.isPending}>
+                    {activeMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    {isGraded ? "Update Grade" : "Submit Grade"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 

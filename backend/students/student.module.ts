@@ -12,6 +12,7 @@ import { SwapModule } from "../pipes/transform.module";
 import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcements_personal.module";
 import { LogGetterModule } from "../logGetters/logGetter.module";
 import { TermsModule } from "../terms/terms.module";
+import { EmailModule } from "emailing/email.module";
 
 
 @Module({
@@ -27,7 +28,8 @@ import { TermsModule } from "../terms/terms.module";
         AuthModule,
         SwapModule,
         LogGetterModule,
-        TermsModule
+        TermsModule,
+        EmailModule
     ],
     providers: [studentService],
     exports: [studentService]

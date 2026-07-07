@@ -1,11 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { supabaseService } from "../../supabase_service/supabase.service";
 import { InternalServerErrorException } from "@nestjs/common";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class examGradeService {
 
-    constructor (private readonly supabase: supabaseService){}
+    constructor (
+        private readonly supabase: supabaseService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
+    ){}
 
     async giveGrade (school_id: string, exam_id: string, student_id: string, grade: string, message?: string) {
         if(message) {
@@ -35,6 +41,8 @@ export class examGradeService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            const name = await this.logging.getExamName(school_id, exam_id)
+            await this.email.sendToStudentAndParent(`You recieved a grade of ${grade} for the exam '${name}' on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'Exam grade recieved!', school_id, student_id)
             return data
         }
     }
@@ -62,6 +70,7 @@ export class examGradeService {
         .eq('id', grade_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        
     }
 
     async getAllStudentsExamGrades (school_id: string, student_id: string) {

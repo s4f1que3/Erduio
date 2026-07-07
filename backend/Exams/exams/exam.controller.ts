@@ -33,11 +33,8 @@ export class examsController {
     /// regular functions now
     @Post(':subject_id/create')
     @UseGuards(ASTGuard)
-    @UseInterceptors(PersonalLogger, SALogger)
+    @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You posted an exam')
-    @SATitle('Exam Posted!')
-    @SAMessage('Your teacher just uploaded an exam!')
-    @UseInterceptors(FileInterceptor('file'))
     async createExam (@Req() req: Request & {user: any}, @UploadedFile() file: any, @Param('subject_id') subject_id: string, @Body() dto: CreateExamDTO) {
         const school_id = resolveSchoolId(req)
         return await this.exams.createExam(school_id, subject_id, dto.name, dto.content, file)
@@ -52,10 +49,8 @@ export class examsController {
 
     @Patch(':exam_id/update')
     @UseGuards(AST_Subject_Exam_Guard())
-    @UseInterceptors(StudentPersonalAnnouncementLogger, SALogger)
+    @UseInterceptors(StudentPersonalAnnouncementLogger)
     @PersonalLogMessage('You updated an exam')
-    @SATitle('Exam Updated!')
-    @SAMessage('Your teacher just updated an exam!')
     async updateExam (@Req() req: Request & {user: any}, @Param('exam_id') exam_id: string, @Body() dto: UpdateExamDTO) {
         const school_id = resolveSchoolId(req)
         return await this.exams.updateInfo(school_id, exam_id, dto.new_name, dto.new_content)
@@ -65,8 +60,6 @@ export class examsController {
     @UseGuards(AST_Subject_Exam_Guard())
     @UseInterceptors(StudentPersonalAnnouncementLogger)
     @PersonalLogMessage('You deleted an exam')
-    @SATitle('Exam Deleted!')
-    @SAMessage('Your teacher just deleted an exam!')
     async deleteExam (@Req() req: Request & {user: any}, @Param('exam_id') exam_id: string) {
         const school_id = resolveSchoolId(req)
         return await this.exams.deleteExam(school_id, exam_id)

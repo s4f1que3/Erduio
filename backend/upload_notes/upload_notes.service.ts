@@ -1,11 +1,15 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { supabaseService } from "../supabase_service/supabase.service";
 import { termsService } from "../terms/terms.service";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class uploadNotesService {
     constructor(
         private readonly supabase: supabaseService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     async uploadNotes (school_id: string, teacher_id: string, subject_id: string, title: string, upload?: Express.Multer.File, message?: string,) {
@@ -29,6 +33,7 @@ export class uploadNotesService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            await this.email.sendSubjectEmail(`Your teacher just uploaded new notes '${title}'!`, 'New notes uploaded!', subject_id, school_id)
             return data && fdata
 
         } else if(upload) {
@@ -49,6 +54,7 @@ export class uploadNotesService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            await this.email.sendSubjectEmail(`Your teacher just uploaded new notes '${title}'!. This note has an attatchment which you are able to download`, 'New notes uploaded!', subject_id, school_id)
             return data && fdata
 
         } else if(message) {
@@ -63,6 +69,7 @@ export class uploadNotesService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            await this.email.sendSubjectEmail(`Your teacher just uploaded new notes '${title}'!`, 'New notes uploaded!', subject_id, school_id)
             return data
         }
     }
@@ -94,6 +101,9 @@ export class uploadNotesService {
         .remove(path as any)
 
         if(ferror) throw new InternalServerErrorException(ferror.message)
+        const title = await this.logging.getNoteName(school_id, note_id)
+        const subject_id = await this.logging.getSubjectIdFromNote(school_id, note_id)
+        await this.email.sendSubjectEmail(`Your teacher just deleted the note '${title}'!`, 'Notes deleted!', subject_id, school_id)
     }
 
     async updateNote(school_id: string, note_id: string, title?: string, message?: string) {
@@ -107,6 +117,8 @@ export class uploadNotesService {
         .eq('id', note_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        const subject_id = await this.logging.getSubjectIdFromNote(school_id, note_id)
+        await this.email.sendSubjectEmail(`Your teacher just updated the note '${title}'!`, 'Notes updated!', subject_id, school_id)
         return data
     }
 

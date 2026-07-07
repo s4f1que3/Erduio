@@ -6,12 +6,14 @@ import { resolveSchoolId } from "../overrides/school_id.override";
 import { UpdateSuperAdminInfoPersonalDTO, UpdateSuperAdminEmailPersonalDTO, UpdateSuperAdminPasswordPersonalDTO } from "./super_admin.dto"
 import { uuidSwapService } from "../pipes/transformuuid.pipe"
 import { GlobalGuard } from "../Extra Guards/global.guard"
+import { emailingService } from "emailing/emailing.service";
 
 @Controller('super')
     export class superAdminController {
         constructor (
             private readonly superAdmin: superAdminService,
-            private readonly swap: uuidSwapService
+            private readonly swap: uuidSwapService,
+            private readonly email: emailingService
         ){}
 
     ///// PERSONAL SUPER ADMIN
@@ -33,6 +35,9 @@ import { GlobalGuard } from "../Extra Guards/global.guard"
     @Patch('super/update-password')
     @UseGuards(Super_AdminGuard)
     async updateSuperAdminPassword (@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateSuperAdminPasswordPersonalDTO) {
+        const school_id = resolveSchoolId(req)
+        const user_id = await this.swap.swapUUID(school_id, req.user.id)
+        await this.email.sendEmailToUser(`Your password was just changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Info changed!', school_id, {user_id: user_id})
         return await this.superAdmin.changeSuperAdminPassword(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 

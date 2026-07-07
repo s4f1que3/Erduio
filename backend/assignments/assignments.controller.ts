@@ -31,14 +31,16 @@ import { ParentAnnouncementMessage } from "../Interceptors/parent announcement l
 import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
 import { TeacherAssignmentGuard } from "./teacher-assignment.guard";
 import { SAMessage } from "../Interceptors/subject announcement logger interceptor/SAMessage";
+import { emailingService } from "emailing/emailing.service";
 
 @Controller('assignments')
 export class assignmentsController {
 
     constructor(
         private readonly assignments: assignmentService,
-        private readonly logging: LoggingService,
         private readonly swap: uuidSwapService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     @Post('create/subject/:subject_id')
@@ -46,10 +48,6 @@ export class assignmentsController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage('created an assignment')
     @PersonalLogMessage('You created a new assignment')
-    @UseInterceptors(SALogger)
-    @SATitle('New Assignment!')
-    @SAMessage('Your teacher just uploaded a new assignment')
-    @UseInterceptors(FileInterceptor('file'))
     async createAssignment (@Param('subject_id') subject_id: string, @Req() req: Request & {user: any}, @Body() dto: CreateAssignmentDTO, @UploadedFile() file: any) {
         const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
@@ -61,9 +59,6 @@ export class assignmentsController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage('deleted an assignment')
     @PersonalLogMessage('You deleted an assignment')
-    @UseInterceptors(SALogger)
-    @SATitle('Deleted Assignment!')
-    @SAMessage('Your teacher just deleted an assignment')
     async deleteAssingment (@Param('subject_id') subject_id: string, @Param('assignment_id') assignment_id: string, @Req() req: Request & {user: any}) {
         const school_id = resolveSchoolId(req)
         return await this.assignments.deleteAssignment(school_id, assignment_id)
@@ -128,9 +123,6 @@ export class assignmentsController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage('extended an assignment')
     @PersonalLogMessage('You extended an assignment')
-    @UseInterceptors(SALogger)
-    @SATitle('Assignment Extended!')
-    @SAMessage('Your teacher just extended an assignment')
     async extendAssignment(@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Body() dto: ExtendAssignmentDTO) {
         const school_id = resolveSchoolId(req)
         return await this.assignments.extendAssignment(school_id, assignment_id, dto.due_date)
@@ -141,10 +133,6 @@ export class assignmentsController {
     @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage('extended an assignment for a student')
     @PersonalLogMessage('You extended an assignment for a student')
-    @UseInterceptors(SALogger)
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @SPATitle('Assignment Extended!')
-    @SPAMessage('Your teacher just extended an assignment for you')
     async extendAssignmentForStudent (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @Param('student_id') student_id: string, @Body() dto: ExtendAssignmentDTO) {
         const school_id = resolveSchoolId(req)
         return await this.assignments.extendAssignmentForStudent(school_id, assignment_id, dto.due_date, student_id)
@@ -161,13 +149,6 @@ export class assignmentsController {
     @UseGuards(TeacherAssignmentGuard())
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You graded an assignment for a student')
-    @UseInterceptors(SALogger)
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @SPATitle('Assignment Graded!')
-    @SPAMessage('Your teacher just graded an assignment for you')
-    @UseInterceptors(ParentAnnouncementLogger)
-    @ParentAnnouncementTitle("Your child's assignment grade")
-    @ParentAnnouncementMessage("You child's assignment grade was just uploaded. Click 'my child' then assignments to see the grade")
     async addStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: GradeAssignmentDTO) {
         const school_id = resolveSchoolId(req)
         return this.assignments.addStudentGradeForAssignment(school_id, student_id, assignment_id, dto.grade, dto.message)
@@ -177,29 +158,15 @@ export class assignmentsController {
     @UseGuards(TeacherSubjectGuard())
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You deleted an assignment grade for a student')
-    @UseInterceptors(SALogger)
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @SPATitle('Assignment Grade Deleted!')
-    @SPAMessage('Your teacher just deleted an assignment grade for you')
-    @UseInterceptors(ParentAnnouncementLogger)
-    @ParentAnnouncementTitle("Your child's assignment grade")
-    @ParentAnnouncementMessage("You child's assignment grade was just deleted. Contact the teacher for any inquires.")
     async deleteStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string) {
         const school_id = resolveSchoolId(req)
         return this.assignments.deleteStudentGradeForAssignment(school_id, student_id, assignment_id)
     }
 
     @Patch(':assignment_id/change-grade/:student_id')
-    @UseGuards(TeacherSubjectGuard())
+    @UseGuards(AST_Subject_AssignmentGuard())
     @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You changed a grade for an assignment for a student')
-    @UseInterceptors(SALogger)
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @SPATitle('Assignment Grade Changed!')
-    @SPAMessage('Your teacher just changed an assignment grade for you')
-    @UseInterceptors(ParentAnnouncementLogger)
-    @ParentAnnouncementTitle("Your child's assignment grade")
-    @ParentAnnouncementMessage("You child's assignment grade was just changed. Contact the teacher for any inquires.")
     async changeStudentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string, @Body() dto: GradeAssignmentDTO) {
         const school_id = resolveSchoolId(req)
         return this.assignments.changeStudentGradeForAssignment(school_id, student_id, assignment_id, dto.grade, dto.message)
@@ -209,8 +176,7 @@ export class assignmentsController {
     @UseGuards(ASSP_Subject_UploadGuard())
     async getAssignmentGrade (@Req() req: Request & {user: any}, @Param('student_id') student_id: string, @Param('assignment_id') assignment_id: string) {
         const school_id = resolveSchoolId(req)
-        const user_id = await this.swap.swapUUID(school_id, student_id)
-        return await this.assignments.getAssignmentGrade(school_id, assignment_id, user_id)
+        return await this.assignments.getAssignmentGrade(school_id, assignment_id, student_id)
     }
 
     @Get('all/grades/:student_id')
@@ -239,6 +205,8 @@ export class assignmentsController {
     async uploadSubmission (@Req() req: Request & {user: any}, @Param('assignment_id') assignment_id: string, @UploadedFile() file: any) {
         const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
+        const name = await this.logging.getAssignmentName(school_id, assignment_id)
+        await this.email.sendEmailToUser(`You uploaded your submission for ${name} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'You uploaded your submission', school_id, {user_id: user_id})
         return await this.assignments.uploadSubmission(school_id, assignment_id, user_id, file)
     }
 

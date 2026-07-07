@@ -1,13 +1,15 @@
 import { supabaseService } from "../supabase_service/supabase.service";
-import { Injectable, InternalServerErrorException, BadRequestException, NotFoundException } from "@nestjs/common";
-import { termsService } from "../terms/terms.service";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class uploadReportCardService {
 
     constructor(
         private readonly supabase: supabaseService,
-        private readonly term: termsService
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     async uploadReportCard (school_id: string, student_id: string, class_id: string, report_card: Express.Multer.File, title: string) {
@@ -28,6 +30,7 @@ export class uploadReportCardService {
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendToStudentAndParent(`Your report card  '${title}' was just uploaded on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Click on the report cards tab on the platform to access it.`, `${title} report card uploaded!`, school_id, student_id)
         return data && fdata
         
     }
@@ -78,6 +81,8 @@ export class uploadReportCardService {
         .eq('id', report_id)
 
         if(nerror) throw new InternalServerErrorException(nerror.message)
+        const student_id = await this.logging.getStudentIdFromReport(school_id, report_id)
+        await this.email.sendToStudentAndParent(`One of your report cards was just deleted by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for and inquiries.`, `Report card deleted!`, school_id, student_id)
 
     }
 

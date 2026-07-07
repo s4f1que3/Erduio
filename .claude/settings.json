@@ -14,7 +14,14 @@
       "Bash(git fetch *)",
       "Bash(curl -s -i https://erduio.vercel.app/)",
       "WebSearch",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/admin/email)",
+      "Bash(timeout 30 npx nest start)",
+      "Bash(node dist/main.js)",
+      "Bash(node dist/src/main.js)",
+      "Bash(echo \"EXIT CODE: $?\")",
+      "Bash(node -e \"require\\('dotenv'\\)?.config?.\\(\\); console.log\\('SUPABASE_URL=', process.env.SUPABASE_URL\\)\")",
+      "Bash(echo \"final exit: $?\")"
     ],
     "additionalDirectories": [
       "/Users/safiq/projects/school_management_system/frontend/src/app/teacher/courses"

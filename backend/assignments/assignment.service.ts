@@ -2,6 +2,8 @@ import { Injectable, InternalServerErrorException, BadRequestException, NotFound
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { supabaseService } from "../supabase_service/supabase.service";
 import { termsService } from "../terms/terms.service";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class assignmentService {
@@ -9,7 +11,9 @@ export class assignmentService {
 
     constructor(
         private readonly supabase: supabaseService,
-        private readonly swap: uuidSwapService
+        private readonly swap: uuidSwapService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     async createAssingment(name: string, school_id: string, due_date: string, content: string, subject_id: string, teacher_id: string, attatchment?: Express.Multer.File) {
@@ -51,8 +55,10 @@ export class assignmentService {
             })
 
             if(nerror) throw new InternalServerErrorException(nerror.message)
+            await this.email.sendSubjectEmail(`Your teacher just posted a new assignment on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}!`, 'New assignment Posted!', subject_id, school_id)
             return ndata
         }
+
     }
 
     async deleteAssignment (school_id: string, assignment_id: string) {
@@ -253,6 +259,9 @@ export class assignmentService {
         .eq('id', assignment_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        const sub_id = await this.logging.getSubjectId(school_id, assignment_id)
+        const name = await this.logging.getAssignmentName(school_id, assignment_id)
+        await this.email.sendSubjectEmail(`The assignment ${name} was just extended until ${due_date} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Assignment extended', sub_id, school_id)
         return data
     }
 
@@ -267,6 +276,7 @@ export class assignmentService {
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        this.email.sendEmailToUser(`The assignment ${name} was just extended until ${due_date} for you on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Assignment Extended', school_id, {user_id: student_id})
         return data
     }
 
@@ -326,6 +336,8 @@ export class assignmentService {
             })
 
             if(error) throw new InternalServerErrorException(error.message)
+            const name = await this.logging.getAssignmentName(school_id, assignment_id)
+            await this.email.sendToStudentAndParent(`You recieved a grade of ${grade} for the assignment ${name} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Assignment grade uploaded', school_id, student_id)
             return data
         }
     }
@@ -355,6 +367,8 @@ export class assignmentService {
             .eq('student_id', student_id)
 
             if(error) throw new InternalServerErrorException(error.message)
+            const name = await this.logging.getAssignmentName(school_id, assignment_id)
+            await this.email.sendToStudentAndParent(`Your grade was changed to ${grade} for the assignment ${name}. Contact your teacher for any inquires.`, 'Assignment grade updated', school_id, student_id)
             return data
 
         } else {
@@ -368,6 +382,8 @@ export class assignmentService {
             .eq('student_id', student_id)
 
             if(nerror) throw new InternalServerErrorException(nerror.message)
+            const name = await this.logging.getAssignmentName(school_id, assignment_id)
+            await this.email.sendToStudentAndParent(`Your grade was changed to ${grade} for the assignment ${name} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact your teacher for any inquires.`, 'Assignment grade updated', school_id, student_id)
             return ndata
         }
 

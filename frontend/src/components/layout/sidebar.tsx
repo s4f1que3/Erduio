@@ -33,6 +33,7 @@ import {
   FileCheck,
   School,
   X,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -69,6 +70,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "File Vault", href: "/admin/file-vault", icon: FolderOpen },
     { label: "Logs", href: "/admin/logs", icon: FileText },
     { label: "School", href: "/admin/school", icon: School },
+    { label: "Email", href: "/admin/email", icon: Mail },
     { label: "My Profile", href: "/super-admin/profile", icon: UserCheck },
   ],
   admin: [
@@ -87,6 +89,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "File Vault", href: "/admin/file-vault", icon: FolderOpen },
     { label: "Logs", href: "/admin/logs", icon: FileText },
     { label: "School", href: "/admin/school", icon: School },
+    { label: "Email", href: "/admin/email", icon: Mail },
     { label: "My Profile", href: "/admin/profile", icon: UserCheck },
   ],
   teacher: [

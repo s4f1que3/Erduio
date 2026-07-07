@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "@/lib/api";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { EntityAvatar } from "@/components/profile/entity-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { statusBadgeVariant, formatDate } from "@/lib/utils";
-import { Loader2, ChevronRight, Pencil, ArrowLeft, User, Mail, Lock, BookOpen, Trash2 } from "lucide-react";
+import { Loader2, ChevronRight, Pencil, ArrowLeft, User, Mail, Lock, BookOpen, Trash2, GraduationCap } from "lucide-react";
 import { ParentProfileDialog } from "@/components/admin/parent-profile-dialog";
 import { passwordSchema } from "@/lib/password";
 import { PasswordRequirements } from "@/components/ui/password-requirements";
@@ -37,6 +37,7 @@ export function StudentProfileDialog({ studentId, open, onOpenChange }: StudentP
   const qc = useQueryClient();
   const [parentId, setParentId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [showGraduateConfirm, setShowGraduateConfirm] = useState(false);
 
   const { data: student, isLoading, error } = useQuery({
     queryKey: ["student-profile", studentId],
@@ -88,6 +89,11 @@ export function StudentProfileDialog({ studentId, open, onOpenChange }: StudentP
   const deletePic = useMutation({
     mutationFn: () => api.post(`/student/admin/${studentId}/profile-pic/delete`),
     onSuccess: () => { toast.success("Profile picture removed"); invalidate(); },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+  const graduateStudent = useMutation({
+    mutationFn: () => api.patch(`/student/admin/enrollment-status/${studentId}`, { status: "graduated" }),
+    onSuccess: () => { toast.success("Student marked as graduated"); setShowGraduateConfirm(false); invalidate(); },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
 
@@ -153,6 +159,11 @@ export function StudentProfileDialog({ studentId, open, onOpenChange }: StudentP
                     <Badge variant={statusBadgeVariant(String(student.status ?? ""))}>{String(student.status ?? "—")}</Badge>
                   </div>
                 </div>
+                {student.enrollment_status !== "graduated" && (
+                  <Button variant="outline" size="sm" onClick={() => setShowGraduateConfirm(true)}>
+                    <GraduationCap className="h-3.5 w-3.5 mr-1.5" />Mark Graduated
+                  </Button>
+                )}
                 {!!student.pfp_path && (
                   <Button
                     variant="ghost"
@@ -330,6 +341,23 @@ export function StudentProfileDialog({ studentId, open, onOpenChange }: StudentP
       </Dialog>
 
       <ParentProfileDialog parentId={parentId} open={!!parentId} onOpenChange={(o) => !o && setParentId(null)} />
+
+      <Dialog open={showGraduateConfirm} onOpenChange={setShowGraduateConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark {String(student?.name ?? "this student")} as graduated?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This removes them from active rosters, discipline, grading, and attendance. Their full record will still be viewable under the Graduates tab.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowGraduateConfirm(false)}>Cancel</Button>
+            <Button disabled={graduateStudent.isPending} onClick={() => graduateStudent.mutate()}>
+              {graduateStudent.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Mark Graduated
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

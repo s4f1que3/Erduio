@@ -1,12 +1,14 @@
 import { supabaseService } from "../supabase_service/supabase.service";
 import { Injectable } from "@nestjs/common";
 import { InternalServerErrorException } from "@nestjs/common";
+import { emailingService } from "emailing/emailing.service";
 
 @Injectable()
 export class disciplineService {
 
     constructor(
         private readonly supabase: supabaseService,
+        private readonly email: emailingService
     ){}
 
     async disciplineStudent (school_id: string, disciplined_by: string, student_id: string, action: string, message: string, date: string) {
@@ -22,6 +24,7 @@ export class disciplineService {
         })
 
         if(error) throw new InternalServerErrorException  (error.message)
+        await this.email.sendToStudentAndParent(`You were disciplined by a teacher on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Action: ${action}. Message: ${message}`, 'Disciplined by a teacher!', school_id, student_id)
         return data
     }
 
@@ -40,6 +43,7 @@ export class disciplineService {
         .eq('id', record_id)
 
         if(error) throw new InternalServerErrorException  (error.message)
+        await this.email.sendToStudentAndParent(`Your discipline by a teacher was updated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Action: ${action}. Message: ${message}. This message is`, 'Discipline by teacher updated!', school_id, student_id)
         return data
     }
 

@@ -11,6 +11,7 @@ import { SwapModule } from "../pipes/transform.module";
 import { LogGetterModule } from "../logGetters/logGetter.module";
 import { TermsModule } from "../terms/terms.module";
 import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcements_personal.module";
+import { EmailModule } from "emailing/email.module";
 
 @Module({
     controllers: [teacherController],
@@ -23,7 +24,8 @@ import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcem
         SwapModule,
         LogGetterModule,
         TermsModule,
-        PersonalAnnouncementsModule
+        PersonalAnnouncementsModule,
+        EmailModule
     ],
     providers: [teacherService],
     exports: [teacherService]

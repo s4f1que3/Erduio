@@ -7,6 +7,8 @@ import { announcementsClassService } from "../Announcements/Class/announcement_c
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class studentService {
@@ -20,6 +22,8 @@ export class studentService {
         private readonly classAnnoun: announcementsClassService,
         private readonly groupAnnoun: announcementsGroupService,
         private readonly swap: uuidSwapService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     //// STUDENT CRUD
@@ -39,6 +43,7 @@ export class studentService {
         parent_email?: string, 
         parent_password?: string, 
     ) {
+        const time = Date.now() + (24 * 60 * 60 * 1000)
 
         if(is_creating_parent_login === true) {
 
@@ -46,7 +51,7 @@ export class studentService {
                 email: parent_email,
                 password: parent_password,
                 email_confirm: true,
-                app_metadata: {role: 'parent', status: 'active', school_id: school_id}
+                app_metadata: {role: 'parent', status: 'active', school_id: school_id, must_change: true, time_end: time}
             })
 
             if(error) {
@@ -68,16 +73,18 @@ export class studentService {
                 if(parenterror) {
                     throw new InternalServerErrorException(parenterror.message)
                 } else {
+                    await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: parent_email})
                     const {error: astudenterror, data: astudentdata} = await this.supabaseAdmin.db.auth.admin.createUser({
                         email: student_email,
                         password: student_password,
                         email_confirm: true,
-                        app_metadata: {role: 'student', status: 'active', school_id: school_id}
+                        app_metadata: {role: 'student', status: 'active', school_id: school_id, must_change: true, time_end: time}
                     })
 
                     if(astudenterror) {
                         throw new InternalServerErrorException(astudenterror.message)
                     } else {
+                        await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: student_email})
                         const {error: rstudenterror, data: rstudentdata} = await this.supabase.db.from('Students')
                         .insert({
                             name: student_name,
@@ -101,49 +108,51 @@ export class studentService {
                 }
 
             }
+            
+        } else {
+        const {data, error} = await this.supabase.db.from('Parents')
+            .insert({
+                name: parent_name,
+                phone_number: parent_phone,
+                email: parent_email,
+                school_id: school_id
+            })
+
+            if(error) {
+                throw new InternalServerErrorException(error.message)
             } else {
-                const {data, error} = await this.supabase.db.from('Parents')
-                    .insert({
-                        name: parent_name,
-                        phone_number: parent_phone,
-                        email: parent_email,
+                const {data: rstudentdata, error: rstudenterror} = await this.supabaseAdmin.db.auth.admin.createUser({
+                    email: student_email,
+                    password: student_password,
+                    email_confirm: true,
+                    app_metadata: {role: 'student', status: 'active', school_id: school_id, must_change: true, time_end: time}
+                })
+
+                if(rstudenterror) {
+                    throw new InternalServerErrorException(rstudenterror.message)
+                } else {
+                    await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: student_email})
+                    const {error: studenterror, data: studentdata} = await this.supabase.db.from('Students')
+                        .insert({
+                        user_id: rstudentdata.user.id,
+                        name: student_name,
+                        email: student_email,
+                        enrollment_status: 'enrolled',
+                        class_id: classID,
+                        phone_number: student_phone,
+                        status: 'active',
                         school_id: school_id
                     })
 
-                    if(error) {
-                        throw new InternalServerErrorException(error.message)
+                    if(studenterror) {
+                        throw new InternalServerErrorException(studenterror.message)
                     } else {
-                        const {data: rstudentdata, error: rstudenterror} = await this.supabaseAdmin.db.auth.admin.createUser({
-                            email: student_email,
-                            password: student_password,
-                            email_confirm: true,
-                            app_metadata: {role: 'student', status: 'active', school_id: school_id}
-                        })
-
-                        if(rstudenterror) {
-                            throw new InternalServerErrorException(rstudenterror.message)
-                        } else {
-                            const {error: studenterror, data: studentdata} = await this.supabase.db.from('Students')
-                                .insert({
-                                user_id: rstudentdata.user.id,
-                                name: student_name,
-                                email: student_email,
-                                enrollment_status: 'enrolled',
-                                class_id: classID,
-                                phone_number: student_phone,
-                                status: 'active',
-                                school_id: school_id
-                            })
-
-                            if(studenterror) {
-                                throw new InternalServerErrorException(studenterror.message)
-                            } else {
-                                await this.addStudentSubjects(school_id, rstudentdata.user.id, subjects)
-                            }
-                            return studentdata && data
-                        }
+                        await this.addStudentSubjects(school_id, rstudentdata.user.id, subjects)
                     }
+                    return studentdata && data
                 }
+            }
+        }
     }
 
     async createStudentWithExstingParent (
@@ -158,16 +167,18 @@ export class studentService {
         ///// optional
         phone?: string,
     ) {
+        const time = Date.now() + (24 * 60 * 60 * 1000)
         const{error, data} = await this.supabaseAdmin.db.auth.admin.createUser({
             email: email,
             password: password,
             email_confirm: true,
-            app_metadata: {role: 'student', status: 'active', school_id: school_id}
+            app_metadata: {role: 'student', status: 'active', school_id: school_id, must_change: true, time_end: time}
         })
 
         if(error) {
             throw new InternalServerErrorException(error.message)
         } else {
+            await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${email}, Password: ${password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: email})
             const{data: studentdata, error: studenterror} = await this.supabase.db.from('Students')
             .insert({
                 user_id: data.user.id,
@@ -204,6 +215,7 @@ export class studentService {
 
         if(error) throw new InternalServerErrorException(error.message)
         if(regerror) throw new InternalServerErrorException(regerror.message)
+        await this.email.sendEmailToUser(`Your email was changed to ${email} by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for any inquiries.`, 'Email changed', school_id, {email: email})
         return data && regdata
     }
 
@@ -232,16 +244,26 @@ export class studentService {
         .in('subjects_id', subjectIDs)
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Some of your subjects were deleted by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for any inquiries.`, 'Subjects deleted', school_id, {user_id: id})
 
     }
 
     async changeStudentPassowrd(school_id: string, id: string, password: string) {
         const auth_id = await this.swap.swapUUIDFromIdToAuth(school_id, id)
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(auth_id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(auth_id, {
-            password: password
+            password: password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your password was changed by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for any inquiries.`, 'Password changed', school_id, {user_id: id})
         return data
     }
 
@@ -272,6 +294,9 @@ export class studentService {
 
             if(insError) throw new InternalServerErrorException(insError.message)
         }
+        const name = await this.logging.getClassName(school_id, class_id)
+
+        await this.email.sendEmailToUser(`You were added to a new class '${name}' by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for any inquiries.`, 'New class!', school_id, {user_id: id})
     }
 
     async changeStudentInfo(school_id: string, id: string, name?: string, phone?: string) {
@@ -284,6 +309,7 @@ export class studentService {
         .eq('school_id', school_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your ${updates.join(', ')} was changed by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for any inquiries.`, 'Info updated!', school_id, {user_id: id})
         return data
 
     }
@@ -295,6 +321,7 @@ export class studentService {
         .eq('school_id', school_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your enrollment status was changed to ${status} by admin on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Contact them for any inquiries.`, 'Status changed!', school_id, {user_id: id})
         return data
     }
 
@@ -393,6 +420,7 @@ export class studentService {
             .eq('school_id', school_id)
 
             if(nerror) throw new InternalServerErrorException(nerror.message)
+            await this.email.sendEmailToUser(`Your email was changed from ${current_email} to ${new_email} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Email changed!', school_id, {email: new_email})
             return ndata && data
         }
     }
@@ -401,8 +429,16 @@ export class studentService {
         const verifiedPassword = await this.auth.verifyPassword(email, current_password)
         if(!verifiedPassword) throw new UnauthorizedException("Invalid Passowrd")
 
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(id, {
-            password: new_password
+            password: new_password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException(error.message)
@@ -419,6 +455,7 @@ export class studentService {
         .eq('school_id', school_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your phone number was changed to ${phone} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Phone number changed!', school_id, {user_id: id})
         return data
 
     }

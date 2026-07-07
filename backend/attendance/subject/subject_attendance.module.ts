@@ -6,11 +6,12 @@ import { Module } from "@nestjs/common";
 import { TermsModule } from "../../terms/terms.module";
 import { SwapModule } from "../../pipes/transform.module";
 import { SubjectAnnouncementsModule } from "../../Announcements/subject/announcement_subject.module";
+import { EmailModule } from "emailing/email.module";
 
 @Module({
     controllers: [subjectAttendanceController],
     providers: [subjectAttendanceService],
-    imports: [LoggingModule, SupabaseModule, TermsModule, SwapModule, SubjectAnnouncementsModule],
+    imports: [LoggingModule, SupabaseModule, TermsModule, SwapModule, SubjectAnnouncementsModule, EmailModule],
     exports: [subjectAttendanceService]
 })
 

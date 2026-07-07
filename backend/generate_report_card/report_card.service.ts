@@ -4,6 +4,7 @@ import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { subjectAttendanceService } from "../attendance/subject/subject_attendance.service";
 import PDFDocument from "pdfkit";
 import { InternalServerErrorException, BadRequestException } from "@nestjs/common";
+import { emailingService } from "emailing/emailing.service";
 
 @Injectable()
 export class ReportCardService {
@@ -11,6 +12,7 @@ export class ReportCardService {
         private readonly supabase: supabaseService,
         private readonly swap: uuidSwapService,
         private readonly subjectAttendance: subjectAttendanceService,
+        private readonly email: emailingService
     ) {}
 
     async isGradesEndpointOpen(school_id: string, term: number) {
@@ -471,6 +473,8 @@ export class ReportCardService {
             })
 
         if (announcementError) throw new InternalServerErrorException (announcementError.message)
+        
+        await this.email.sendToStudentAndParent(`Your report card for term ${term} was just uploaded on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Click on the report cards tab on the platform to access it.`, `Term ${term} report card uploaded!`, school_id, student_id)
 
         return { file_path: filePath }
     }

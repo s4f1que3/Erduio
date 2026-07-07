@@ -33,10 +33,6 @@ export class disciplineController {
     @UseInterceptors(PersonalLogger, StudentPersonalAnnouncementLogger, ParentAnnouncementLogger, AdminLogger)
     @AdminLogMessage('disciplined a student')
     @PersonalLogMessage('You disciplined a student')
-    @SPATitle('Disciplined')
-    @SPAMessage('You were disciplined by a teacher')
-    @ParentAnnouncementTitle('Your child was discplined')
-    @ParentAnnouncementMessage("Your child was disciplined by a teacher. To see why, click 'my child', then discipline. Please contact the teacher/school for any inquires about this incident.")
     async discplineStudent (@Param('student_id') student_id: string, @Req() req: Request & {user: any}, @Body() dto: disciplineDTO) {
         const school_id = resolveSchoolId(req)
         return await this.discipline.disciplineStudent(school_id, req.user.id, student_id, dto.action, dto.message, dto.date)
@@ -47,10 +43,6 @@ export class disciplineController {
     @UseInterceptors(PersonalLogger, StudentPersonalAnnouncementLogger, ParentAnnouncementLogger, AdminLogger)
     @AdminLogMessage("updated a student's discipline ")
     @PersonalLogMessage("You updated a student's discipline")
-    @SPATitle('Discipline Updated')
-    @SPAMessage('Your discipline records were updated by a teacher')
-    @ParentAnnouncementTitle("Your child's discpline records were updated")
-    @ParentAnnouncementMessage("Your child's discipline records were updated by a teacher. Please contact the teacher/school for any inquires about this incident.")
     async updateDiscplineStudent (@Param('student_id') student_id: string, @Param('id') id: string, @Req() req: Request & {user: any}, @Body() dto: disciplineDTO) {
         const school_id = resolveSchoolId(req)
         return await this.discipline.updateDiscipline(school_id, id, req.user.id, student_id, dto.action, dto.message, dto.date)
@@ -60,10 +52,6 @@ export class disciplineController {
     @UseGuards(ASU_DisciplineGuard())
     @AdminLogMessage("deleted a student's discipline ") // admin
     @PersonalLogMessage("You deleted a student's discipline") // personal (teacher here)
-    @SPATitle('Discipline Updated') // student personal announcement title
-    @SPAMessage('Your discipline records were updated by a teacher') // student personal announcement message
-    @ParentAnnouncementTitle("Your child's discpline records were updated")
-    @ParentAnnouncementMessage("Your child's discipline records were updated by a teacher. Please contact the teacher/school for any inquires about this incident.")
     async deleteDiscpline (@Param('student_id') student_id: string, @Param('id') id: string, @Req() req: Request & {user: any}) {
         const school_id = resolveSchoolId(req)
         return await this.discipline.deleteDiscipline(school_id, id)

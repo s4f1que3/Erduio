@@ -1,12 +1,16 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { supabaseService } from "../../supabase_service/supabase.service";
 import { termsService } from "../../terms/terms.service";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class classAttendanceService {
 
     constructor(
         private readonly supabase: supabaseService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     async takeAttendance (school_id: string, class_id: string, date: string, teacher_id: string, records: {student_id: string, present: boolean}[]) {
@@ -27,11 +31,18 @@ export class classAttendanceService {
             date,
             student_id,
             present
+
         }))
 
         const {data, error} = await this.supabase.db
         .from('Class_Attendance')
         .insert(rows)
+        
+        const absents = records.filter(r => !r.present)
+        for(const {student_id} of absents) {
+            const name = await this.logging.getClassName(school_id, class_id)
+            await this.email.sendToStudentAndParent(`You were absent on ${name}'s attendance today.`, "Absent on today's attendance!", school_id, student_id)
+        }
 
         if(error) throw new InternalServerErrorException(error.message)
         return data

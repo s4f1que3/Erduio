@@ -8,11 +8,12 @@ import { LogGetterModule } from "../logGetters/logGetter.module";
 import { TermsModule } from "../terms/terms.module";
 import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcements_personal.module";
 import { SubjectAttendanceModule } from "../attendance/subject/subject_attendance.module";
+import { EmailModule } from "emailing/email.module";
 
 @Module({
     controllers: [ReportCardController],
     providers: [ReportCardService],
-    imports: [SupabaseModule, SwapModule, LoggingModule, LogGetterModule, TermsModule, PersonalAnnouncementsModule, SubjectAttendanceModule],
+    imports: [SupabaseModule, SwapModule, LoggingModule, LogGetterModule, TermsModule, PersonalAnnouncementsModule, SubjectAttendanceModule, EmailModule],
     exports: [ReportCardService]
 })
 

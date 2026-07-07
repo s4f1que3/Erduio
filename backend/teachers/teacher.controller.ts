@@ -23,7 +23,7 @@ import { PersonalLogger } from "../Interceptors/personal logger interceptor/pers
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { TeacherLogger } from "../Interceptors/teacher logger interceptor interceptor/teacher.logger.interceptor";
-import { TeacherLogMessage } from "../Interceptors/teacher logger interceptor interceptor/TeacherMessage";
+import { emailingService } from "emailing/emailing.service";
 
 @Controller('teacher')
 export class teacherController {
@@ -31,7 +31,8 @@ export class teacherController {
     constructor(
         private readonly teacher: teacherService,
         private readonly logging: LoggingService,
-        private readonly swap: uuidSwapService
+        private readonly swap: uuidSwapService,
+        private readonly email: emailingService
     ){}
 
 
@@ -51,10 +52,8 @@ export class teacherController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(TeacherLogger)
     @AdminLogMessage("updated a teacher's info")
     @PersonalLogMessage("You updated a teacher's info")
-    @TeacherLogMessage('Admin updated your info')
     async updateTeacherInfo(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateTeacherInfoDTO) {
         const school_id = resolveSchoolId(req)
         return await this.teacher.changeTeacherInfo_SuperADMIN(school_id, id, dto.name, dto.phone)
@@ -64,10 +63,8 @@ export class teacherController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(TeacherLogger)
     @AdminLogMessage("updated a teacher's password")
     @PersonalLogMessage("You updated a teacher's password")
-    @TeacherLogMessage('Admin updated your password')
     async updateTeacherPassword(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateTeacherPasswordDTO) {
         const school_id = resolveSchoolId(req)
         return await this.teacher.changeTeacherPassword_SuperADMIN(school_id, id, dto.new_password)
@@ -77,11 +74,9 @@ export class teacherController {
     @Patch('admin/update-email/:id')
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
-    @UseInterceptors(PersonalLogger)
     @UseInterceptors(TeacherLogger)
     @AdminLogMessage("updated a teacher's email")
     @PersonalLogMessage("You updated a teacher's email")
-    @TeacherLogMessage('Admin updated your email')
     async updateTeacherEmail(@Req() req: Request & {user: any, role: string, school_id: string}, @Param('id') id: string, @Body() dto: AdminUpdateTeacherEmailDTO) {
         const school_id = resolveSchoolId(req)
         return await this.teacher.changeTeacherEmail_SuperADMIN(school_id, id, dto.new_email)
@@ -169,6 +164,9 @@ export class teacherController {
     @PersonalLogMessage("You updated your password")
     @UseGuards(TeachersGuard)
     async updatePassword(@Req() req: Request & {user: any, school_id: string}, @Body() dto: UpdateTeacherPasswordPersonalDTO) {
+        const school_id = resolveSchoolId(req)
+        const user_id = await this.swap.swapUUID(school_id, req.user.id)
+        await this.email.sendEmailToUser(`Your password was just changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}.`, 'Password changed!', school_id, {user_id: user_id})
         return this.teacher.changePassword(req.user.id, req.user.email, dto.current_password, dto.new_password)
     }
 

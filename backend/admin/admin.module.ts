@@ -10,6 +10,7 @@ import { GeneralAnnouncementsModule } from "../Announcements/General/announcemen
 import { GroupAnnouncementsModule } from "../Announcements/Group/announcements_group.module";
 import { LogGetterModule } from "../logGetters/logGetter.module";
 import { TermsModule } from "../terms/terms.module";
+import { EmailModule } from "emailing/email.module";
 
 @Module({
     controllers: [adminController],
@@ -22,7 +23,8 @@ import { TermsModule } from "../terms/terms.module";
         GeneralAnnouncementsModule,
         GroupAnnouncementsModule,
         LogGetterModule,
-        TermsModule
+        TermsModule,
+        EmailModule
     ],
     providers: [adminService],
     exports: [adminService]

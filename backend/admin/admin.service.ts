@@ -5,6 +5,8 @@ import { authService } from "../auth/auth.service";
 import { announcementsGeneralService } from "../Announcements/General/announcements_general.service";
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
+import { emailingService } from "emailing/emailing.service";
+import { LoggingService } from "logging services/logging.service";
 
 @Injectable()
 export class adminService{
@@ -14,7 +16,9 @@ export class adminService{
         private readonly auth: authService,
         private readonly generalAnnoun: announcementsGeneralService,
         private readonly groupAnnoun: announcementsGroupService,
-        private readonly swap: uuidSwapService
+        private readonly swap: uuidSwapService,
+        private readonly email: emailingService,
+        private readonly logging: LoggingService
     ){}
 
     ///// ADMIN CRUD - DONE BY SUPER ADMINS
@@ -84,17 +88,27 @@ export class adminService{
 
         if(error) throw new InternalServerErrorException(error.message)
         if(RegularError) throw new InternalServerErrorException(RegularError.message)
+        await this.email.sendEmailToUser(`Your email was changed to ${email} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'Email changed!', school_id, {user_id: id})
         return RegularData
     }
 
     async changeAdminPassword(school_id: string, id: string, password: string) {
         const auth_id = await this.swap.swapUUIDFromIdToAuth(school_id, id)
 
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(auth_id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(auth_id, {
-            password: password
+            password: password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your password was changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'Password changed!', school_id, {user_id: id})
         return data
     }
 
@@ -173,7 +187,6 @@ export class adminService{
 
 
     //// personal
-
     async changeAdminEmail_Personal(school_id: string, id: string, current_email: string, new_email: string, token: string) {
         const verifiedOTP = await this.auth.verifyOTP(current_email, token)
         if(!verifiedOTP) throw new UnauthorizedException('Invalid OTP')
@@ -189,6 +202,7 @@ export class adminService{
 
         if(error) throw new InternalServerErrorException(error.message)
         if(RegularError) throw new InternalServerErrorException(RegularError.message)
+        await this.email.sendEmailToUser(`Your email was changed from ${current_email} to ${new_email} on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'Email changed!', school_id, {user_id: id})
         return data && RegularData
     }
 
@@ -196,8 +210,16 @@ export class adminService{
         const verifiedPassword = await this.auth.verifyPassword(email, current_password)
         if(!verifiedPassword) throw new UnauthorizedException("Invalid Password")
 
+        const {data: userData, error: userError} = await this.supabaseAdmin.db.auth.admin.getUserById(id)
+        if(userError) throw new InternalServerErrorException(userError.message)
+
         const {data, error} = await this.supabaseAdmin.db.auth.admin.updateUserById(id, {
-            password: new_password
+            password: new_password,
+            app_metadata: {
+                ...userData.user?.app_metadata,
+                must_change: false,
+                time_end: null
+            }
         })
 
         if(error) throw new InternalServerErrorException(error.message)
@@ -215,6 +237,7 @@ export class adminService{
         .eq('school_id', school_id)
 
         if(error) throw new InternalServerErrorException(error.message)
+        await this.email.sendEmailToUser(`Your ${updateData.join(', ')} was changed on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}`, 'Info changed!', school_id, {user_id: id})
         return data
     }
 
