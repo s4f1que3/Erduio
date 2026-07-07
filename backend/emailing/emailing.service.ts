@@ -1,12 +1,12 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
-import { supabaseService } from '../supabase_service/supabase.service'
 import { Email } from './email.class'
 import { buildSchoolMessageEmail } from './email.template'
+import { supabaseAdminService } from '../supabaseAdminService/supabase_admin.service'
 
 @Injectable()
 export class emailingService {
 
-    constructor(private readonly email: Email, private readonly supabase: supabaseService){}
+    constructor(private readonly email: Email, private readonly supabase: supabaseAdminService){}
 
 
     // getters

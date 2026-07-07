@@ -1,7 +1,7 @@
 import { Public } from "../../Extra Guards/public/public.metadata";
 import { lateService } from "./late.service";
-import { Controller, Get, Req } from "../../node_modules/@nestjs/common";
-import { Request } from "../../node_modules/@nestjs/common";
+import { Controller, Get, Req } from "@nestjs/common";
+import type Request from "express";
 import { resolveSchoolId } from "../../overrides/school_id.override";
 
 @Controller('email/late')
@@ -11,7 +11,6 @@ export class lateController {
 
     @Get('send')
     async sendLateEmail (@Req() req: Request) {
-        const school_id = resolveSchoolId(req)
-        return await this.late.SendEmailsForUnsubmittedAssignments(school_id)
+        return await this.late.SendEmailsForUnsubmittedAssignments()
     }
 }
