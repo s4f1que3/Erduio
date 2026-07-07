@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, InternalServerErrorException } from "@nestjs/common"
+import { Injectable, UnauthorizedException, InternalServerErrorException, ForbiddenException } from "@nestjs/common"
 import { supabaseService } from "../supabase_service/supabase.service"
 import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service"
 import { uuidSwapService } from "../pipes/transformuuid.pipe"
@@ -71,6 +71,11 @@ export class authService {
         })
 
         if(error) throw new InternalServerErrorException(error.message)
+        const metadata = data.user?.app_metadata
+        if(metadata?.must_change && metadata?.time_end && Date.now() > metadata?.time_end) {
+            throw new ForbiddenException('Your temporary password has expired. Please contact school admin for a password change.')
+        }
+
         return data
     }
 
