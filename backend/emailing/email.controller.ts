@@ -2,7 +2,7 @@ import { Body, Controller, Post, Req, UseGuards, UseInterceptors } from "@nestjs
 import { emailingService } from "./emailing.service";
 import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
-import { AsGuard } from "Extra Guards/AS.guard";
+import { AsGuard } from "../Extra Guards/AS.guard";
 import { emailDTO } from "./email.dto";
 
 @Controller('email')

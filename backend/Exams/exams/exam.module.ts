@@ -6,7 +6,7 @@ import { SwapModule } from "../../pipes/transform.module";
 import { LoggingModule } from "../../logging services/logging.module";
 import { PersonalAnnouncementsModule } from "../../Announcements/Personal/announcements_personal.module";
 import { SubjectAnnouncementsModule } from "../../Announcements/subject/announcement_subject.module";
-import { EmailModule } from "emailing/email.module";
+import { EmailModule } from "../../emailing/email.module";
 
 @Module ({
     controllers: [examsController],

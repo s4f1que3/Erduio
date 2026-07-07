@@ -8,7 +8,7 @@ import { LogGetterModule } from "../logGetters/logGetter.module";
 import { TermsModule } from "../terms/terms.module";
 import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcements_personal.module";
 import { SubjectAttendanceModule } from "../attendance/subject/subject_attendance.module";
-import { EmailModule } from "emailing/email.module";
+import { EmailModule } from "../emailing/email.module";
 
 @Module({
     controllers: [ReportCardController],

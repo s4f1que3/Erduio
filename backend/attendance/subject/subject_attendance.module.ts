@@ -6,7 +6,7 @@ import { Module } from "@nestjs/common";
 import { TermsModule } from "../../terms/terms.module";
 import { SwapModule } from "../../pipes/transform.module";
 import { SubjectAnnouncementsModule } from "../../Announcements/subject/announcement_subject.module";
-import { EmailModule } from "emailing/email.module";
+import { EmailModule } from "../../emailing/email.module";
 
 @Module({
     controllers: [subjectAttendanceController],

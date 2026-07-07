@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
-import { supabaseService } from 'supabase_service/supabase.service'
+import { supabaseService } from '../supabase_service/supabase.service'
 import { Email } from './email.class'
 import { buildSchoolMessageEmail } from './email.template'
 
