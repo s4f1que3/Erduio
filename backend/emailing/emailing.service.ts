@@ -196,6 +196,20 @@ export class emailingService {
         })
     }
 
+    async sendToStudentAndParentProvided (message: string, subject: string, school_id: string, emails: string[] = []) {
+        const school_email = await this.schoolEmail(school_id)
+
+        return await this.email.mail.sendMail({
+            from: process.env.EMAIL_SENDER,
+            replyTo: school_email,
+            bcc: emails,
+            subject: subject,
+            text: message,
+            html: buildSchoolMessageEmail(subject, message, school_email)
+            
+        })
+    }
+
 
     
 }

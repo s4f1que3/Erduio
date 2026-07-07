@@ -34,6 +34,7 @@ import { OwnerModule } from '../owner/owner.module';
 import { HealthModule } from '../health/health.module';
 import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { EmailModule } from '../emailing/email.module';
+import { LateModule } from '../cron-jobs/late-submissions/late.module';
 
 @Module({
   imports: [
@@ -66,7 +67,8 @@ import { EmailModule } from '../emailing/email.module';
     LogGetterModule,
     OwnerModule,
     HealthModule,
-    EmailModule
+    EmailModule,
+    LateModule
 
   ],
 
