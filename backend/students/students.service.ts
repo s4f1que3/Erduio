@@ -7,8 +7,8 @@ import { announcementsClassService } from "../Announcements/Class/announcement_c
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
-import { emailingService } from "emailing/emailing.service";
-import { LoggingService } from "logging services/logging.service";
+import { emailingService } from "../emailing/emailing.service";
+import { LoggingService } from "../logging services/logging.service";
 
 @Injectable()
 export class studentService {

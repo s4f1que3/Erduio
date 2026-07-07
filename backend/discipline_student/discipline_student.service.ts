@@ -1,7 +1,7 @@
 import { supabaseService } from "../supabase_service/supabase.service";
 import { Injectable } from "@nestjs/common";
 import { InternalServerErrorException } from "@nestjs/common";
-import { emailingService } from "emailing/emailing.service";
+import { emailingService } from "../emailing/emailing.service";
 
 @Injectable()
 export class disciplineService {

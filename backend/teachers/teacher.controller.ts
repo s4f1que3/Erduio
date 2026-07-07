@@ -23,7 +23,7 @@ import { PersonalLogger } from "../Interceptors/personal logger interceptor/pers
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { TeacherLogger } from "../Interceptors/teacher logger interceptor interceptor/teacher.logger.interceptor";
-import { emailingService } from "emailing/emailing.service";
+import { emailingService } from "../emailing/emailing.service";
 
 @Controller('teacher')
 export class teacherController {

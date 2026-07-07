@@ -22,7 +22,7 @@ import { GlobalGuard } from "../Extra Guards/global.guard";
 import { AdminGuard } from "./admin.guard";
 import { resolveSchoolId } from "../overrides/school_id.override";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
-import { emailingService } from "emailing/emailing.service";
+import { emailingService } from "../emailing/emailing.service";
 
 @Controller('admin')
 export class adminController {

@@ -6,7 +6,7 @@ import { announcementsGeneralService } from "../Announcements/General/announceme
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
-import { emailingService } from "emailing/emailing.service";
+import { emailingService } from "../emailing/emailing.service";
 
 @Injectable()
 export class teacherService {

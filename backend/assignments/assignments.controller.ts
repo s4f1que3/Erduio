@@ -31,7 +31,7 @@ import { ParentAnnouncementMessage } from "../Interceptors/parent announcement l
 import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
 import { TeacherAssignmentGuard } from "./teacher-assignment.guard";
 import { SAMessage } from "../Interceptors/subject announcement logger interceptor/SAMessage";
-import { emailingService } from "emailing/emailing.service";
+import { emailingService } from "../emailing/emailing.service";
 
 @Controller('assignments')
 export class assignmentsController {

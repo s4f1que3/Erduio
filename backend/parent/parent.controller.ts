@@ -24,7 +24,7 @@ import { AdminLogMessage } from "../Interceptors/admin logger interceptor/messag
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { ParentPersonalMessage } from "../Interceptors/parent logger interceptor interceptor/ParentMessage";
 import { ParentPersonalLogger } from "../Interceptors/parent logger interceptor interceptor/parent.logger.interceptor";
-import { emailingService } from "emailing/emailing.service";
+import { emailingService } from "../emailing/emailing.service";
 
 @Controller('parent')
 export class ParentController {
