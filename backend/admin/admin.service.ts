@@ -18,16 +18,16 @@ export class adminService{
         private readonly groupAnnoun: announcementsGroupService,
         private readonly swap: uuidSwapService,
         private readonly email: emailingService,
-        private readonly logging: LoggingService
     ){}
 
     ///// ADMIN CRUD - DONE BY SUPER ADMINS
     async createAdmin(school_id: string, email: string, password: string, name: string, phone: string) {
+        const time = Date.now() + (24 * 60 * 60 * 1000)
         const {data, error} = await this.supabaseAdmin.db.auth.admin.createUser({
             email: email,
             password: password,
             email_confirm: true,
-            app_metadata: {role: 'admin', status: 'active', school_id: school_id}
+            app_metadata: {role: 'admin', status: 'active', school_id: school_id, must_change: true, time_end: time}
 
         })
 
@@ -44,6 +44,7 @@ export class adminService{
             })
         }
 
+        await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${email}, Password: ${password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password. To view the admin manual, click this link: https://aspn54ii0qjbbkxt.public.blob.vercel-storage.com/admin-manual.pdf.`, 'Erduio account created!', school_id, {email: email})
         return data
 
     }

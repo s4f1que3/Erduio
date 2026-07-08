@@ -48,6 +48,7 @@ export class teacherService {
             })
         }
 
+        await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${email}, Password: ${password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password. To view the teachers manual, click this link: https://aspn54ii0qjbbkxt.public.blob.vercel-storage.com/teacher-manual.pdf.`, 'Erduio account created!', school_id, {email: email})
         return data
 
     }

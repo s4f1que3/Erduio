@@ -72,8 +72,9 @@ export class studentService {
 
                 if(parenterror) {
                     throw new InternalServerErrorException(parenterror.message)
-                } else {
-                    await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: parent_email})
+                } else { // send email to parent and create student
+                    await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password. To view the parents manual, click this link: https://aspn54ii0qjbbkxt.public.blob.vercel-storage.com/parent-manual.pdf`, 'Erduio account created!', school_id, {email: parent_email})
+                    
                     const {error: astudenterror, data: astudentdata} = await this.supabaseAdmin.db.auth.admin.createUser({
                         email: student_email,
                         password: student_password,
@@ -84,7 +85,6 @@ export class studentService {
                     if(astudenterror) {
                         throw new InternalServerErrorException(astudenterror.message)
                     } else {
-                        await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password.`, 'Erduio account created!', school_id, {email: student_email})
                         const {error: rstudenterror, data: rstudentdata} = await this.supabase.db.from('Students')
                         .insert({
                             name: student_name,
@@ -101,7 +101,8 @@ export class studentService {
 
                         if(rstudenterror) {
                             throw new InternalServerErrorException(rstudenterror.message)
-                        } else {
+                        } else { // send email and create subjects
+                            await this.email.sendEmailToUser(`Your Erduio account was just created on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString('en-US')}. Your email: ${parent_email}, Password: ${parent_password}. Please note that this password expires 24hrs from now. You MUST! change this to your own password. To view the students manual, click this link: https://aspn54ii0qjbbkxt.public.blob.vercel-storage.com/student-manual.pdf`, 'Erduio account created!', school_id, {email: student_email})
                             await this.addStudentSubjects(school_id, rstudentdata.id, subjects)
                         }
                         return rstudentdata && astudentdata && parentdata && data
@@ -112,6 +113,7 @@ export class studentService {
             }
             
         } else {
+             // if no parent login
         const {data, error} = await this.supabase.db.from('Parents')
             .insert({
                 name: parent_name,

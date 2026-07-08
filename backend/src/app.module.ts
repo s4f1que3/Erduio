@@ -36,6 +36,8 @@ import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { EmailModule } from '../emailing/email.module';
 import { LateModule } from '../cron-jobs/late-submissions/late.module';
 
+// vercel cron jobs deployment for when you buy pro
+
 @Module({
   imports: [
     AdminModule,
