@@ -34,7 +34,6 @@ import { OwnerModule } from '../owner/owner.module';
 import { HealthModule } from '../health/health.module';
 import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { EmailModule } from '../emailing/email.module';
-import { LateModule } from '../cron-jobs/late-submissions/late.module';
 
 // vercel cron jobs deployment for when you buy pro
 
@@ -70,7 +69,6 @@ import { LateModule } from '../cron-jobs/late-submissions/late.module';
     OwnerModule,
     HealthModule,
     EmailModule,
-    LateModule
 
   ],
 

@@ -4,12 +4,5 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "api/index.ts" }
-  ],
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "path": "/email/late/send",
-      "schedule": "*/2 * * * *"
-    }
   ]
 }
