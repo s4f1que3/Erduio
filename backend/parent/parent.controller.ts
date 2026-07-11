@@ -24,7 +24,7 @@ import { AdminLogMessage } from "../Interceptors/admin logger interceptor/messag
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { ParentPersonalMessage } from "../Interceptors/parent logger interceptor interceptor/ParentMessage";
 import { ParentPersonalLogger } from "../Interceptors/parent logger interceptor interceptor/parent.logger.interceptor";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Controller('parent')
 export class ParentController {
@@ -219,27 +219,7 @@ export class ParentController {
 
 
 
-    //// fetch announcements
-    @Get('announcements/general')
-    @UseGuards(GlobalGuard)
-    async getGeneralAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.parent.fetchGeneralAnnouncements(school_id)
-    }
-
-    @Get('announcements/personal')
-    @UseGuards(GlobalGuard)
-    async getPersonalAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.parent.fetchPersonalAnnouncements(school_id, req.user.id)
-    }
-
-    @Get('announcements/parents')
-    @UseGuards(ParentGuard)
-    async getAnnouncementsToParents (@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.parent.fetchForParentGroup(school_id)
-    }
+    //// fetch logs
 
     @Get('logs/my-logs')
     @UseGuards(ParentGuard)

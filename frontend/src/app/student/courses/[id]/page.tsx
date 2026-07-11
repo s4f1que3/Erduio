@@ -10,22 +10,17 @@ import { PageShell, Section } from "@/components/ui/page-shell";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, BookOpen, ExternalLink, Calendar, Bell, Paperclip, Download, ClipboardList, FileCheck, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink, Calendar, Download, ClipboardList, FileCheck, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import { colorPalette } from "@/lib/subject-style";
 
 const NOTES_COLOR = colorPalette[3]; // blue
 const ASSIGNMENTS_COLOR = colorPalette[5]; // amber
 const EXAMS_COLOR = colorPalette[2]; // violet
-const ANNOUNCEMENTS_COLOR = colorPalette[4]; // pink
 
 type StudentProfile = {
   id: string;
   subjects: { id: string; name: string | null }[];
 };
-
-function hasAttachment(a: Record<string, unknown>) {
-  return !!a.file_path && a.file_path !== "null";
-}
 
 export default function StudentCourseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -35,7 +30,7 @@ export default function StudentCourseDetailPage() {
   const [currentWeek, setCurrentWeek] = useState(false);
   const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
   const [downloadingNoteId, setDownloadingNoteId] = useState<string | null>(null);
-  const [collapsed, setCollapsed] = useState({ announcements: false, assignments: false, exams: false, notes: false });
+  const [collapsed, setCollapsed] = useState({ assignments: false, exams: false, notes: false });
 
   function toggleSection(key: keyof typeof collapsed) {
     setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -93,17 +88,11 @@ export default function StudentCourseDetailPage() {
     enabled: !!subjectId,
   });
 
-  const { data: announcements = [], isLoading: announcementsLoading } = useQuery({
-    queryKey: ["course-announcements", subjectId, currentWeek],
-    queryFn: async () => (await api.get(currentWeek ? `/announcements/all/subject/${subjectId}/current-week` : `/announcements/all/subject/${subjectId}`)).data ?? [],
-    enabled: !!subjectId,
-  });
-
   return (
     <>
       <Header
         title={subject?.name ?? "Course"}
-        description="Notes, assignments, exams and announcements for this course"
+        description="Notes, assignments and exams for this course"
         actions={
           <Button variant="ghost" size="sm" onClick={() => router.push("/student/courses")}>
             <ArrowLeft className="h-4 w-4 mr-1.5" />Courses
@@ -115,46 +104,6 @@ export default function StudentCourseDetailPage() {
           <Switch checked={currentWeek} onCheckedChange={setCurrentWeek} />
           <span className="text-sm text-muted-foreground">This week only</span>
         </div>
-
-        <Section title="Announcements" description="Updates from your teacher for this course" actions={<CollapseToggle section="announcements" />}>
-          {collapsed.announcements ? null : announcementsLoading ? (
-            <div className="text-center py-8 text-muted-foreground text-sm animate-pulse">Loading...</div>
-          ) : (announcements as Record<string, unknown>[]).length === 0 ? (
-            <div className="flex flex-col items-center py-10 text-muted-foreground">
-              <Bell className="h-8 w-8 mb-2 opacity-40" />
-              <p className="text-sm">No announcements{currentWeek ? " this week" : ""}</p>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {(announcements as Record<string, unknown>[]).map((a) => (
-                <Link
-                  key={String(a.id)}
-                  href={`/student/courses/${subjectId}/announcements/${String(a.id)}`}
-                  className={`flex items-start gap-3 p-4 rounded-xl border shadow-sm hover:shadow-md transition-all ${ANNOUNCEMENTS_COLOR.tintBg} ${ANNOUNCEMENTS_COLOR.tintBorder}`}
-                >
-                  <div className={`rounded-lg p-2 flex-shrink-0 ${ANNOUNCEMENTS_COLOR.solid}`}><Bell className="h-4 w-4 text-white" /></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{String(a.title ?? "")}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{String(a.message ?? "")}</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{formatDate(a.created_at as string)}</span>
-                      </div>
-                      {hasAttachment(a) && (
-                        <div className="flex items-center gap-1">
-                          <Paperclip className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Attachment</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
-                </Link>
-              ))}
-            </div>
-          )}
-        </Section>
 
         <Section title="Assignments" description="Work assigned for this course" actions={<CollapseToggle section="assignments" />}>
           {collapsed.assignments ? null : assignmentsLoading ? (

@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { supabaseService } from "../supabase_service/supabase.service";
 import { termsService } from "../terms/terms.service";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 import { LoggingService } from "../logging services/logging.service";
 
 @Injectable()

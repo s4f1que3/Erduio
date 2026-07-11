@@ -6,7 +6,7 @@ import { LoggingModule } from "../logging services/logging.module";
 import { TermsModule } from "../terms/terms.module";
 import { Module } from "@nestjs/common";
 import { SwapModule } from "../pipes/transform.module";
-import { EmailModule } from "../emailing/email.module";
+import { EmailModule } from "../emailing/emailing/email.module";
 
 @Module({
     controllers: [uploadedNotesController],

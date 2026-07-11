@@ -6,7 +6,7 @@ import { resolveSchoolId } from "../overrides/school_id.override";
 import { UpdateSuperAdminInfoPersonalDTO, UpdateSuperAdminEmailPersonalDTO, UpdateSuperAdminPasswordPersonalDTO } from "./super_admin.dto"
 import { uuidSwapService } from "../pipes/transformuuid.pipe"
 import { GlobalGuard } from "../Extra Guards/global.guard"
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Controller('super')
     export class superAdminController {

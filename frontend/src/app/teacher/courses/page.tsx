@@ -30,7 +30,7 @@ export default function TeacherCoursesPage() {
         ) : (
           <>
             {classes.length > 0 && (
-              <Section title="My Homeroom Classes" description="Class-wide attendance, roster and announcements">
+              <Section title="My Homeroom Classes" description="Class-wide attendance, roster and email">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {classes.map((c) => (
                     <Link key={c.id} href={`/teacher/classes/${c.id}`}>
@@ -40,7 +40,7 @@ export default function TeacherCoursesPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm text-foreground group-hover:text-primary truncate">{c.name}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Roster, attendance & announcements</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Roster, attendance & email</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 group-hover:text-primary" />
                       </div>

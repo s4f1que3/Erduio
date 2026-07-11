@@ -33,7 +33,8 @@ import { LogGetterModule } from '../logGetters/logGetter.module';
 import { OwnerModule } from '../owner/owner.module';
 import { HealthModule } from '../health/health.module';
 import { SentryGlobalFilter } from '@sentry/nestjs/setup';
-import { EmailModule } from '../emailing/email.module';
+import { EmailModule } from '../emailing/emailing/email.module';
+import { BrevoModule } from 'emailing/brevo/brevo.module';
 
 // vercel cron jobs deployment for when you buy pro
 
@@ -69,6 +70,7 @@ import { EmailModule } from '../emailing/email.module';
     OwnerModule,
     HealthModule,
     EmailModule,
+    BrevoModule
 
   ],
 

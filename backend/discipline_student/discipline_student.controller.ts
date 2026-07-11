@@ -9,16 +9,10 @@ import { ASU_DisciplineGuard } from "../Extra Guards/ASU-discipline.guard";
 import { ASTSGuard } from "../Extra Guards/ASTS.guard";
 import { resolveSchoolId } from "../overrides/school_id.override";
 import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { StudentPersonalAnnouncementLogger} from "../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { ParentAnnouncementLogger } from "../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
 import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
-import { SPATitle } from "../Interceptors/SPA logger Interceptor/SPATitle";
-import { ParentAnnouncementMessage } from "../Interceptors/parent announcement logger interceptor/ParentLogMessage";
-import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
 import { ASSPGuard } from "../Extra Guards/ASSP.guard";
-import { SPAMessage } from "../Interceptors/SPA logger Interceptor/SPAMessage";
 
 @Controller('discipline')
 export class disciplineController {
@@ -30,7 +24,7 @@ export class disciplineController {
 
     @Post('student/:student_id')
     @UseGuards(ASTGuard)
-    @UseInterceptors(PersonalLogger, StudentPersonalAnnouncementLogger, ParentAnnouncementLogger, AdminLogger)
+    @UseInterceptors(PersonalLogger, AdminLogger)
     @AdminLogMessage('disciplined a student')
     @PersonalLogMessage('You disciplined a student')
     async discplineStudent (@Param('student_id') student_id: string, @Req() req: Request & {user: any}, @Body() dto: disciplineDTO) {
@@ -40,7 +34,7 @@ export class disciplineController {
 
     @Post('student/:student_id/:id')
     @UseGuards(ASU_DisciplineGuard())
-    @UseInterceptors(PersonalLogger, StudentPersonalAnnouncementLogger, ParentAnnouncementLogger, AdminLogger)
+    @UseInterceptors(PersonalLogger,AdminLogger)
     @AdminLogMessage("updated a student's discipline ")
     @PersonalLogMessage("You updated a student's discipline")
     async updateDiscplineStudent (@Param('student_id') student_id: string, @Param('id') id: string, @Req() req: Request & {user: any}, @Body() dto: disciplineDTO) {

@@ -7,7 +7,7 @@ import { LoggingModule } from "../logging services/logging.module";
 import { LogGetterModule } from "../logGetters/logGetter.module";
 import { TermsModule } from "../terms/terms.module";
 import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcements_personal.module";
-import { EmailModule } from "../emailing/email.module";
+import { EmailModule } from "../emailing/emailing/email.module";
 
 @Module({
     controllers: [disciplineController],

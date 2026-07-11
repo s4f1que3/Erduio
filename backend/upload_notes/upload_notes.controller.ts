@@ -12,10 +12,7 @@ import { ASTGuard } from "../Extra Guards/AST.guard";
 import { resolveSchoolId } from "../overrides/school_id.override";
 import { UploadsLimiter } from "../rate-limit/uploads.limiter";
 import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { SALogger } from "../Interceptors/subject announcement logger interceptor/SA.interceptor";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
-import { SATitle } from "../Interceptors/subject announcement logger interceptor/SATitle";
-import { SAMessage } from "../Interceptors/subject announcement logger interceptor/SAMessage";
 
 @Controller('notes')
 export class uploadedNotesController {
@@ -23,17 +20,14 @@ export class uploadedNotesController {
     constructor(
         private readonly notes: uploadNotesService,
         private readonly logging: LoggingService,
-        private readonly announcement: announcementsSubjectService,
         private readonly swap: uuidSwapService
     ){}
 
     @Post('/:subject_id/create')
     @UseGuards(UploadsLimiter, AST_SubjectGuard())
     @UseInterceptors(FileInterceptor('notes'))
-    @UseInterceptors(PersonalLogger, SALogger)
+    @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You uploaded some notes')
-    @SATitle('New Notes!')
-    @SAMessage('Your teacher just uploaded some new notes!')
     async createNote (@Req() req: Request & {user: any}, @Param('subject_id') subject_id: string, @Body() dto: uploadNotesDTO, @UploadedFile() notes?: any) {
         const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)
@@ -44,9 +38,7 @@ export class uploadedNotesController {
     @Delete('subject/:subject_id/:note_id')
     @UseGuards(AST_SubjectGuard())
     @PersonalLogMessage('You deleted some notes')
-    @UseInterceptors(PersonalLogger, SALogger)
-    @SATitle('Notes Deleted!')
-    @SAMessage('Your teacher just deleted some notes!')
+    @UseInterceptors(PersonalLogger)
     async deleteNote (@Req() req: Request & {user: any}, @Param('note_id') note_id: string, @Param('subject_id') subject_id: string) {
         const school_id = resolveSchoolId(req)
         return await this.notes.deleteNotes(school_id, note_id)
@@ -54,10 +46,8 @@ export class uploadedNotesController {
 
     @Patch('subject/:subject_id/:note_id')
     @UseGuards(AST_SubjectGuard())
-    @UseInterceptors(PersonalLogger, SALogger)
+    @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You updated some notes')
-    @SATitle('Notes Updated!')
-    @SAMessage('Your teacher just updated some notes!')
     async updateNote (@Req() req: Request & {user: any}, @Param('note_id') note_id: string, @Param('subject_id') subject_id: string, @Body() dto: updateNotesDTO) {
         const school_id = resolveSchoolId(req)
         return await this.notes.updateNote(school_id, note_id, dto.title, dto.message)

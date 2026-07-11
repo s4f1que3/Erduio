@@ -6,7 +6,7 @@ import { SupabaseModule } from "../supabase_service/supabase.module";
 import { SupabaseAdminModule } from "../supabaseAdminService/supabase_admin.module";
 import { AuthModule } from "../auth/auth.module";
 import { SwapModule } from "../pipes/transform.module";
-import { EmailModule } from "../emailing/email.module";
+import { EmailModule } from "../emailing/emailing/email.module";
 
 @Module({
     controllers: [superAdminController],

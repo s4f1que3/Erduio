@@ -10,10 +10,19 @@ function escapeHtml(value: string): string {
         .replace(/'/g, '&#39;');
 }
 
-export function buildSchoolMessageEmail(subject: string, message: string, schoolEmail: string): string {
+export function buildSchoolMessageEmail(subject: string, message: string, schoolEmail: string, imageUrl?: string): string {
     const safeSubject = escapeHtml(subject);
     const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
     const safeSchoolEmail = escapeHtml(schoolEmail);
+    const safeImageUrl = imageUrl ? escapeHtml(imageUrl) : undefined;
+
+    const imageBlock = safeImageUrl
+        ? `<tr>
+              <td style="padding:0 32px 16px 32px;">
+                <img src="${safeImageUrl}" alt="" width="416" style="display:block; max-width:100%; height:auto; border-radius:8px;" />
+              </td>
+            </tr>`
+        : '';
 
     return `
 <!doctype html>
@@ -42,10 +51,11 @@ export function buildSchoolMessageEmail(subject: string, message: string, school
               </td>
             </tr>
             <tr>
-              <td style="padding:16px 32px 32px 32px;">
+              <td style="padding:16px 32px ${safeImageUrl ? '0' : '32px'} 32px;">
                 <p style="margin:0; font-size:15px; line-height:1.6; color:#333333;">${safeMessage}</p>
               </td>
             </tr>
+            ${imageBlock}
             <tr>
               <td style="padding:0 32px;">
                 <div style="border-top:1px solid #e5e5ea;"></div>

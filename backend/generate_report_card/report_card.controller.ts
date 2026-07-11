@@ -11,12 +11,6 @@ import { AdminLogMessage } from "../Interceptors/admin logger interceptor/messag
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { ASTGuard } from "../Extra Guards/AST.guard";
 import { resolveSchoolId } from "../overrides/school_id.override";
-import { ParentAnnouncementLogger } from "../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { StudentPersonalAnnouncementLogger} from "../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { SPATitle } from "../Interceptors/SPA logger Interceptor/SPATitle";
-import { SPAMessage } from "../Interceptors/SPA logger Interceptor/SPAMessage";
-import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentAnnouncementMessage} from "../Interceptors/parent announcement logger interceptor/ParentLogMessage";
 import { ReportCardGenerationLimiter } from "../rate-limit/report-card-generation.limiter";
 
 //// this whole folder was ai generated because i was tired at this point in time.

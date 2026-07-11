@@ -9,9 +9,6 @@ import { AST_CLASSGuard } from "../../Extra Guards/AST-Class";
 import { resolveSchoolId } from "../../overrides/school_id.override";
 import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
-import { CALogger } from "../../Interceptors/Class Announcement logger Interceptor/CA.interceptor";
-import { CATitle } from "../../Interceptors/Class Announcement logger Interceptor/CATitle";
-import { CAMessage } from "../../Interceptors/Class Announcement logger Interceptor/CAMessage";
 
 @Controller('attendance')
 export class classAttendanceController {
@@ -24,10 +21,8 @@ export class classAttendanceController {
 
     @Post('take/class/:class_id')
     @UseGuards(AST_CLASSGuard())
-    @UseInterceptors(PersonalLogger, CALogger)
+    @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You took attendance for a class today')
-    @CATitle('Attendance taken!')
-    @CAMessage("Your teacher just took today's class attendance.")
     async takeAttendance (@Req() req: Request & {user: any}, @Param('class_id') class_id: string, @Body() dto: classAttendanceDTO) {
         const school_id = resolveSchoolId(req)
         const user_id = await this.swap.swapUUID(school_id, req.user.id)

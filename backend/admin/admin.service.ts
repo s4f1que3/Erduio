@@ -5,7 +5,7 @@ import { authService } from "../auth/auth.service";
 import { announcementsGeneralService } from "../Announcements/General/announcements_general.service";
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 import { LoggingService } from "../logging services/logging.service";
 
 @Injectable()
@@ -315,12 +315,4 @@ export class adminService{
         }
     }
 
-    async fetchGeneralAnnouncements (school_id: string) {
-        return await this.generalAnnoun.getAll(school_id)
-    }
-
-
-    async fetchForAdminGroup (school_id: string) {
-        return await this.groupAnnoun.getAllForGroup(school_id, 'admins')
-    }
 }

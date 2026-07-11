@@ -23,7 +23,7 @@ import { PersonalLogger } from "../Interceptors/personal logger interceptor/pers
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { TeacherLogger } from "../Interceptors/teacher logger interceptor interceptor/teacher.logger.interceptor";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Controller('teacher')
 export class teacherController {
@@ -206,27 +206,6 @@ export class teacherController {
 
 
 
-    //// fetch announcements
-    @Get('announcements/general')
-    @UseGuards(GlobalGuard)
-    async getGeneralAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.teacher.fetchGeneralAnnouncements(school_id)
-    }
-
-    @Get('announcements/teachers')
-    @UseGuards(TeachersGuard)
-    async getAnnouncementsToTeachers (@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.teacher.fetchForTeacherGroup(school_id)
-    }
-
-    @Get('announcements/personal')
-    @UseGuards(TeachersGuard)
-    async getPersonalAnnouncements (@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.teacher.fetchPersonalAnnouncements(school_id, req.user.id)
-    }
 
     //// get logs
     @Get('logs/all')

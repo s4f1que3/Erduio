@@ -1,12 +1,20 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { Email } from './email.class'
 import { buildSchoolMessageEmail } from './email.template'
-import { supabaseAdminService } from '../supabaseAdminService/supabase_admin.service'
+import { supabaseAdminService } from '../../supabaseAdminService/supabase_admin.service'
 
 @Injectable()
 export class emailingService {
 
-    constructor(private readonly email: Email, private readonly supabase: supabaseAdminService){}
+    constructor(
+        private readonly email: Email,
+        private readonly supabase: supabaseAdminService
+        
+    ){}
+
+    private buildAttatchment (file?: Express.Multer.File) {
+        return file? [{ filename: file.originalname, content: file.buffer, contentType: file.mimetype}] : undefined
+    }
 
 
     // getters
@@ -110,12 +118,69 @@ export class emailingService {
         throw new InternalServerErrorException ('user email not found in any table')
     }
 
+    async getTeacherEmails (school_id: string) {
+        const {data, error} = await this.supabase.db
+        .from('Teachers')
+        .select('email')
+        .eq('school_id', school_id)
+        if(error) throw new InternalServerErrorException(error.message)
+        
+        const emails = (data?? []).map(t => t.email).filter(Boolean) as string[]
+
+        return emails
+    }
+
+    async getParentEmails (school_id: string) {
+        const {data, error} = await this.supabase.db
+        .from('Parents')
+        .select('email')
+        .eq('school_id', school_id)
+        if(error) throw new InternalServerErrorException(error.message)
+        
+        const emails = (data?? []).map(t => t.email).filter(Boolean) as string[]
+
+        return emails
+    }
+
+    async getStudentEmails (school_id: string) {
+        const {data, error} = await this.supabase.db
+        .from('Students')
+        .select('email')
+        .eq('school_id', school_id)
+        if(error) throw new InternalServerErrorException(error.message)
+        
+        const emails = (data?? []).map(t => t.email).filter(Boolean) as string[]
+
+        return emails
+    }
+
+    async getAdminEmails (school_id: string) {
+        const {data, error} = await this.supabase.db
+        .from('Admins')
+        .select('email')
+        .eq('school_id', school_id)
+        if(error) throw new InternalServerErrorException(error.message)
+        
+        const emails = (data?? []).map(t => t.email).filter(Boolean) as string[]
+
+        return emails
+    }
 
 
 
+    async getEveryonesEmails (school_id: string) {
+        const teacherEmails = await this.getTeacherEmails(school_id)
+        const studentEmails = await this.getStudentEmails(school_id)
+        const adminEmails = await this.getAdminEmails(school_id)
+        const parentEmails = await this.getParentEmails(school_id)
 
+        const allEmails = Array.from(new Set([...teacherEmails, ...studentEmails, ...adminEmails, ...parentEmails]))
 
-    async sendEmail (message: string, subject: string, id: string) {
+        return allEmails
+
+    }
+
+    async sendEmailToSafique (message: string, subject: string, id: string) {
         const school_email = await this.schoolEmail(id)
         return await this.email.mail.sendMail({
             from: process.env.EMAIL_SENDER,
@@ -127,32 +192,38 @@ export class emailingService {
         })
     }
 
-    async sendEmailToUser (message: string, subject: string, school_id: string, opts?: {user_id?: string, email?: string}) {
+    async sendEmailToUser (message: string, subject: string, school_id: string, opts?: {user_id?: string, email?: string}, upload?: Express.Multer.File) {
         if(opts?.user_id) {
             const user_email = await this.getUserEmail(school_id, opts?.user_id)
             const school_email = await this.schoolEmail(school_id)
+
             return await this.email.mail.sendMail({
                 from: process.env.EMAIL_SENDER,
                 replyTo: school_email,
                 to: user_email,
                 subject: subject,
                 text: message,
+                attachments: this.buildAttatchment(upload),
                 html: buildSchoolMessageEmail(subject, message, school_email)
             })
+            
+
         } else {
             const school_email = await this.schoolEmail(school_id)
+
             return await this.email.mail.sendMail({
                 from: process.env.EMAIL_SENDER,
                 replyTo: school_email,
                 to: opts?.email,
                 subject: subject,
                 text: message,
+                attachments: this.buildAttatchment(upload),
                 html: buildSchoolMessageEmail(subject, message, school_email)
-            })
+            }) 
         }
     }
 
-    async sendSubjectEmail (message: string, subject: string, subject_id: string, school_id: string) {
+    async sendSubjectEmail (message: string, subject: string, subject_id: string, school_id: string, upload?: Express.Multer.File) {
         const school_email = await this.schoolEmail(school_id)
         const emails = await this.getSubjectEmails(school_id, subject_id)
 
@@ -162,13 +233,14 @@ export class emailingService {
             bcc: emails,
             subject: subject,
             text: message,
+            attachments: this.buildAttatchment(upload),
             html: buildSchoolMessageEmail(subject, message, school_email)
         })
     }
 
-    async sendClassEmail (message: string, subject: string, subject_id: string, school_id: string) {
+    async sendClassEmail (message: string, subject: string, class_id: string, school_id: string, upload?: Express.Multer.File) {
         const school_email = await this.schoolEmail(school_id)
-        const emails = await this.getSubjectEmails(school_id, subject_id)
+        const emails = await this.getClassEmails(school_id, class_id)
 
         return await this.email.mail.sendMail({
             from: process.env.EMAIL_SENDER,
@@ -176,8 +248,96 @@ export class emailingService {
             bcc: emails,
             subject: subject,
             text: message,
+            attachments: this.buildAttatchment(upload),
             html: buildSchoolMessageEmail(subject, message, school_email)
         })
+
+
+    }
+
+    async sendToGroup (group: string, message: string, subject: string, school_id: string, upload?: Express.Multer.File) {
+        switch (group) {
+            case 'Teachers':
+            case 'teachers':
+                const t_emails = await this.getTeacherEmails(school_id)
+                const school_email = await this.schoolEmail(school_id)
+
+                return await this.email.mail.sendMail({
+                    from: process.env.EMAIL_SENDER,
+                    replyTo: school_email,
+                    bcc: t_emails,
+                    subject: subject,
+                    text: message,
+                    attachments: this.buildAttatchment(upload),
+                    html: buildSchoolMessageEmail(subject, message, school_email)
+                })
+
+            case 'Parents':
+            case 'parents':
+                const p_emails = await this.getParentEmails(school_id)
+                const email = await this.schoolEmail(school_id)
+        
+                return await this.email.mail.sendMail({
+                    from: process.env.EMAIL_SENDER,
+                    replyTo: email,
+                    bcc: p_emails,
+                    subject: subject,
+                    text: message,
+                    attachments: this.buildAttatchment(upload),
+                    html: buildSchoolMessageEmail(subject, message, email)
+                })
+
+            case 'Students':
+            case 'students':
+                const emails = await this.getStudentEmails(school_id)
+                const s_email = await this.schoolEmail(school_id)
+
+                return await this.email.mail.sendMail({
+                    from: process.env.EMAIL_SENDER,
+                    replyTo: s_email,
+                    bcc: emails,
+                    subject: subject,
+                    text: message,
+                    attachments: this.buildAttatchment(upload),
+                    html: buildSchoolMessageEmail(subject, message, s_email)
+                })
+
+            case 'Admins':
+            case 'admins':
+                const admin_emails = await this.getAdminEmails(school_id)
+                const sc_email = await this.schoolEmail(school_id)
+
+                return await this.email.mail.sendMail({
+                    from: process.env.EMAIL_SENDER,
+                    replyTo: sc_email,
+                    bcc: admin_emails,
+                    subject: subject,
+                    text: message,
+                    attachments: this.buildAttatchment(upload),
+                    html: buildSchoolMessageEmail(subject, message, sc_email)
+                })
+
+            default: 
+            throw new BadRequestException('Not a group option')
+                
+        }
+    }
+
+    async sendGeneralEmail (message: string, subject: string, school_id: string, upload?: Express.Multer.File) {
+        const school_email = await this.schoolEmail(school_id)
+        const emails = await this.getEveryonesEmails(school_id)
+
+        await this.email.mail.sendMail({
+            from: process.env.EMAIL_SENDER,
+            replyTo: school_email,
+            bcc: emails,
+            subject: subject,
+            text: message,
+            attachments: this.buildAttatchment(upload),
+            html: buildSchoolMessageEmail(subject, message, school_email)
+        })
+            
+
     }
 
     async sendToStudentAndParent (message: string, subject: string, school_id: string, student_id: string) {

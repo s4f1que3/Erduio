@@ -6,11 +6,12 @@ import { SwapModule } from "../../pipes/transform.module";
 import { TermsModule } from "../../terms/terms.module";
 import { LoggingModule } from "../../logging services/logging.module";
 import { LogGetterModule } from "../../logGetters/logGetter.module";
+import { EmailModule } from "../../emailing/emailing/email.module";
 
 @Module({
     controllers: [announcementsPersonalController],
     providers: [announcementsPersonalService],
-    imports: [SupabaseModule, SwapModule, TermsModule, LoggingModule, LogGetterModule],
+    imports: [SupabaseModule, SwapModule, TermsModule, LoggingModule, LogGetterModule, EmailModule],
     exports: [announcementsPersonalService]
 })
 

@@ -7,7 +7,7 @@ import { resolveSchoolId } from "../../overrides/school_id.override";
 import { ASTSP_ExamGuard } from "../../Extra Guards/ASTSP-Exam.guard";
 import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
-import { emailingService } from "../../emailing/emailing.service";
+import { emailingService } from "../../emailing/emailing/emailing.service";
 import { LoggingService } from "../../logging services/logging.service";
 
 @Controller('exam')

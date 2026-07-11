@@ -6,7 +6,7 @@ import { announcementsGeneralService } from "../Announcements/General/announceme
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Injectable()
 export class parentService {
@@ -312,19 +312,6 @@ export class parentService {
 
         if(error) throw new InternalServerErrorException(error.message)
         return data
-    }
-
-    async fetchGeneralAnnouncements (school_id: string) {
-        return await this.generalAnnoun.getAll(school_id)
-    }
-
-    async fetchPersonalAnnouncements (school_id: string, student_id: string) {
-        return await this.personal.getAllPersonalForPerson(school_id, student_id)
-    }
-
-
-    async fetchForParentGroup (school_id: string) {
-        return await this.groupAnnoun.getAllForGroup(school_id, 'parents')
     }
 
 }

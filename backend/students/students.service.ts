@@ -7,7 +7,7 @@ import { announcementsClassService } from "../Announcements/Class/announcement_c
 import { announcementsGroupService } from "../Announcements/Group/announcements_group.service";
 import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { announcementsPersonalService } from "../Announcements/Personal/announcements_personal.service";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 import { LoggingService } from "../logging services/logging.service";
 
 @Injectable()
@@ -616,26 +616,5 @@ export class studentService {
         if(nerror) throw new InternalServerErrorException(nerror.message)
         return ndata.name
     }
-
-    async fetchGeneralAnnouncements (school_id: string) {
-        return await this.generalAnnoun.getAll(school_id)
-    }
-
-
-    // announcements sent to the specific student
-    async fetchAllForStudent(school_id: string, student_id: string) {
-        return await this.studentAnnoun.getAllPersonalForPerson(school_id, student_id)
-    }
-
-
-    async fetchForClassStudentIsIn(school_id: string, class_id: string) {
-        return await this.classAnnoun.getAllForClass(school_id, class_id)
-    }
-
-
-    async fetchForStudentGroup (school_id: string) {
-        return await this.groupAnnoun.getAllForGroup(school_id, 'students')
-    }
-
 
 }

@@ -7,9 +7,6 @@ import { ASTSP_ClassGuard } from "../../Extra Guards/ASTSP-Class.guard";
 import { resolveSchoolId } from "../../overrides/school_id.override";
 import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
 import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
-import { SALogger } from "../../Interceptors/subject announcement logger interceptor/SA.interceptor";
-import { SATitle } from "../../Interceptors/subject announcement logger interceptor/SATitle";
-import { SAMessage } from "../../Interceptors/subject announcement logger interceptor/SAMessage";
 
 @Controller('attendance')
 export class subjectAttendanceController {
@@ -22,9 +19,7 @@ export class subjectAttendanceController {
 
     @Post('take/subject/:subject_id')
     @UseGuards(AST_SubjectGuard())
-    @UseInterceptors(PersonalLogger, SALogger)
-    @SATitle("Attendance Taken!")
-    @SAMessage("Your teacher just took today's attendance")
+    @UseInterceptors(PersonalLogger)
     @PersonalLogMessage('You took attendance for your class today')
     async takeAttendance (@Req() req: Request & {user: any}, @Param('subject_id') subject_id: string, @Body() dto: subjectAttendanceDTO) {
         const school_id = resolveSchoolId(req)

@@ -4,7 +4,7 @@ import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { subjectAttendanceService } from "../attendance/subject/subject_attendance.service";
 import PDFDocument from "pdfkit";
 import { InternalServerErrorException, BadRequestException } from "@nestjs/common";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Injectable()
 export class ReportCardService {

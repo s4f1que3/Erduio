@@ -4,7 +4,7 @@ import { uuidSwapService } from "../pipes/transformuuid.pipe";
 import { supabaseAdminService } from "../supabaseAdminService/supabase_admin.service";
 import { supabaseService} from "../supabase_service/supabase.service";
 import { InternalServerErrorException } from "@nestjs/common";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Injectable() 
 export class superAdminService {

@@ -18,7 +18,7 @@ const tabs = [
   { label: "Teachers", href: "/teachers" },
   { label: "Parents", href: "/parents" },
   { label: "Classes", href: "/classes" },
-  { label: "Announcements", href: "/announcements" },
+  { label: "Emails", href: "/emails" },
   { label: "Assignments", href: "/assignments" },
   { label: "Exams", href: "/exams" },
   { label: "Attendance", href: "/attendance" },

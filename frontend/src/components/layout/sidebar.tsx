@@ -8,7 +8,6 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { clearSession, getSession } from "@/lib/auth";
 import { getInitials } from "@/lib/utils";
-import { useAnnouncementsLastSeen } from "@/hooks/use-announcements-seen";
 import { countNewerThan, useLastSeen } from "@/hooks/use-last-seen";
 import { NotificationBadge } from "@/components/ui/notification-badge";
 import {
@@ -19,7 +18,6 @@ import {
   Calendar,
   ClipboardList,
   FileText,
-  Bell,
   BarChart3,
   Settings,
   LogOut,
@@ -34,6 +32,7 @@ import {
   School,
   X,
   Mail,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -60,7 +59,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "Students", href: "/admin/students", icon: GraduationCap },
     { label: "Parents", href: "/admin/parents", icon: UserCheck },
     { label: "Classes", href: "/admin/classes", icon: BookOpen },
-    { label: "Announcements", href: "/admin/announcements", icon: Bell },
+    { label: "Emails", href: "/admin/emails", icon: Send },
     { label: "Assignments", href: "/admin/assignments", icon: ClipboardList },
     { label: "Exams", href: "/admin/exams", icon: FileCheck },
     { label: "Attendance", href: "/admin/attendance", icon: Calendar },
@@ -70,7 +69,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "File Vault", href: "/admin/file-vault", icon: FolderOpen },
     { label: "Logs", href: "/admin/logs", icon: FileText },
     { label: "School", href: "/admin/school", icon: School },
-    { label: "Email", href: "/admin/email", icon: Mail },
+    { label: "Contact Support", href: "/admin/email", icon: Mail },
     { label: "My Profile", href: "/super-admin/profile", icon: UserCheck },
   ],
   admin: [
@@ -79,7 +78,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "Students", href: "/admin/students", icon: GraduationCap },
     { label: "Parents", href: "/admin/parents", icon: UserCheck },
     { label: "Classes", href: "/admin/classes", icon: BookOpen },
-    { label: "Announcements", href: "/admin/announcements", icon: Bell },
+    { label: "Emails", href: "/admin/emails", icon: Send },
     { label: "Assignments", href: "/admin/assignments", icon: ClipboardList },
     { label: "Exams", href: "/admin/exams", icon: FileCheck },
     { label: "Attendance", href: "/admin/attendance", icon: Calendar },
@@ -89,14 +88,14 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "File Vault", href: "/admin/file-vault", icon: FolderOpen },
     { label: "Logs", href: "/admin/logs", icon: FileText },
     { label: "School", href: "/admin/school", icon: School },
-    { label: "Email", href: "/admin/email", icon: Mail },
+    { label: "Contact Support", href: "/admin/email", icon: Mail },
     { label: "My Profile", href: "/admin/profile", icon: UserCheck },
   ],
   teacher: [
     { label: "Dashboard", href: "/teacher/dashboard", icon: LayoutDashboard },
     { label: "My Courses", href: "/teacher/courses", icon: BookOpen },
     { label: "Discipline", href: "/teacher/discipline", icon: AlertTriangle },
-    { label: "Announcements", href: "/teacher/announcements", icon: Bell },
+    { label: "Emails", href: "/teacher/emails", icon: Send },
     { label: "File Vault", href: "/teacher/file-vault", icon: FolderOpen },
     { label: "Logs", href: "/teacher/logs", icon: FileText },
     { label: "School", href: "/teacher/school", icon: School },
@@ -108,7 +107,6 @@ const navByRole: Record<string, NavItem[]> = {
     { label: "My Courses", href: "/student/courses", icon: BookOpen },
     { label: "Attendance", href: "/student/attendance", icon: Calendar },
     { label: "Grades", href: "/student/grades", icon: BarChart3 },
-    { label: "Announcements", href: "/student/announcements", icon: Bell },
     { label: "Report Cards", href: "/student/report-cards", icon: Award },
     { label: "Discipline Log", href: "/student/discipline", icon: AlertTriangle },
     { label: "Logs", href: "/student/logs", icon: FileText },
@@ -118,7 +116,6 @@ const navByRole: Record<string, NavItem[]> = {
   parent: [
     { label: "Dashboard", href: "/parent/dashboard", icon: LayoutDashboard },
     { label: "My Child", href: "/parent/child", icon: GraduationCap },
-    { label: "Announcements", href: "/parent/announcements", icon: Bell },
     { label: "Logs", href: "/parent/logs", icon: FileText },
     { label: "School", href: "/parent/school", icon: School },
     { label: "My Profile", href: "/parent/profile", icon: UserCheck },
@@ -149,75 +146,7 @@ export function Sidebar() {
   const navItems = navByRole[role] ?? [];
   const userId = session?.user.id ?? "";
   const isStudent = role === "student";
-  const isTeacher = role === "teacher";
   const isParent = role === "parent";
-
-  // ---- Announcements (student) ----
-  const { data: general = [] } = useQuery({
-    queryKey: ["student-ann-general"],
-    queryFn: async () => (await api.get("/student/announcements/general")).data ?? [],
-    enabled: isStudent,
-  });
-  const { data: group = [] } = useQuery({
-    queryKey: ["student-ann-group"],
-    queryFn: async () => (await api.get("/student/announcements/students")).data ?? [],
-    enabled: isStudent,
-  });
-  const { data: personal = [] } = useQuery({
-    queryKey: ["student-ann-me"],
-    queryFn: async () => (await api.get("/student/announcements/to-me")).data ?? [],
-    enabled: isStudent,
-  });
-  const { data: lastSeenGeneral = 0 } = useAnnouncementsLastSeen(userId, "general");
-  const { data: lastSeenGroup = 0 } = useAnnouncementsLastSeen(userId, "group");
-  const { data: lastSeenPersonal = 0 } = useAnnouncementsLastSeen(userId, "personal");
-
-  const unreadAnnouncementsStudent =
-    countNewerThan(general, lastSeenGeneral) +
-    countNewerThan(group, lastSeenGroup) +
-    countNewerThan(personal, lastSeenPersonal);
-
-  // ---- Announcements (teacher) ----
-  const { data: teacherGeneral = [] } = useQuery({
-    queryKey: ["teacher-ann-general"],
-    queryFn: async () => { const d = (await api.get("/teacher/announcements/general")).data; return Array.isArray(d) ? d : []; },
-    enabled: isTeacher,
-  });
-  const { data: teacherGroup = [] } = useQuery({
-    queryKey: ["teacher-ann-group"],
-    queryFn: async () => { const d = (await api.get("/teacher/announcements/teachers")).data; return Array.isArray(d) ? d : []; },
-    enabled: isTeacher,
-  });
-  const { data: lastSeenTeacherGroup = 0 } = useAnnouncementsLastSeen(userId, "teachers_group");
-
-  const unreadAnnouncementsTeacher =
-    countNewerThan(teacherGeneral, lastSeenGeneral) +
-    countNewerThan(teacherGroup, lastSeenTeacherGroup);
-
-  // ---- Announcements (parent) ----
-  const { data: parentGeneral = [] } = useQuery({
-    queryKey: ["parent-ann-general"],
-    queryFn: async () => (await api.get("/parent/announcements/general")).data ?? [],
-    enabled: isParent,
-  });
-  const { data: parentGroup = [] } = useQuery({
-    queryKey: ["parent-ann-group"],
-    queryFn: async () => (await api.get("/parent/announcements/parents")).data ?? [],
-    enabled: isParent,
-  });
-  const { data: lastSeenParentGroup = 0 } = useAnnouncementsLastSeen(userId, "parents_group");
-
-  const unreadAnnouncementsParent =
-    countNewerThan(parentGeneral, lastSeenGeneral) +
-    countNewerThan(parentGroup, lastSeenParentGroup);
-
-  const unreadAnnouncements = isStudent
-    ? unreadAnnouncementsStudent
-    : isTeacher
-    ? unreadAnnouncementsTeacher
-    : isParent
-    ? unreadAnnouncementsParent
-    : 0;
 
   // ---- Report Cards / Discipline / Grades (student) ----
   const { data: studentProfile } = useQuery({
@@ -299,7 +228,6 @@ export function Sidebar() {
     : 0;
 
   const navBadgeCounts: Record<string, number> = {
-    Announcements: unreadAnnouncements,
     "Report Cards": unreadReportCards,
     "Discipline Log": unreadDiscipline,
     Grades: unreadGrades,

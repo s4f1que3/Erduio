@@ -22,7 +22,7 @@ import { GlobalGuard } from "../Extra Guards/global.guard";
 import { AdminGuard } from "./admin.guard";
 import { resolveSchoolId } from "../overrides/school_id.override";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Controller('admin')
 export class adminController {
@@ -194,24 +194,6 @@ export class adminController {
 
 
 
-
-
-    
-
-
-    //// fetch announcements
-    @Get('announcements/general')
-    async getGeneralAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.admin.fetchGeneralAnnouncements(school_id)
-    }
-
-    @Get('announcements/admins')
-    @UseGuards(AsGuard)
-    async getAnnouncementsToParents (@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.admin.fetchForAdminGroup(school_id)
-    }
 
     //// fetch logs
     @Get('logs/all')

@@ -8,7 +8,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, GraduationCap, BookOpen, UserCheck, Bell, FileText, ClipboardList, Calendar } from "lucide-react";
+import { Users, GraduationCap, BookOpen, UserCheck, Send, FileText, ClipboardList, Calendar } from "lucide-react";
 import { formatDate, statusBadgeVariant } from "@/lib/utils";
 import Link from "next/link";
 
@@ -17,7 +17,6 @@ export default function AdminDashboard() {
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: async () => (await api.get("/student")).data ?? [] });
   const { data: parents = [] } = useQuery({ queryKey: ["parents"], queryFn: async () => (await api.get("/parent/all-parents")).data ?? [] });
   const { data: classes = [] } = useQuery({ queryKey: ["classes"], queryFn: async () => (await api.get("/classes")).data ?? [] });
-  const { data: announcements = [] } = useQuery({ queryKey: ["announcements-general"], queryFn: async () => (await api.get("/announcements/general/all")).data ?? [] });
   const { data: logs = [] } = useQuery({ queryKey: ["admin-logs"], queryFn: async () => (await api.get("/admin/logs/all")).data ?? [] });
   const { data: assignments = [] } = useQuery({ queryKey: ["assignments-admin"], queryFn: async () => (await api.get("/assignments/admin/all")).data ?? [] });
 
@@ -51,7 +50,7 @@ export default function AdminDashboard() {
         <Section title="Quick Access">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { href: "/admin/announcements", icon: Bell, label: "Announcements", count: announcements.length },
+              { href: "/admin/emails", icon: Send, label: "Emails" },
               { href: "/admin/assignments", icon: ClipboardList, label: "Assignments", count: assignments.length },
               { href: "/admin/attendance", icon: Calendar, label: "Attendance" },
               { href: "/admin/logs", icon: FileText, label: "Activity Logs", count: logs.length },
@@ -81,28 +80,6 @@ export default function AdminDashboard() {
             ]}
             data={logs.slice(0, 8)}
           />
-        </Section>
-
-        {/* Recent announcements */}
-        <Section
-          title="Recent Announcements"
-          actions={<Link href="/admin/announcements"><Button variant="outline" size="sm">View All</Button></Link>}
-        >
-          <div className="space-y-2">
-            {announcements.slice(0, 5).map((a: Record<string, unknown>) => (
-              <div key={String(a.id)} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card">
-                <Bell className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{String(a.title ?? "")}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{String(a.content ?? "")}</p>
-                </div>
-                <span className="text-xs text-muted-foreground flex-shrink-0">{formatDate(a.created_at as string)}</span>
-              </div>
-            ))}
-            {announcements.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No announcements yet</p>
-            )}
-          </div>
         </Section>
       </PageShell>
     </>

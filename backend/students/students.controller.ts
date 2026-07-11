@@ -28,7 +28,7 @@ import { AdminLogMessage } from "../Interceptors/admin logger interceptor/messag
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
 import { StudentLogger } from "../Interceptors/student logger interceptor interceptor/student.logger.interceptor";
 import { StudentLogMessage } from "../Interceptors/student logger interceptor interceptor/StudentMessage";
-import { emailingService } from "../emailing/emailing.service";
+import { emailingService } from "../emailing/emailing/emailing.service";
 
 @Controller('student')
 export class StudentController {
@@ -288,44 +288,6 @@ export class StudentController {
 
 
 
-
-
-
-
-
-
-
-
-
-    @Get('announcements/general')
-    @UseGuards(GlobalGuard)
-    async getGeneralAnnouncements(@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.student.fetchGeneralAnnouncements(school_id)
-    }
-
-    @Get('announcements/to-me')
-    @UseGuards(StudentGuard)
-    async getStudentAnnouncements (@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        const user_id = await this.swap.swapUUID(school_id, req.user.id)
-        return await this.student.fetchAllForStudent(school_id, user_id) // sending internal because the ultimate function swaps it to auth
-    }
-
-    @Get('announcements/class/:id')
-    @UseGuards(StudentClassGuard())
-    async getClassAnnouncements (@Req() req: Request & {user: any}, @Param('id') id: string) {
-        const school_id = resolveSchoolId(req)
-        return await this.student.fetchForClassStudentIsIn(school_id, id)
-    }
-
-
-    @Get('announcements/students')
-    @UseGuards(StudentGuard)
-    async getAnnouncementsToStudents (@Req() req: Request & {user: any}) {
-        const school_id = resolveSchoolId(req)
-        return await this.student.fetchForStudentGroup(school_id)
-    }
 
     ////logs
     @Get('logs/my-logs')

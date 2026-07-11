@@ -10,15 +10,9 @@ import { ASSP_ReportGuard } from "../Extra Guards/ASSP-Report.guard";
 import { ASSPGuard } from "../Extra Guards/ASSP.guard";
 import { AdminLogger } from "../Interceptors/admin logger interceptor/admin.logger.interceptor";
 import { PersonalLogger } from "../Interceptors/personal logger interceptor/personal.logger.interceptor";
-import { StudentPersonalAnnouncementLogger} from "../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
 import { AdminLogMessage } from "../Interceptors/admin logger interceptor/message-decorator";
 import { PersonalLogMessage } from "../Interceptors/personal logger interceptor/personal-message-decorator";
-import { ParentAnnouncementLogger } from "../Interceptors/parent announcement logger interceptor/ParentAnnouncement.logger";
-import { SPATitle } from "../Interceptors/SPA logger Interceptor/SPATitle";
-import { ParentAnnouncementTitle } from "../Interceptors/parent announcement logger interceptor/ParentLogTitle";
-import { ParentAnnouncementMessage } from "../Interceptors/parent announcement logger interceptor/ParentLogMessage";
 import { UploadsLimiter } from "../rate-limit/uploads.limiter";
-import { SPAMessage } from "../Interceptors/SPA logger Interceptor/SPAMessage";
 import { resolveSchoolId } from "../overrides/school_id.override";
 
 @Controller('report-cards')
@@ -32,13 +26,9 @@ export class uploadedReportCardsController {
     @Post('upload/class/:class_id/student/:student_id')
     @UseGuards(UploadsLimiter, AST_CLASSGuard())
     @UseInterceptors(FileInterceptor('file'))
-    @UseInterceptors(AdminLogger, StudentPersonalAnnouncementLogger, PersonalLogger, ParentAnnouncementLogger)
+    @UseInterceptors(AdminLogger, PersonalLogger)
     @AdminLogMessage("uploaded a student's report card")
     @PersonalLogMessage("You uploaded a student's report card")
-    @SPATitle('Report Card Uploaded!')
-    @SPAMessage('Your report card for this term was just uploaded')
-    @ParentAnnouncementTitle("Your child's report card!")
-    @ParentAnnouncementMessage("Your child's report card for this term was just uploaded. To view it, click 'my child' then report cards.")
     async uploadReportCard (@Param('class_id') class_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}, @UploadedFile() file: any, @Body() dto: UploadReportCardDTO) {
         const school_id = resolveSchoolId(req)
         return await this.report.uploadReportCard(school_id, student_id, class_id, file, dto.title)
@@ -76,14 +66,8 @@ export class uploadedReportCardsController {
     @UseGuards(AsGuard)
     @UseInterceptors(AdminLogger)
     @UseInterceptors(PersonalLogger)
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
-    @UseInterceptors(ParentAnnouncementLogger)
     @AdminLogMessage("deleted a student's report card")
     @PersonalLogMessage("You deleted a student's report card")
-    @SPATitle('Report Card Deleted!')
-    @SPAMessage('One of your report cards was just deleted. Please contact your teacher/school for information.')
-    @ParentAnnouncementTitle("Your child's report card!")
-    @ParentAnnouncementMessage("One of your child's report card was just deleted. Please contact the teacher/school for information.")
     async deleteReportCard (@Param('report_id') report_id: string, @Param('student_id') student_id: string, @Req() req: Request & {user: any}) {
         const school_id = resolveSchoolId(req)
         return await this.report.deleteReportCard(school_id, report_id)

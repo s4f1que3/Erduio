@@ -8,11 +8,7 @@ import { resolveSchoolId } from "../../overrides/school_id.override";
 import { ASTS_SubjectGuard } from "../../Extra Guards/ASTS-Subjects.guard";
 import { AST_Subject_Exam_Guard } from "../../Extra Guards/ATS-Subject-Exam.guard";
 import { ASTSGuard } from "../../Extra Guards/ASTS.guard";
-import { StudentPersonalAnnouncementLogger} from "../../Interceptors/SPA logger Interceptor/SPA.logger.intercetpor";
-import { SAMessage } from "../../Interceptors/subject announcement logger interceptor/SAMessage";
 import { PersonalLogMessage } from "../../Interceptors/personal logger interceptor/personal-message-decorator";
-import { SATitle } from "../../Interceptors/subject announcement logger interceptor/SATitle";
-import { SALogger } from "../../Interceptors/subject announcement logger interceptor/SA.interceptor";
 import { PersonalLogger } from "../../Interceptors/personal logger interceptor/personal.logger.interceptor";
 
 @Controller('exams')
@@ -49,7 +45,6 @@ export class examsController {
 
     @Patch(':exam_id/update')
     @UseGuards(AST_Subject_Exam_Guard())
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
     @PersonalLogMessage('You updated an exam')
     async updateExam (@Req() req: Request & {user: any}, @Param('exam_id') exam_id: string, @Body() dto: UpdateExamDTO) {
         const school_id = resolveSchoolId(req)
@@ -58,7 +53,6 @@ export class examsController {
 
     @Delete(':exam_id/delete')
     @UseGuards(AST_Subject_Exam_Guard())
-    @UseInterceptors(StudentPersonalAnnouncementLogger)
     @PersonalLogMessage('You deleted an exam')
     async deleteExam (@Req() req: Request & {user: any}, @Param('exam_id') exam_id: string) {
         const school_id = resolveSchoolId(req)

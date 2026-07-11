@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatDate, cn } from "@/lib/utils";
-import { ArrowLeft, Bell, Calendar, CheckCircle2, FileText, GraduationCap, Loader2, Plus, Users } from "lucide-react";
+import { ArrowLeft, CheckCircle2, FileText, GraduationCap, Loader2, Plus, Send, Users } from "lucide-react";
 
 type TeacherProfile = { classes: { id: string; name: string }[] };
 type RosterStudent = { id: string; name: string };
@@ -50,7 +50,7 @@ function groupAttendanceByDate(rows: AttendanceRow[]) {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-const announcementSchema = z.object({ title: z.string().min(1), content: z.string().min(1) });
+const emailSchema = z.object({ title: z.string().min(1), content: z.string().min(1) });
 
 export default function TeacherClassDetailPage() {
   const params = useParams<{ id: string }>();
@@ -76,7 +76,7 @@ export default function TeacherClassDetailPage() {
     <>
       <Header
         title={cls?.name ?? "Class"}
-        description="Homeroom roster, attendance and announcements"
+        description="Homeroom roster, attendance and email"
         actions={
           <Button variant="ghost" size="sm" onClick={() => router.push("/teacher/courses")}>
             <ArrowLeft className="h-4 w-4 mr-1.5" />Courses
@@ -89,7 +89,7 @@ export default function TeacherClassDetailPage() {
             <TabsTrigger value="roster">Roster</TabsTrigger>
             <TabsTrigger value="attendance">Attendance</TabsTrigger>
             <TabsTrigger value="grades">Report Card Grades</TabsTrigger>
-            <TabsTrigger value="announcements">Announcements</TabsTrigger>
+            <TabsTrigger value="announcements">Email</TabsTrigger>
             <TabsTrigger value="timetable">Timetable</TabsTrigger>
           </TabsList>
 
@@ -122,7 +122,7 @@ export default function TeacherClassDetailPage() {
           </TabsContent>
 
           <TabsContent value="announcements" className="mt-4">
-            <ClassAnnouncementsTab classId={classId} />
+            <ClassEmailTab classId={classId} />
           </TabsContent>
 
           <TabsContent value="timetable" className="mt-4">
@@ -525,30 +525,21 @@ function ClassTimetableTab({ classId }: { classId: string }) {
   );
 }
 
-function ClassAnnouncementsTab({ classId }: { classId: string }) {
-  const qc = useQueryClient();
+function ClassEmailTab({ classId }: { classId: string }) {
   const [showCreate, setShowCreate] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof announcementSchema>>({ resolver: zodResolver(announcementSchema) });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof emailSchema>>({ resolver: zodResolver(emailSchema) });
 
-  const { data: announcements = [], isLoading } = useQuery({
-    queryKey: ["class-announcements", classId],
-    queryFn: async () => { const d = (await api.get(`/announcements/all/class/${classId}`)).data; return Array.isArray(d) ? d : []; },
-    enabled: !!classId,
-  });
-
-  async function onCreate(data: z.infer<typeof announcementSchema>) {
+  async function onCreate(data: z.infer<typeof emailSchema>) {
     setCreating(true);
     try {
       const form = new FormData();
       form.append("title", data.title);
       form.append("content", data.content);
-      form.append("class_id", classId);
       if (file) form.append("file", file);
-      await api.post(`/announcements/create/class/${classId}`, form, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.success("Announcement posted");
-      qc.invalidateQueries({ queryKey: ["class-announcements", classId] });
+      await api.post(`/emails/create/class/${classId}`, form, { headers: { "Content-Type": "multipart/form-data" } });
+      toast.success("Email sent");
       setShowCreate(false);
       reset();
       setFile(null);
@@ -561,44 +552,22 @@ function ClassAnnouncementsTab({ classId }: { classId: string }) {
 
   return (
     <>
-      <div className="flex justify-end mb-3">
-        <Button size="sm" onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-1.5" />New Announcement</Button>
+      <div className="flex flex-col items-center py-16 text-muted-foreground">
+        <Send className="h-10 w-10 mb-3 opacity-40" />
+        <p className="text-sm mb-4">Send an email to everyone in this class</p>
+        <Button size="sm" onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-1.5" />New Email</Button>
       </div>
-      {isLoading ? (
-        <div className="text-center py-8 text-muted-foreground text-sm animate-pulse">Loading...</div>
-      ) : (announcements as Record<string, unknown>[]).length === 0 ? (
-        <div className="flex flex-col items-center py-16 text-muted-foreground">
-          <Bell className="h-10 w-10 mb-3 opacity-40" />
-          <p className="text-sm">No announcements for this class</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {(announcements as Record<string, unknown>[]).map((a) => (
-            <div key={String(a.id)} className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card">
-              <div className="rounded-lg bg-primary/10 p-2 flex-shrink-0"><Bell className="h-4 w-4 text-primary" /></div>
-              <div className="flex-1">
-                <p className="font-medium text-sm">{String(a.title ?? "")}</p>
-                <p className="text-sm text-muted-foreground mt-0.5">{String(a.content ?? "")}</p>
-                <div className="flex items-center gap-1 mt-2">
-                  <Calendar className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{formatDate(a.created_at as string)}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent>
-          <DialogHeader><DialogTitle>New Class Announcement</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>New Class Email</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onCreate)} className="space-y-4 pt-2">
             <div className="space-y-1.5"><Label>Title</Label><Input {...register("title")} />{errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}</div>
             <div className="space-y-1.5"><Label>Content</Label><Textarea rows={3} {...register("content")} /></div>
             <div className="space-y-1.5"><Label>Attachment (optional)</Label><Input type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => { setShowCreate(false); reset(); setFile(null); }}>Cancel</Button>
-              <Button type="submit" disabled={creating}>{creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Post</Button>
+              <Button type="submit" disabled={creating}>{creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Send</Button>
             </DialogFooter>
           </form>
         </DialogContent>

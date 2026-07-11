@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const app: INestApplication = await NestFactory.create(AppModule);
 
-    app.useGlobalFilters(new AllExceptionsFilter())
+    //app.useGlobalFilters(new AllExceptionsFilter())
 
     const corsOptions: CorsOptions = {
       origin: ['http://localhost:3001', 'https://erduio-frontend.vercel.app'],

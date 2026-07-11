@@ -23,7 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/utils";
 import {
-  ArrowLeft, BookOpen, ExternalLink, Calendar, Loader2, Bell, Plus, Trash2, Eye, Award, Users, Download, CalendarClock, Clock, FileCheck, Pencil, GraduationCap, MoreVertical,
+  ArrowLeft, BookOpen, ExternalLink, Calendar, Loader2, Send, Plus, Trash2, Eye, Award, Users, Download, CalendarClock, Clock, FileCheck, Pencil, GraduationCap, MoreVertical,
 } from "lucide-react";
 
 type TeacherProfile = {
@@ -49,7 +49,7 @@ function groupAttendanceByDate(rows: AttendanceRow[]) {
 
 const noteSchema = z.object({ title: z.string().min(1), message: z.string().optional() });
 const assignmentSchema = z.object({ name: z.string().min(1), description: z.string().optional(), due_date: z.string().min(1) });
-const announcementSchema = z.object({ title: z.string().min(1), content: z.string().min(1) });
+const emailSchema = z.object({ title: z.string().min(1), content: z.string().min(1) });
 const assignmentGradeSchema = z.object({ student_id: z.string().min(1), grade: z.string().min(1), message: z.string().optional() });
 const extendStudentSchema = z.object({ student_id: z.string().min(1), due_date: z.string().min(1) });
 const examSchema = z.object({ name: z.string().min(1), content: z.string().min(1) });
@@ -97,7 +97,7 @@ export default function TeacherCourseDetailPage() {
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
               <TabsTrigger value="attendance">Attendance</TabsTrigger>
               <TabsTrigger value="exams">Exams</TabsTrigger>
-              <TabsTrigger value="announcements">Announcements</TabsTrigger>
+              <TabsTrigger value="announcements">Email</TabsTrigger>
             </TabsList>
             <div className="flex items-center gap-2">
               <Switch checked={currentWeek} onCheckedChange={setCurrentWeek} />
@@ -121,7 +121,7 @@ export default function TeacherCourseDetailPage() {
             <ExamsTab subjectId={subjectId} roster={roster} />
           </TabsContent>
           <TabsContent value="announcements" className="mt-4">
-            <AnnouncementsTab subjectId={subjectId} currentWeek={currentWeek} />
+            <EmailTab subjectId={subjectId} />
           </TabsContent>
         </Tabs>
       </PageShell>
@@ -860,31 +860,21 @@ function AttendanceTab({ subjectId, roster }: { subjectId: string; roster: Roste
   );
 }
 
-function AnnouncementsTab({ subjectId, currentWeek }: { subjectId: string; currentWeek: boolean }) {
-  const qc = useQueryClient();
+function EmailTab({ subjectId }: { subjectId: string }) {
   const [showCreate, setShowCreate] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof announcementSchema>>({ resolver: zodResolver(announcementSchema) });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof emailSchema>>({ resolver: zodResolver(emailSchema) });
 
-  const endpoint = currentWeek ? `/announcements/all/subject/${subjectId}/current-week` : `/announcements/all/subject/${subjectId}`;
-  const { data: announcements = [], isLoading } = useQuery({
-    queryKey: ["course-announcements", subjectId, currentWeek],
-    queryFn: async () => { const d = (await api.get(endpoint)).data; return Array.isArray(d) ? d : []; },
-    enabled: !!subjectId,
-  });
-
-  async function onCreate(data: z.infer<typeof announcementSchema>) {
+  async function onCreate(data: z.infer<typeof emailSchema>) {
     setCreating(true);
     try {
       const form = new FormData();
       form.append("title", data.title);
       form.append("content", data.content);
-      form.append("subject_id", subjectId);
       if (file) form.append("file", file);
-      await api.post(`/announcements/create/subject/${subjectId}`, form, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.success("Announcement posted");
-      qc.invalidateQueries({ queryKey: ["course-announcements", subjectId] });
+      await api.post(`/emails/create/subject/${subjectId}`, form, { headers: { "Content-Type": "multipart/form-data" } });
+      toast.success("Email sent");
       setShowCreate(false);
       reset();
       setFile(null);
@@ -897,44 +887,22 @@ function AnnouncementsTab({ subjectId, currentWeek }: { subjectId: string; curre
 
   return (
     <>
-      <div className="flex justify-end mb-3">
-        <Button size="sm" onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-1.5" />New Announcement</Button>
+      <div className="flex flex-col items-center py-16 text-muted-foreground">
+        <Send className="h-10 w-10 mb-3 opacity-40" />
+        <p className="text-sm mb-4">Send an email to everyone enrolled in this course</p>
+        <Button size="sm" onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-1.5" />New Email</Button>
       </div>
-      {isLoading ? (
-        <div className="text-center py-8 text-muted-foreground text-sm animate-pulse">Loading...</div>
-      ) : (announcements as Record<string, unknown>[]).length === 0 ? (
-        <div className="flex flex-col items-center py-16 text-muted-foreground">
-          <Bell className="h-10 w-10 mb-3 opacity-40" />
-          <p className="text-sm">No announcements for this course{currentWeek ? " this week" : ""}</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {(announcements as Record<string, unknown>[]).map((a) => (
-            <div key={String(a.id)} className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card">
-              <div className="rounded-lg bg-primary/10 p-2 flex-shrink-0"><Bell className="h-4 w-4 text-primary" /></div>
-              <div className="flex-1">
-                <p className="font-medium text-sm">{String(a.title ?? "")}</p>
-                <p className="text-sm text-muted-foreground mt-0.5">{String(a.content ?? "")}</p>
-                <div className="flex items-center gap-1 mt-2">
-                  <Calendar className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{formatDate(a.created_at as string)}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent>
-          <DialogHeader><DialogTitle>New Subject Announcement</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>New Subject Email</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onCreate)} className="space-y-4 pt-2">
             <div className="space-y-1.5"><Label>Title</Label><Input {...register("title")} />{errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}</div>
             <div className="space-y-1.5"><Label>Content</Label><Textarea rows={3} {...register("content")} /></div>
             <div className="space-y-1.5"><Label>Attachment (optional)</Label><Input type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => { setShowCreate(false); reset(); setFile(null); }}>Cancel</Button>
-              <Button type="submit" disabled={creating}>{creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Post</Button>
+              <Button type="submit" disabled={creating}>{creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Send</Button>
             </DialogFooter>
           </form>
         </DialogContent>

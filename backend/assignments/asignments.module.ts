@@ -8,7 +8,7 @@ import { TermsModule } from "../terms/terms.module";
 import { LogGetterModule } from "../logGetters/logGetter.module";
 import { SubjectAnnouncementsModule } from "../Announcements/subject/announcement_subject.module";
 import { PersonalAnnouncementsModule } from "../Announcements/Personal/announcements_personal.module";
-import { EmailModule } from "../emailing/email.module";
+import { EmailModule } from "../emailing/emailing/email.module";
 
 @Module({
     controllers: [assignmentsController],
