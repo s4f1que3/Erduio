@@ -1,6 +1,6 @@
 import { Injectable} from "@nestjs/common";
 import { emailingService } from "../../emailing/emailing/emailing.service";
-import { uuidSwapService } from "pipes/transformuuid.pipe";
+import { uuidSwapService } from "../../pipes/transformuuid.pipe";
 
 @Injectable()
 export class announcementsPersonalService {
