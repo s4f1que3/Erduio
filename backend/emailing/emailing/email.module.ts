@@ -8,7 +8,7 @@ import { SwapModule } from "../../pipes/transform.module";
 import { TermsModule } from "../../terms/terms.module";
 import { SupabaseAdminModule } from "../../supabaseAdminService/supabase_admin.module";
 import { SupabaseModule } from "../../supabase_service/supabase.module";
-import { BrevoModule } from "emailing/brevo/brevo.module";
+import { BrevoModule } from "../../emailing/brevo/brevo.module";
 
 @Module({
     controllers: [emailController],
